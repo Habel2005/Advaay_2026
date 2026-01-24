@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function LogoReveal({
   onComplete,
@@ -9,49 +9,63 @@ export default function LogoReveal({
   onComplete: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.play().catch(() => {});
+    const handleCanPlay = () => {
+      setReady(true);
+      video.play().catch(() => {});
+    };
 
-    const onEnd = () => onComplete();
-    video.addEventListener("ended", onEnd);
+    const handleEnd = () => onComplete();
 
-    return () => video.removeEventListener("ended", onEnd);
+    video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("ended", handleEnd);
+
+    return () => {
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("ended", handleEnd);
+    };
   }, [onComplete]);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[9999] bg-white"
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.35 }}
-      >
-        <video
-          ref={videoRef}
-          className="w-full h-full object-cover"
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-        >
-          {/* DESKTOP FIRST */}
-          <source
-            src="/reveal/lap.mp4"
-            media="(min-width: 768px)"
-            type="video/mp4"
-          />
+    <motion.div
+      className="fixed inset-0 z-[9999] bg-black"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+    >
+      {/* BLACK SAFETY LAYER — ALWAYS PRESENT */}
+      <div className="absolute inset-0 bg-black z-0" />
 
-          {/* MOBILE FALLBACK */}
-          <source
-            src="/reveal/mob.mp4"
-            media="(max-width: 767px)"
-            type="video/mp4"
-          />
-        </video>
-      </motion.div>
-    </AnimatePresence>
+      {/* VIDEO — ONLY SHOWN WHEN READY */}
+      <video
+        ref={videoRef}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+          ready ? "opacity-100" : "opacity-0"
+        }`}
+        muted
+        playsInline
+        preload="auto"
+      >
+        {/* DESKTOP */}
+        <source
+          src="/reveal/lap.mp4"
+          media="(min-width: 768px)"
+          type="video/mp4"
+        />
+
+        {/* MOBILE */}
+        <source
+          src="/reveal/mob.mp4"
+          media="(max-width: 767px)"
+          type="video/mp4"
+        />
+      </video>
+    </motion.div>
   );
 }
