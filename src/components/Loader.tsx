@@ -22,9 +22,11 @@ const ASSET_MANIFEST: Asset[] = [
   { url: "HTTPS://ADVAY.IN/COMPLETE/READY/Z/FN_999XX0", weight: "instant", targetRange: [96, 100] },
 ];
 
-export default function Loader({ onFinished = () => { } }) {
+export default function Loader({ onFinished = () => {} }) {
   const [currentAssetIndex, setCurrentAssetIndex] = useState(0);
   const [displayPercent, setDisplayPercent] = useState(0);
+  const [blackout, setBlackout] = useState(false);
+
   const controls = useAnimation();
   const progressRef = useRef(0);
 
@@ -35,7 +37,11 @@ export default function Loader({ onFinished = () => { } }) {
         const asset = ASSET_MANIFEST[i];
         const [start, end] = asset.targetRange;
 
-        const runStep = async (to: number, duration: number, ease: any = "linear") => {
+        const runStep = async (
+          to: number,
+          duration: number,
+          ease: any = "linear"
+        ) => {
           animate(progressRef.current, to, {
             duration,
             ease,
@@ -66,7 +72,14 @@ export default function Loader({ onFinished = () => { } }) {
           await runStep(end, 0.2, "circOut");
         }
       }
-      setTimeout(onFinished, 800);
+
+      // Start blackout transition
+      setBlackout(true);
+
+      // Hand off to logo reveal
+      setTimeout(() => {
+        onFinished();
+      }, 700);
     };
 
     processQueue();
@@ -81,25 +94,14 @@ export default function Loader({ onFinished = () => { } }) {
       <div className="relative w-full max-w-[92vw] sm:max-w-[70vw] lg:max-w-[50vw] px-4 sm:px-0">
 
         {/* MOBILE: LOADING TEXT ABOVE BAR */}
-        <div className="flex justify-center items-baseline gap-2 mb-3 sm:hidden leading-none">
-          <span
-            className="
-    text-[12px]
-    animate-pulse
-    inline-block
-    align-middle
-    translate-y-[-1px]
-  "
-          >
+        <div className="flex justify-center gap-2 mb-3 sm:hidden">
+          <span className="text-[12px] animate-pulse inline-block translate-y-[-1px]">
             ▶▶
           </span>
-
-
           <span className="text-[12px] uppercase tracking-tight tabular-nums">
             LOADING — {displayPercent}%
           </span>
         </div>
-
 
         {/* LOADING BAR */}
         <div className="relative w-full h-[1.5px] sm:h-[1px] bg-black/10">
@@ -110,21 +112,12 @@ export default function Loader({ onFinished = () => { } }) {
           />
         </div>
 
-        {/* DESKTOP INFO ROW (UNDER BAR) */}
+        {/* DESKTOP INFO ROW */}
         <div className="hidden sm:flex justify-between items-start mt-3 text-[10px] uppercase tracking-tight">
           <div className="flex items-center gap-2">
-            <span
-              className="
-    text-[8px]
-    animate-pulse
-    inline-block
-    align-middle
-    translate-y-[-1px]
-  "
-            >
+            <span className="text-[8px] animate-pulse inline-block translate-y-[-1px]">
               ▶▶
             </span>
-
             <span className="tabular-nums">
               LOADING — {displayPercent}%
             </span>
@@ -151,6 +144,35 @@ export default function Loader({ onFinished = () => { } }) {
       <div className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 text-[9px] text-black/40 tracking-[0.2em] uppercase">
         v2.5.1_STABLE
       </div>
+
+{/* MODERN DIAGONAL BLACKOUT */}
+<motion.div
+  initial={{
+    clipPath: "polygon(0 0, 0 0, 0 0, 0 0)",
+  }}
+  animate={
+    blackout
+      ? {
+          clipPath: [
+            // thin diagonal cut
+            "polygon(0 0, 15% 0, 0 15%, 0 0)",
+            // expanding sweep
+            "polygon(0 0, 60% 0, 0 60%, 0 0)",
+            // full takeover
+            "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+          ],
+        }
+      : {}
+  }
+  transition={{
+    duration: 0.9,
+    ease: [0.77, 0, 0.175, 1], // modern cubic-bezier
+    times: [0, 0.45, 1],
+  }}
+  className="fixed inset-0 z-[10000] bg-black pointer-events-none"
+/>
+
+
     </div>
   );
 }

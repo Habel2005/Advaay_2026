@@ -4,41 +4,62 @@ import { useState } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Loader from "@/components/Loader";
-import LogoReveal from "@/components/LogoReveal"; // <--- Add this import
-import { AnimatePresence } from "framer-motion";
+import LogoReveal from "@/components/LogoReveal";
+import { AnimatePresence, motion } from "framer-motion";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Change to a phase-based state
-  const [phase, setPhase] = useState<'bar' | 'reveal' | 'content'>('bar');
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [phase, setPhase] = useState<"bar" | "reveal" | "content">("bar");
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}>
-        
-        <AnimatePresence mode="wait">
-          {/* PHASE 1: The Analog Loading Bar */}
-          {phase === 'bar' && (
-            <Loader key="loader" onFinished={() => setPhase('reveal')} />
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
+      >
+        <AnimatePresence>
+          {/* LOADING BAR */}
+          {phase === "bar" && (
+            <motion.div
+              key="loader"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              <Loader onFinished={() => setPhase("reveal")} />
+            </motion.div>
           )}
 
-          {/* PHASE 2: The Liquid Logo Transition */}
-          {phase === 'reveal' && (
-            <LogoReveal key="reveal" onComplete={() => setPhase('content')} />
+          {/* LOGO VIDEO */}
+          {phase === "reveal" && (
+            <motion.div
+              key="reveal"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+            >
+              <LogoReveal onComplete={() => setPhase("content")} />
+            </motion.div>
           )}
         </AnimatePresence>
 
-        {/* PHASE 3: The Main Site Content */}
-        <main 
-          className={`transition-opacity duration-1000 ease-in-out ${
-            phase === 'content' ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        {/* MAIN CONTENT */}
+        <main
+          className={`transition-opacity duration-700 ease-out ${
+            phase === "content"
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
           }`}
         >
           {children}
         </main>
-
       </body>
     </html>
   );
