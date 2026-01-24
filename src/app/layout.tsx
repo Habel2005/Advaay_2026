@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Loader from "@/components/Loader";
 import LogoReveal from "@/components/LogoReveal";
+import VideoPreloader from "@/components/VideoPreloader";
 import { AnimatePresence, motion } from "framer-motion";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -16,14 +17,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [phase, setPhase] = useState<"bar" | "reveal" | "content">("bar");
+  const [videoReady, setVideoReady] = useState(false);
 
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
       >
+        {/* VIDEO PRELOAD HAPPENS DURING LOADER */}
+        {phase === "bar" && <VideoPreloader onReady={() => setVideoReady(true)} />}
+
         <AnimatePresence>
-          {/* LOADING BAR */}
+          {/* LOADER */}
           {phase === "bar" && (
             <motion.div
               key="loader"
@@ -32,18 +37,20 @@ export default function RootLayout({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
             >
-              <Loader onFinished={() => setPhase("reveal")} />
+              <Loader
+                canFinish={videoReady}
+                onFinished={() => setPhase("reveal")}
+              />
             </motion.div>
           )}
 
-          {/* LOGO VIDEO */}
+          {/* LOGO REVEAL */}
           {phase === "reveal" && (
             <motion.div
               key="reveal"
-              initial={{ opacity: 0 }}
+              initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
             >
               <LogoReveal onComplete={() => setPhase("content")} />
             </motion.div>

@@ -22,7 +22,13 @@ const ASSET_MANIFEST: Asset[] = [
   { url: "HTTPS://ADVAY.IN/COMPLETE/READY/Z/FN_999XX0", weight: "instant", targetRange: [96, 100] },
 ];
 
-export default function Loader({ onFinished = () => {} }) {
+export default function Loader({
+  onFinished,
+  canFinish,
+}: {
+  onFinished: () => void;
+  canFinish: boolean;
+}) {
   const [currentAssetIndex, setCurrentAssetIndex] = useState(0);
   const [displayPercent, setDisplayPercent] = useState(0);
   const [blackout, setBlackout] = useState(false);
@@ -31,8 +37,12 @@ export default function Loader({ onFinished = () => {} }) {
   const progressRef = useRef(0);
 
   useEffect(() => {
+    let cancelled = false;
+
     const processQueue = async () => {
       for (let i = 0; i < ASSET_MANIFEST.length; i++) {
+        if (cancelled) return;
+
         setCurrentAssetIndex(i);
         const asset = ASSET_MANIFEST[i];
         const [start, end] = asset.targetRange;
@@ -58,7 +68,7 @@ export default function Loader({ onFinished = () => {} }) {
         };
 
         if (asset.weight === "instant") {
-          const mid = start + (end - start) * 0.57;
+          const mid = start + (end - start) * 0.6;
           await runStep(mid, 0);
           await runStep(end, 0);
         } else if (asset.weight === "fast") {
@@ -68,22 +78,51 @@ export default function Loader({ onFinished = () => {} }) {
         } else if (asset.weight === "heavy") {
           const stall = start + (end - start) * 0.7;
           await runStep(stall, 0.4, "easeOut");
-          await runStep(end - 2, 2.5, "linear");
+          await runStep(end - 2, 2.4, "linear");
           await runStep(end, 0.2, "circOut");
         }
       }
 
-      // Start blackout transition
+      /* -----------------------------
+         GATED FINISH (IMPORTANT PART)
+      ------------------------------ */
+
+      // Park at 96%
+      setDisplayPercent(96);
+      await controls.start({
+        width: "96%",
+        transition: { duration: 0.5, ease: "easeOut" },
+      });
+
+      // Wait until external readiness (video ready)
+      while (!canFinish && !cancelled) {
+        await new Promise((r) => setTimeout(r, 100));
+      }
+
+      if (cancelled) return;
+
+      // Finish cleanly
+      await controls.start({
+        width: "100%",
+        transition: { duration: 0.4, ease: "circOut" },
+      });
+
+      setDisplayPercent(100);
+
+      // Blackout transition
       setBlackout(true);
 
-      // Hand off to logo reveal
       setTimeout(() => {
-        onFinished();
+        if (!cancelled) onFinished();
       }, 700);
     };
 
     processQueue();
-  }, [controls, onFinished]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [controls, onFinished, canFinish]);
 
   const currentAsset = ASSET_MANIFEST[currentAssetIndex];
 
@@ -93,7 +132,7 @@ export default function Loader({ onFinished = () => {} }) {
       {/* CENTER BLOCK */}
       <div className="relative w-full max-w-[92vw] sm:max-w-[70vw] lg:max-w-[50vw] px-4 sm:px-0">
 
-        {/* MOBILE: LOADING TEXT ABOVE BAR */}
+        {/* MOBILE: TEXT ABOVE BAR */}
         <div className="flex justify-center gap-2 mb-3 sm:hidden">
           <span className="text-[12px] animate-pulse inline-block translate-y-[-1px]">
             ▶▶
@@ -103,7 +142,7 @@ export default function Loader({ onFinished = () => {} }) {
           </span>
         </div>
 
-        {/* LOADING BAR */}
+        {/* BAR */}
         <div className="relative w-full h-[1.5px] sm:h-[1px] bg-black/10">
           <motion.div
             initial={{ width: "0%" }}
@@ -112,7 +151,7 @@ export default function Loader({ onFinished = () => {} }) {
           />
         </div>
 
-        {/* DESKTOP INFO ROW */}
+        {/* DESKTOP INFO */}
         <div className="hidden sm:flex justify-between items-start mt-3 text-[10px] uppercase tracking-tight">
           <div className="flex items-center gap-2">
             <span className="text-[8px] animate-pulse inline-block translate-y-[-1px]">
@@ -145,34 +184,27 @@ export default function Loader({ onFinished = () => {} }) {
         v2.5.1_STABLE
       </div>
 
-{/* MODERN DIAGONAL BLACKOUT */}
-<motion.div
-  initial={{
-    clipPath: "polygon(0 0, 0 0, 0 0, 0 0)",
-  }}
-  animate={
-    blackout
-      ? {
-          clipPath: [
-            // thin diagonal cut
-            "polygon(0 0, 15% 0, 0 15%, 0 0)",
-            // expanding sweep
-            "polygon(0 0, 60% 0, 0 60%, 0 0)",
-            // full takeover
-            "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
-          ],
+      {/* MODERN DIAGONAL BLACKOUT */}
+      <motion.div
+        initial={{ clipPath: "polygon(0 0, 0 0, 0 0, 0 0)" }}
+        animate={
+          blackout
+            ? {
+                clipPath: [
+                  "polygon(0 0, 20% 0, 0 20%, 0 0)",
+                  "polygon(0 0, 70% 0, 0 70%, 0 0)",
+                  "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+                ],
+              }
+            : {}
         }
-      : {}
-  }
-  transition={{
-    duration: 0.9,
-    ease: [0.77, 0, 0.175, 1], // modern cubic-bezier
-    times: [0, 0.45, 1],
-  }}
-  className="fixed inset-0 z-[10000] bg-black pointer-events-none"
-/>
-
-
+        transition={{
+          duration: 0.9,
+          ease: [0.77, 0, 0.175, 1],
+          times: [0, 0.45, 1],
+        }}
+        className="fixed inset-0 z-[10000] bg-black pointer-events-none"
+      />
     </div>
   );
 }
