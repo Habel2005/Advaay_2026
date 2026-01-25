@@ -5,14 +5,8 @@
   --foreground: #171717;
 }
 
-
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* 💡 FIX: Removed the dark mode media query that was causing the black screen flash. */
+/* This ensures the background is always white, providing a seamless transition. */
 
 body {
   background: var(--background);
@@ -26,7 +20,6 @@ body {
   }
 }
 
-/* Optional: Add a grain effect globally to match the kprverse aesthetic */
 .grain-overlay {
   pointer-events: none;
   position: fixed;
