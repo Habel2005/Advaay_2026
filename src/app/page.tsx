@@ -2,6 +2,7 @@
 import Image from "next/image";
 import dynamic from 'next/dynamic';
 import HeroSection from "@/components/ui/HeroSection";
+import EventsSection from "@/components/ui/EventsSection";
 
 // 1. Setup the dynamic import for the 3D Scene
 const Scene3D = dynamic(() => import('@/components/canvas/Scene'), {
@@ -13,7 +14,7 @@ export default function Home() {
   return (
     <main className="relative h-screen w-full bg-black ">
       <HeroSection />
-
+      <EventsSection/>
 
       
 

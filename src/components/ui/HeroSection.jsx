@@ -65,7 +65,6 @@ const HeroSection = () => {
           trigger: '#hero-section',
           start: 'top 1%',
           end: 'bottom 18%',
-          //  end: 'top 80%',
           scrub: true,
         }
       });  
@@ -99,9 +98,7 @@ const HeroSection = () => {
         y: 0,
         duration: 1,
         scrollTrigger: {
-          // trigger: '#content-section',
           start: 'top 100%',
-          // end: 'top 80%',
           scrub: true,
         }
       }
@@ -172,21 +169,32 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Back of card */}
+        {/* Back of card - Now with your image */}
         <div
           id="back-content"
-          className="absolute inset-0 flex z-10 items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600 opacity-0 px-4"
+          className="absolute inset-0 flex z-10 items-center justify-center opacity-0 overflow-hidden"
           style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)'
           }}
         >
-          <div className="text-center p-4 sm:p-6 md:p-8">
-            <h2 className="text-white text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Advay 2026</h2>
-            <p className="text-gray-200 text-xs sm:text-sm">Innovation & Excellence</p>
+          {/* Background Image */}
+          <img 
+            src="/images/IMG_0967.JPG" 
+            alt="Advay 2026" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          
+          {/* Optional: Overlay gradient for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+          
+          {/* Text overlay on image */}
+          <div className="relative text-center p-4 sm:p-6 md:p-8 z-10">
+            <h2 className="text-white text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 drop-shadow-lg">Advay 2026</h2>
+            <p className="text-gray-100 text-xs sm:text-sm drop-shadow-md">Innovation & Excellence</p>
             <div className="mt-4 sm:mt-6 space-y-2">
-              <p className="text-white text-xs sm:text-sm">Building Tomorrow</p>
-              <p className="text-white text-xs sm:text-sm">One Step at a Time</p>
+              <p className="text-white text-xs sm:text-sm drop-shadow-md">Building Tomorrow</p>
+              <p className="text-white text-xs sm:text-sm drop-shadow-md">One Step at a Time</p>
             </div>
           </div>
         </div>
@@ -195,7 +203,6 @@ const HeroSection = () => {
       <div className="min-h-[150vh] relative z-0 justify-center" ref={scrollRef}>
         <div id="box-1" className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-300" />
         <div id="box-2" className="w-16 h-16 sm:w-20 sm:h-20 bg-green-300" />
-        {/* </div> */}
 
         {/* Content Section */}
         <section id="content-section" className="min-h-screen bg-white py-12 sm:py-16 md:py-20 lg:py-32 px-4 sm:px-6 lg:px-8">
@@ -203,7 +210,7 @@ const HeroSection = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               {/* Image Section */}
               <div id="advay-image" className="relative w-full h-64 z-30 sm:h-80 md:h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br  from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
                   <div className="text-center text-white p-8">
                     <svg className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
