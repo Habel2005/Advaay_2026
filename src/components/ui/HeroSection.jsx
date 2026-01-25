@@ -1,261 +1,289 @@
 'use client'
 
+import React, { useRef, useState, useMemo, useEffect } from "react"
 import { useGSAP } from "@gsap/react"
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
-import { useRef } from "react";
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/all"
+import { Sparkles, Zap, Trophy, Users, Award, Target } from "lucide-react"
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger)
 
-const HeroSection = () => {
-  const scrollRef = useRef();
-  const contentRef = useRef();
+export default function HeroAboutSponsors() {
+
+  const heroRef = useRef(null)
+  const aboutRef = useRef(null)
+  const cardRef = useRef(null)
+  const [mounted, setMounted] = useState(false)
+
+  const particles = useMemo(() =>
+    [...Array(15)].map(() => ({
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 2
+    })), []
+  )
+
+  useEffect(() => setMounted(true), [])
+
+  /* ---------------- GSAP ---------------- */
 
   useGSAP(() => {
-    // Hero text entrance
-    gsap.fromTo("#hero-text",
-      { opacity: 0, y: 150 },
-      { opacity: 1, y: 0, duration: 1, delay: 0.5, ease: "power2.out" }
-    );
 
-    // Front content fade out during rotation
-    gsap.to("#front-content", {
-      opacity: 0,
-      scrollTrigger: {
-        trigger: '#hero-section',
-        start: 'top 1%',
-        end: 'top -10%',
-        scrub: true,
-      }
-    });
+    gsap.fromTo(".hero-title",
+      { opacity: 0, y: 60 },
+      { opacity: 1, y: 0, duration: 1.2 }
+    )
 
-    // Back content fade in after rotation
-    gsap.fromTo("#back-content",
+    gsap.fromTo(".hero-tagline",
       { opacity: 0 },
+      { opacity: 1, duration: 1, delay: 0.6 }
+    )
+
+    gsap.fromTo(".hero-buttons",
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, duration: 1, delay: 1 }
+    )
+
+    ScrollTrigger.create({
+      trigger: aboutRef.current,
+      start: "top bottom",
+      end: "top top",
+      scrub: 1,
+      onUpdate: (self) => {
+        const p = self.progress
+        gsap.to(heroRef.current, {
+          scale: 1 - p * 0.7,
+          y: p * 200,
+          borderRadius: p * 24,
+          duration: 0
+        })
+        gsap.to(".hero-content", {
+          opacity: 1 - p,
+          duration: 0
+        })
+      }
+    })
+
+    gsap.fromTo(".about-badge",
+      { opacity: 0, scale: 0.5 },
       {
         opacity: 1,
+        scale: 1,
+        duration: 0.8,
         scrollTrigger: {
-          trigger: '#hero-section',
-          start: 'top -10%',
-          end: 'top -20%',
-          scrub: true,
+          trigger: ".about-badge",
+          start: "top 80%"
         }
       }
-    );
+    )
 
-    // Responsive hero section card flip and shrink
-    const mm = gsap.matchMedia();
-
-    mm.add({
-      isDesktop: "(min-width: 1024px)",
-      isTablet: "(min-width: 768px) and (max-width: 1023px)",
-      isMobile: "(max-width: 767px)"
-    }, (context) => {
-      const { isDesktop, isTablet, isMobile } = context.conditions;
-
-      gsap.to('#hero-section', {
-        borderRadius: isDesktop ? '24px' : isTablet ? '20px' : '16px',
-        width: isDesktop ? '330px' : isTablet ? '200px' : '180px',
-        height: isDesktop ? '383px' : isTablet ? '280px' : '250px',
-        y: isDesktop ? 800 : isTablet ? 800 : 800,
-        x: isDesktop ? 150 : isTablet ? 80 : 20,
-        rotateY: 180,
-        ease: "power2.inOut",
-        scrollTrigger: {
-          trigger: '#hero-section',
-          start: 'top 1%',
-          end: 'bottom 18%',
-          scrub: true,
-        }
-      });  
-    });
-
-    // Animated boxes
-    const boxes = scrollRef.current?.children;
-    if (boxes) {
-      Array.from(boxes).forEach((box, index) => {
-        gsap.to(box, {
-          x: window.innerWidth < 768 ? 150 * (index + 2) : 350 * (index + 5),
-          rotation: 360,
-          borderRadius: "100%",
-          scale: window.innerWidth < 768 ? 1.2 : 1.5,
-          scrollTrigger: {
-            trigger: box,
-            start: "bottom bottom",
-            end: "top 1%",
-            scrub: true,
-          },
-          ease: "back.inOut"
-        });
-      });
-    }
-
-    // Content section animations
-    gsap.fromTo("#content-section",
-      { opacity: 0, y: 100 },
+    gsap.fromTo(".about-title",
+      { opacity: 0, y: 40 },
       {
         opacity: 1,
         y: 0,
         duration: 1,
         scrollTrigger: {
-          start: 'top 100%',
-          scrub: true,
+          trigger: ".about-title",
+          start: "top 80%"
         }
       }
-    );
+    )
 
-    // Image reveal animation
-    gsap.fromTo("#advay-image",
-      { opacity: 0, scale: 0.8, x: -50 },
+    gsap.fromTo(".about-text",
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
-        scale: 1,
-        x: 0,
-        zIndex: 30,
+        y: 0,
         duration: 1,
+        stagger: 0.2,
         scrollTrigger: {
-          trigger: '#advay-image',
-          start: 'top 100%',
-          end: 'top 80%',
-          scrub: true,
+          trigger: ".about-text",
+          start: "top 85%"
         }
       }
-    );
+    )
 
-    // Text reveal animation
-    gsap.fromTo("#advay-text",
-      { opacity: 0, x: 50 },
+    gsap.fromTo(".feature-card",
+      { opacity: 0, y: 40 },
       {
         opacity: 1,
-        x: 0,
-        duration: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.15,
         scrollTrigger: {
-          trigger: '#advay-text',
-          start: 'top 75%',
-          end: 'top 45%',
-          scrub: true,
+          trigger: ".features-grid",
+          start: "top 85%"
         }
       }
-    );
-  }, []);
+    )
+
+    if (mounted) {
+      gsap.to(".particle", {
+        y: "random(-40,40)",
+        x: "random(-30,30)",
+        repeat: -1,
+        yoyo: true,
+        duration: "random(2,4)",
+        ease: "sine.inOut"
+      })
+    }
+
+  }, { scope: heroRef, dependencies: [mounted] })
+
+  /* ---------------- JSX ---------------- */
 
   return (
-    <div className="relative h-auto overflow-x-hidden bg-gray-50">
+    <>
+      {/* HERO */}
       <section
-        id="hero-section"
-        className="h-screen bg-gradient-to-br z-20 bg-black grid justify-center z-0 pointer-events-none relative overflow-hidden"
-        style={{ transformStyle: 'preserve-3d' }}
+        ref={heroRef}
+        className="relative h-screen overflow-hidden bg-black flex items-center justify-center"
       >
-        {/* Video Background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ backfaceVisibility: 'hidden' }}
-        >
+
+        <video autoPlay loop muted playsInline
+          className="absolute inset-0 w-full h-full object-cover">
           <source src="/DSC_3804.MP4" type="video/mp4" />
         </video>
 
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/30" style={{ backfaceVisibility: 'hidden' }}></div>
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900/30 via-transparent to-black/70" />
 
-        {/* Front of card */}
-        <div id="front-content" className="absolute inset-0 flex flex-col items-center justify-center px-4 z-10" style={{ backfaceVisibility: 'hidden' }}>
-          <div id="hero-text" className="text-center">
-            <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-widest uppercase">Advay 2026</h1>
-            <p className="text-gray-300 mt-2 text-sm sm:text-base md:text-lg">The Future is Here</p>
+        <div className="hero-content relative z-10 text-center px-6 max-w-4xl">
+
+          <h1
+            className="hero-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl
+            font-medium tracking-[0.35em]
+            text-transparent bg-clip-text bg-gradient-to-r
+            from-red-400 via-red-300 to-red-500"
+          >
+            ADVAY
+          </h1>
+
+          <p className="mt-2 text-red-300 tracking-[0.5em] text-lg">
+            2026
+          </p>
+
+          <p className="hero-tagline mt-6 text-gray-200 text-base sm:text-lg tracking-wider">
+            The Future is Here
+          </p>
+
+          <div className="hero-buttons mt-10 flex justify-center gap-6 flex-wrap">
+
+            <button className="px-10 py-3 rounded-full bg-red-600 hover:bg-red-700
+              text-white font-medium transition-all hover:scale-105">
+              Explore Events
+            </button>
+
+            <button className="px-10 py-3 rounded-full border border-red-500/60
+              text-red-400 hover:bg-red-500/10 transition-all">
+              Register Now
+            </button>
+
           </div>
         </div>
 
-        {/* Back of card - Now with your image */}
-        <div
-          id="back-content"
-          className="absolute inset-0 flex z-10 items-center justify-center opacity-0 overflow-hidden"
-          style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
-          }}
-        >
-          {/* Background Image */}
-          <img 
-            src="/images/IMG_0967.JPG" 
-            alt="Advay 2026" 
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          
-          {/* Optional: Overlay gradient for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-          
-          {/* Text overlay on image */}
-          <div className="relative text-center p-4 sm:p-6 md:p-8 z-10">
-            <h2 className="text-white text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 drop-shadow-lg">Advay 2026</h2>
-            <p className="text-gray-100 text-xs sm:text-sm drop-shadow-md">Innovation & Excellence</p>
-            <div className="mt-4 sm:mt-6 space-y-2">
-              <p className="text-white text-xs sm:text-sm drop-shadow-md">Building Tomorrow</p>
-              <p className="text-white text-xs sm:text-sm drop-shadow-md">One Step at a Time</p>
-            </div>
-          </div>
-        </div>
       </section>
 
-      <div className="min-h-[150vh] relative z-0 justify-center" ref={scrollRef}>
-        <div id="box-1" className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-300" />
-        <div id="box-2" className="w-16 h-16 sm:w-20 sm:h-20 bg-green-300" />
+      {/* ABOUT */}
+      <section
+        ref={aboutRef}
+        className="relative min-h-screen bg-black py-24 px-6 overflow-hidden"
+      >
 
-        {/* Content Section */}
-        <section id="content-section" className="min-h-screen bg-white py-12 sm:py-16 md:py-20 lg:py-32 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-              {/* Image Section */}
-              <div id="advay-image" className="relative w-full h-64 z-30 sm:h-80 md:h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
-                  <div className="text-center text-white p-8">
-                    <svg className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p className="text-lg sm:text-xl font-semibold">Advay Festival Image</p>
-                    <p className="text-xs sm:text-sm mt-2 opacity-90">Replace with your event photo</p>
-                  </div>
-                </div>
+        {mounted && particles.map((p, i) => (
+          <span
+            key={i}
+            className="particle absolute w-2 h-2 bg-red-500/20 rounded-full"
+            style={{
+              left: `${p.left}%`,
+              top: `${p.top}%`,
+              animationDelay: `${p.delay}s`
+            }}
+          />
+        ))}
+
+        <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-14">
+
+          {/* CARD */}
+          <div className="lg:sticky lg:top-24">
+            <div
+              ref={cardRef}
+              className="relative h-[420px] lg:h-[520px]
+              rounded-3xl overflow-hidden border border-red-500/20
+              shadow-2xl shadow-red-500/30"
+            >
+              <video autoPlay loop muted playsInline
+                className="absolute inset-0 w-full h-full object-cover">
+                <source src="/DSC_3804.MP4" type="video/mp4" />
+              </video>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-red-950/40 to-transparent" />
+
+              <div className="absolute bottom-0 p-8">
+                <h3 className="text-3xl font-semibold text-red-400">
+                  ADVAY 2026
+                </h3>
+                <p className="text-red-300 text-sm">
+                  The Ultimate Fest Experience
+                </p>
               </div>
 
-              {/* Text Content */}
-              <div id="advay-text" className="space-y-4 sm:space-y-6">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Advay
-                </h2>
-                <div className="w-16 sm:w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600"></div>
-                <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed">
-                  Advay is a <span className="font-semibold text-blue-600">National-level Techno Cultural fest</span> that takes place annually at TocH Institute of Science and Technology (TIST). The festival features a wide range of cultural and technical events, including <span className="font-semibold">Deca Dance, Roadies, Fashion show,</span> and <span className="font-semibold">music performances</span>.
-                </p>
-                <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed">
-                  Since <span className="font-semibold text-purple-600">2009</span>, Advay has been a major hub for talented students across Kerala, providing them with a platform to showcase their skills and abilities.
-                </p>
-
-                {/* Stats Section */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8">
-                  <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600">15+</p>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1">Years</p>
-                  </div>
-                  <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-purple-600">50+</p>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1">Events</p>
-                  </div>
-                  <div className="text-center p-3 sm:p-4 bg-gradient-to-br from-pink-50 to-blue-50 rounded-lg col-span-2 sm:col-span-1">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-600">5000+</p>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1">Participants</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-        </section>
-      </div>
-    </div>
+
+          {/* TEXT */}
+          <div className="space-y-6">
+
+            <div className="about-badge inline-flex gap-2 px-4 py-2
+              bg-red-600/20 border border-red-500/30 rounded-full">
+              <Sparkles className="w-4 h-4 text-red-400" />
+              <span className="text-red-400 text-sm font-medium uppercase">
+                About Advay
+              </span>
+            </div>
+
+            <h2
+              className="about-title text-4xl sm:text-5xl md:text-6xl
+              font-semibold text-transparent bg-clip-text
+              bg-gradient-to-r from-red-500 to-red-600"
+            >
+              Advay
+            </h2>
+
+            <p className="about-text text-gray-300 text-base sm:text-lg">
+              Advay is a <span className="text-red-400 font-semibold">
+                National-level Techno Cultural fest
+              </span> held annually at TocH Institute of Science and Technology (TIST).
+            </p>
+
+            <p className="about-text text-gray-300 text-base sm:text-lg">
+              Since <span className="text-red-400 font-semibold">2009</span>,
+              Advay has been a hub for talented students across Kerala.
+            </p>
+
+            <div className="features-grid grid sm:grid-cols-2 gap-6 pt-6">
+
+              <div className="feature-card bg-red-950/40 border border-red-500/30 rounded-2xl p-6">
+                <Trophy className="text-red-400 mb-3" />
+                <h3 className="text-3xl font-bold text-red-500">120+</h3>
+                <p className="text-red-300 text-sm">Events</p>
+              </div>
+
+              <div className="feature-card bg-red-950/40 border border-red-500/30 rounded-2xl p-6">
+                <Award className="text-red-400 mb-3" />
+                <h3 className="text-3xl font-bold text-red-500">KTU</h3>
+                <p className="text-red-300 text-sm">Points</p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </>
   )
 }
-
-export default HeroSection
