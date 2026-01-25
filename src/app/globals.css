@@ -5,17 +5,26 @@
   --foreground: #171717;
 }
 
-
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* 💡 FIX: Removed the dark mode media query that was causing the black screen flash. */
+/* This ensures the background is always white, providing a seamless transition. */
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white transition-colors duration-700;
+  }
+}
+
+.grain-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  opacity: 0.04;
+  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
 }
