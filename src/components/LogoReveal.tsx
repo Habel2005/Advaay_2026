@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 export default function LogoReveal({
@@ -13,43 +13,66 @@ export default function LogoReveal({
   active: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  
+  // OPTIONAL: Move source logic to JS to prevent iOS confusion with <source> tags
+  // This ensures the video element has a stable 'src' attribute.
+  const [videoSrc, setVideoSrc] = useState("");
+  
+  useEffect(() => {
+    // Simple check to set source based on width (run only on mount)
+    setVideoSrc(window.innerWidth >= 768 ? "/reveal/lap.mp4" : "/reveal/mob.mp4");
+  }, []);
 
-  // 1. Report when the video is ready.
+  // 1. Report Ready State
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !videoSrc) return;
+
     const handleReady = () => onReady();
+    
+    // Check if ready, otherwise listen
     if (video.readyState >= 3) {
       handleReady();
     } else {
       video.addEventListener("canplay", handleReady, { once: true });
     }
-    return () => {
-      video.removeEventListener("canplay", handleReady);
-    };
-  }, [onReady]);
+    return () => video.removeEventListener("canplay", handleReady);
+  }, [onReady, videoSrc]);
 
-  // 💡 FIX: Re-introducing the programmatic play() command.
-  // This works in combination with the 'unlock' logic in the layout.
-  // The 'unlock' makes the browser receptive, and this command starts the video.
+  // 2. IOS AUTOPLAY FIX
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !active) return;
+    if (!video || !active || !videoSrc) return;
+
+    // --- CRITICAL IOS FIXES ---
+    // React props (muted={true}) sometimes don't apply fast enough for iOS.
+    // We must force the DOM properties directly.
+    video.muted = true;       
+    video.defaultMuted = true; 
+    video.playsInline = true;  
+    video.controls = false;    // Explicitly hide the play button overlay
 
     const handleEnd = () => onComplete();
+    
+    // Reset time just in case
+    video.currentTime = 0;
 
-    video.currentTime = 0; // Ensure it starts from the beginning
-    video.play().catch(() => {
-      // This may still be logged on some browsers, but the 'unlock' should prevent the UI block.
-      console.error("Video play was initiated programmatically.");
-    });
+    // Use a robust play attempt
+    const playVideo = async () => {
+        try {
+            await video.play();
+        } catch (err) {
+            console.warn("Autoplay blocked by browser policy:", err);
+            // If this fails (e.g. Low Power Mode), you might need a fallback UI,
+            // but ensuring 'muted' is true usually fixes standard cases.
+        }
+    };
+
+    playVideo();
 
     video.addEventListener("ended", handleEnd, { once: true });
-
-    return () => {
-      video.removeEventListener("ended", handleEnd);
-    };
-  }, [active, onComplete]);
+    return () => video.removeEventListener("ended", handleEnd);
+  }, [active, onComplete, videoSrc]);
 
   return (
     <motion.div
@@ -58,17 +81,21 @@ export default function LogoReveal({
       animate={{ opacity: active ? 1 : 0 }}
       transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
     >
-      <video
-        ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover"
-        muted
-        playsInline
-        autoPlay // Keep autoPlay for non-iOS devices and as a fallback
-        preload="auto"
-      >
-        <source src="/reveal/lap.mp4" media="(min-width: 768px)" />
-        <source src="/reveal/mob.mp4" media="(max-width: 767px)" />
-      </video>
+      {/* On iOS, it is safer to use the 'src' prop directly on the video tag 
+         rather than <source> children when handling dynamic rendering.
+      */}
+      {videoSrc && (
+        <video
+          ref={videoRef}
+          className="absolute inset-0 w-full h-full object-cover"
+          src={videoSrc}
+          muted
+          playsInline
+          autoPlay
+          preload="auto"
+          controls={false} // Explicitly disable native controls
+        />
+      )}
     </motion.div>
   );
 }
