@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from "react";
-import Loader from "@/components/Loader";
-import LogoReveal from "@/components/LogoReveal";
+import Loader from "@/components/ui/loading/Loader";
+import LogoReveal from "@/components/ui/loading/LogoReveal";
 
 export default function ClientLayout({
   children,
