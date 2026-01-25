@@ -41,7 +41,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <main id='main-screen' className='relative' style={{
+      <main id='main-screen' className='relative bg-black' style={{
         // position: 'fixed', 
         inset: 0,
 
