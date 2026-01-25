@@ -68,7 +68,7 @@ const HeroSection = () => {
           //  end: 'top 80%',
           scrub: true,
         }
-      });
+      });  
     });
 
     // Animated boxes
