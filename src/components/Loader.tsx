@@ -25,13 +25,14 @@ const ASSET_MANIFEST: Asset[] = [
 export default function Loader({
   onFinished,
   canFinish,
+  dimmed = false,
 }: {
   onFinished: () => void;
   canFinish: boolean;
+  dimmed?: boolean;
 }) {
   const [currentAssetIndex, setCurrentAssetIndex] = useState(0);
   const [displayPercent, setDisplayPercent] = useState(0);
-  const [blackout, setBlackout] = useState(false);
 
   const controls = useAnimation();
   const progressRef = useRef(0);
@@ -109,12 +110,8 @@ export default function Loader({
 
       setDisplayPercent(100);
 
-      // Blackout transition
-      setBlackout(true);
-
-      setTimeout(() => {
-        if (!cancelled) onFinished();
-      }, 700);
+      // Hand off immediately
+      setTimeout(onFinished, 300);
     };
 
     processQueue();
@@ -127,7 +124,11 @@ export default function Loader({
   const currentAsset = ASSET_MANIFEST[currentAssetIndex];
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-white text-black font-mono select-none overflow-hidden cursor-wait flex items-center justify-center">
+    <div
+      className={`fixed inset-0 z-[9999] bg-white text-black font-mono select-none overflow-hidden cursor-wait flex items-center justify-center transition-opacity duration-500 ease-out ${dimmed ? "opacity-0" : "opacity-100"
+        }`}
+    >
+
 
       {/* CENTER BLOCK */}
       <div className="relative w-full max-w-[92vw] sm:max-w-[70vw] lg:max-w-[50vw] px-4 sm:px-0">
@@ -184,27 +185,6 @@ export default function Loader({
         v2.5.1_STABLE
       </div>
 
-      {/* MODERN DIAGONAL BLACKOUT */}
-      <motion.div
-        initial={{ clipPath: "polygon(0 0, 0 0, 0 0, 0 0)" }}
-        animate={
-          blackout
-            ? {
-                clipPath: [
-                  "polygon(0 0, 20% 0, 0 20%, 0 0)",
-                  "polygon(0 0, 70% 0, 0 70%, 0 0)",
-                  "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
-                ],
-              }
-            : {}
-        }
-        transition={{
-          duration: 0.9,
-          ease: [0.77, 0, 0.175, 1],
-          times: [0, 0.45, 1],
-        }}
-        className="fixed inset-0 z-[10000] bg-black pointer-events-none"
-      />
     </div>
   );
 }
