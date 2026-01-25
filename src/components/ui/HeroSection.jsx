@@ -46,8 +46,8 @@ export default function HeroAboutSponsors() {
 
     ScrollTrigger.create({
       trigger: aboutRef.current,
-      start: "top bottom",
-      end: "top top",
+      start: "bottom bottom",
+      end: "top 8%",
       scrub: 1,
       onUpdate: (self) => {
         const p = self.progress
@@ -136,7 +136,7 @@ export default function HeroAboutSponsors() {
   return (
     <>
       {/* HERO */}
-      <section
+      {/* <section
         ref={heroRef}
         className="relative h-screen overflow-hidden bg-black flex items-center justify-center"
       >
@@ -149,7 +149,7 @@ export default function HeroAboutSponsors() {
         <div className="absolute inset-0 bg-black/60" />
         <div className="absolute inset-0 bg-gradient-to-br from-red-900/30 via-transparent to-black/70" />
 
-        <div className="hero-content relative z-10 text-center px-6 max-w-4xl">
+        {/* <div className="hero-content relative z-10 text-center px-6 max-w-4xl">
 
           <h1
             className="hero-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl
@@ -181,9 +181,9 @@ export default function HeroAboutSponsors() {
             </button>
 
           </div>
-        </div>
+        </div> */}
 
-      </section>
+      {/* </section>  */}
 
       {/* ABOUT */}
       <section

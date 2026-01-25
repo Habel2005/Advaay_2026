@@ -58,6 +58,12 @@ interface CardState {
   position: number
 }
 
+interface MobileCardState {
+  id: number
+  imageIndex: number
+  position: 'left' | 'center' | 'right' | 'exiting-left' | 'exiting-right' | 'hidden'
+}
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
@@ -325,12 +331,6 @@ function DesktopCarousel() {
 // MOBILE CAROUSEL - KPR Ping-Pong Style
 // Alternating: Left→Center→Right, then Right→Center→Left
 // ============================================
-interface MobileCardState {
-  id: number
-  imageIndex: number
-  position: 'left' | 'center' | 'right' | 'exiting-left' | 'exiting-right' | 'hidden'
-}
-
 function MobileCarousel() {
   // Track 3 visible cards: incoming, center, outgoing
   const [cards, setCards] = useState<MobileCardState[]>([])
@@ -366,21 +366,19 @@ function MobileCarousel() {
       // Find current center card
       const currentCenter = prev.find(c => c.position === 'center')
       
-      // Update positions:
-      // - New card starts at 'left' or 'right' (will animate to center)
-      // - Current center exits to opposite side
-      // - Remove any cards that are already exiting
-      
+      // Update positions with explicit type casting
       const updated = prev
         .filter(c => c.position !== 'exiting-left' && c.position !== 'exiting-right' && c.position !== 'hidden')
         .map(c => {
           if (c.position === 'center') {
             // Center exits to opposite of where new card is coming from
-            return { ...c, position: comingFromLeft ? 'exiting-right' : 'exiting-left' as const }
+            const exitPos: 'exiting-right' | 'exiting-left' = comingFromLeft ? 'exiting-right' : 'exiting-left'
+            return { ...c, position: exitPos }
           }
           if (c.position === 'left' || c.position === 'right') {
             // Any side card becomes hidden (exit completely)
-            return { ...c, position: 'hidden' as const }
+            const hiddenPos: 'hidden' = 'hidden'
+            return { ...c, position: hiddenPos }
           }
           return c
         })
@@ -392,7 +390,8 @@ function MobileCarousel() {
     setTimeout(() => {
       setCards(prev => prev.map(c => {
         if (c.position === 'left' || c.position === 'right') {
-          return { ...c, position: 'center' as const }
+          const centerPos: 'center' = 'center'
+          return { ...c, position: centerPos }
         }
         return c
       }))
