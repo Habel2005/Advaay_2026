@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Loader from "@/components/Loader";
@@ -14,12 +14,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 🔑 REQUIRED STATE (you were missing these)
   const [videoReady, setVideoReady] = useState(false);
   const [loaderDone, setLoaderDone] = useState(false);
   const [revealDone, setRevealDone] = useState(false);
 
-  // 🔑 ONLY allow reveal when BOTH are true
+  const handleVideoReady = useCallback(() => setVideoReady(true), []);
+  const handleLoaderFinished = useCallback(() => setLoaderDone(true), []);
+  const handleRevealComplete = useCallback(() => setRevealDone(true), []);
+
   const canReveal = loaderDone && videoReady;
 
   return (
@@ -27,24 +29,23 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
-        {/* BOOT LAYER */}
-        {!revealDone && (
-          <>
-            <Loader
-              canFinish={videoReady}
-              onFinished={() => setLoaderDone(true)}
-              dimmed={canReveal}
-            />
-
-            <LogoReveal
-              onReady={() => setVideoReady(true)}
-              onComplete={() => setRevealDone(true)}
-              active={canReveal}
-            />
-          </>
+        {/* 💡 FIX: The Loader is now completely removed when it is done. */}
+        {!loaderDone && (
+          <Loader
+            canFinish={videoReady}
+            onFinished={handleLoaderFinished}
+          />
         )}
 
-        {/* MAIN CONTENT */}
+        {/* The LogoReveal component handles its own lifecycle. */}
+        {!revealDone && (
+          <LogoReveal
+            onReady={handleVideoReady}
+            onComplete={handleRevealComplete}
+            active={canReveal}
+          />
+        )}
+
         <main
           className={`transition-opacity duration-700 ease-out ${
             revealDone

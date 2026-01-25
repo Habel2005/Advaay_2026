@@ -22,7 +22,7 @@ body {
 
 @layer base {
   body {
-    @apply bg-black transition-colors duration-700;
+    @apply bg-white transition-colors duration-700;
   }
 }
 
