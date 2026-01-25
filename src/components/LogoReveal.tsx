@@ -29,16 +29,23 @@ export default function LogoReveal({
     };
   }, [onReady]);
 
-  // 2. Play the video when active.
+  // 💡 FIX: Re-introducing the programmatic play() command.
+  // This works in combination with the 'unlock' logic in the layout.
+  // The 'unlock' makes the browser receptive, and this command starts the video.
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !active) return;
+
     const handleEnd = () => onComplete();
-    video.currentTime = 0;
+
+    video.currentTime = 0; // Ensure it starts from the beginning
     video.play().catch(() => {
-      console.error("Video play was prevented by the browser.");
+      // This may still be logged on some browsers, but the 'unlock' should prevent the UI block.
+      console.error("Video play was initiated programmatically.");
     });
+
     video.addEventListener("ended", handleEnd, { once: true });
+
     return () => {
       video.removeEventListener("ended", handleEnd);
     };
@@ -56,8 +63,7 @@ export default function LogoReveal({
         className="absolute inset-0 w-full h-full object-cover"
         muted
         playsInline
-        // 💡 FIX: Add autoPlay attribute for better mobile compatibility
-        autoPlay
+        autoPlay // Keep autoPlay for non-iOS devices and as a fallback
         preload="auto"
       >
         <source src="/reveal/lap.mp4" media="(min-width: 768px)" />

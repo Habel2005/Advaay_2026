@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Loader from "@/components/Loader";
@@ -22,6 +22,25 @@ export default function RootLayout({
   const handleLoaderFinished = useCallback(() => setLoaderDone(true), []);
   const handleRevealComplete = useCallback(() => setRevealDone(true), []);
 
+  // 💡 FIX: Unlock video autoplay on the first user interaction for iOS.
+  useEffect(() => {
+    const unlockAutoplay = () => {
+      const videos = Array.from(document.getElementsByTagName('video'));
+      videos.forEach((video) => {
+        video.play();
+        video.pause();
+      });
+      // Remove the listener after it has run once.
+      document.removeEventListener("touchstart", unlockAutoplay);
+    };
+
+    document.addEventListener('touchstart', unlockAutoplay);
+
+    return () => {
+      document.removeEventListener("touchstart", unlockAutoplay);
+    };
+  }, []);
+
   const canReveal = loaderDone && videoReady;
 
   return (
@@ -29,7 +48,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
-        {/* 💡 FIX: The Loader is now completely removed when it is done. */}
         {!loaderDone && (
           <Loader
             canFinish={videoReady}
@@ -37,7 +55,6 @@ export default function RootLayout({
           />
         )}
 
-        {/* The LogoReveal component handles its own lifecycle. */}
         {!revealDone && (
           <LogoReveal
             onReady={handleVideoReady}
