@@ -57,7 +57,7 @@ const HeroSection = () => {
         borderRadius: isDesktop ? '24px' : isTablet ? '20px' : '16px',
         width: isDesktop ? '330px' : isTablet ? '200px' : '180px',
         height: isDesktop ? '383px' : isTablet ? '280px' : '250px',
-        y: isDesktop ? 800 : isTablet ? 600 : 500,
+        y: isDesktop ? 800 : isTablet ? 800 : 800,
         x: isDesktop ? 150 : isTablet ? 80 : 20,
         rotateY: 180,
         ease: "power2.inOut",
@@ -101,7 +101,7 @@ const HeroSection = () => {
         scrollTrigger: {
           // trigger: '#content-section',
           start: 'top 100%',
-          end: 'top 80%',
+          // end: 'top 80%',
           scrub: true,
         }
       }
@@ -146,7 +146,7 @@ const HeroSection = () => {
     <div className="relative h-auto overflow-x-hidden bg-gray-50">
       <section
         id="hero-section"
-        className="h-screen bg-gradient-to-br from-blue-800 via-blue-700 z-20 to-purple-800 grid justify-center z-0 pointer-events-none relative overflow-hidden"
+        className="h-screen bg-gradient-to-br z-20 bg-black grid justify-center z-0 pointer-events-none relative overflow-hidden"
         style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Video Background */}
