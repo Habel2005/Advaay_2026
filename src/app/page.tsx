@@ -1,30 +1,71 @@
-'use client';
-import Image from "next/image";
-import dynamic from 'next/dynamic';
-import HeroSection from "@/components/ui/HeroSection";
-import EventsSection from "@/components/ui/EventsSection";
-import AboutSection from "@/components/ui/AboutSection";
+'use client'
 
-// 1. Setup the dynamic import for the 3D Scene
-const Scene3D = dynamic(() => import('@/components/canvas/Scene'), {
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+
+// UI Components
+import { BoundaryFrame, LoadingScreen, Navbar, HeroContent } from '@/components/ui'
+
+// Dynamic import for Scene (no SSR for Three.js)
+const Scene = dynamic(() => import('@/components/canvas/Scene'), {
   ssr: false,
-  loading: () => <div className="flex h-full items-center justify-center text-white">Loading Advay Experience...</div>,
-});
+  loading: () => null,
+})
 
-export default function Home() {
+// ============================================
+// MAIN PAGE
+// ============================================
+export default function HomePage() {
+  const [isLoading, setIsLoading] = useState(true)
+  const [progress, setProgress] = useState(0)
+  
+  // Simulate loading
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          return 100
+        }
+        // Eased progress
+        const remaining = 100 - prev
+        return prev + Math.max(1, remaining * 0.08)
+      })
+    }, 60)
+    
+    return () => clearInterval(interval)
+  }, [])
+  
   return (
-    <main className="relative h-screen w-full bg-black ">
-      {/* <div className="absolute inset-0 z-30 border-x-2 border-t-2 lg:mx-8 mt-8 max-md:border-0 border-red-500">
-        <div className="absolute inset-0 z-10 border-x-2 border-t-2 mx-8 mt-8 max-md:border-0 border-red-500"/>
-      </div> */}
-        <HeroSection />
-        <EventsSection />
-        {/* <AboutSection/> */}
-
-
-
-
-      {/* </div> */}
+    <main style={{ 
+      position: 'fixed', 
+      inset: 0,
+      overflow: 'hidden',
+    }}>
+      {/* 3D Background */}
+      <Scene />
+      
+      {/* Loading Screen */}
+      {isLoading && (
+        <LoadingScreen
+          progress={Math.round(progress)}
+          onComplete={() => setIsLoading(false)}
+        />
+      )}
+      
+      {/* Main Content (after loading) */}
+      {!isLoading && (
+        <>
+          {/* KPR Verse Style Boundary Frame */}
+          <BoundaryFrame />
+          
+          {/* Navigation Bar */}
+          <Navbar />
+          
+          {/* Hero Content */}
+          <HeroContent />
+        </>
+      )}
     </main>
-  );
+  )
 }
