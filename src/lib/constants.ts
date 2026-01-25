@@ -1,0 +1,33 @@
+// ============================================
+// ADVAY 2026 - CONSTANTS & THEME
+// ============================================
+
+export const COLORS = {
+  bg: '#0D0D0D',
+  text: '#E5E4E2',
+  textMuted: '#71797E',
+  red: '#E50914',
+  redDark: '#B20710',
+}
+
+export const NAV_ITEMS = [
+  { label: 'HOME', href: '#', active: true },
+  { label: 'ABOUT', href: '#about' },
+  { label: 'EVENTS', href: '#events' },
+  { label: 'NEWS', href: '#news' },
+  { label: 'CONTACT', href: '#contact' },
+]
+
+export const MENU_ITEMS = [
+  { label: 'HOME', href: '#', highlight: true },
+  { label: 'ABOUT', href: '#about' },
+  { label: 'EVENTS', href: '#events' },
+  { label: 'NEWS', href: '#news' },
+  { label: 'CONTACT', href: '#contact' },
+]
+
+export const HERO_WORDS = [
+  { text: 'IGNITE.', index: '01I', align: 'left' },
+  { text: 'CREATE.', index: '02C', align: 'center' },
+  { text: 'CELEBRATE.', index: '03C', align: 'left' },
+]
