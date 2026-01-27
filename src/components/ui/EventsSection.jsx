@@ -3,7 +3,7 @@
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/all"
-import React, { useRef, useState, useMemo, useEffect } from "react"
+import React, { useRef, useState, useMemo } from "react"
 import {
   Music, Users, Trophy, Car, Film,
   Gamepad2, Sparkles, Zap, Star, Calendar
@@ -17,22 +17,18 @@ export default function EventsSection() {
 
   const [activeCategory, setActiveCategory] = useState("featured")
   const [selectedFact, setSelectedFact] = useState(0)
-  const [particles, setParticles] = useState([])
-  const [isHydrated, setIsHydrated] = useState(false)
 
-  /* Generate particles only on client after hydration */
-  useEffect(() => {
-    setParticles(
-      [...Array(20)].map(() => ({
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        delay: Math.random() * 2
-      }))
-    )
-    setIsHydrated(true)
-  }, [])
+  /* ---------------- PARTICLES ---------------- */
 
-  /* ... rest of code remains the same ... */
+  const particles = useMemo(() =>
+    [...Array(20)].map(() => ({
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      delay: Math.random() * 2
+    })), []
+  )
+
+  /* ---------------- DATA ---------------- */
 
   const funFacts = [
     { icon: Star, fact: "Over 5000+ students participate in Advay annually from across India!" },
@@ -138,7 +134,8 @@ export default function EventsSection() {
     }
   ]
 
-  /* GSAP animations */
+  /* ---------------- GSAP ---------------- */
+
   useGSAP(() => {
 
     gsap.fromTo("#events-title",
@@ -181,7 +178,8 @@ export default function EventsSection() {
 
   }, { scope: sectionRef })
 
-  /* EVENT CARD COMPONENT */
+  /* ---------------- CARD ---------------- */
+
   function EventCard({ event }) {
 
     const Icon = event.icon
@@ -280,7 +278,8 @@ export default function EventsSection() {
     )
   }
 
-  /* RENDER */
+  /* ---------------- RENDER ---------------- */
+
   return (
     <section
       id="events-section"
@@ -288,8 +287,8 @@ export default function EventsSection() {
       className="relative min-h-screen bg-black py-24 px-6 overflow-hidden"
     >
 
-      {/* PARTICLES - Only render after hydration */}
-      {isHydrated && particles.map((p, i) => (
+      {/* PARTICLES */}
+      {particles.map((p, i) => (
         <div
           key={i}
           className="particle absolute w-2 h-2 bg-red-500/30 rounded-full"
