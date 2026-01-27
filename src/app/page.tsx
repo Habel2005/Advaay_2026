@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 
 // UI Components
-import { BoundaryFrame, LoadingScreen, Navbar, HeroContent } from '@/components/ui'
+import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
 import HeroAboutSponsors from '@/components/ui/HeroSection'
 import EventsSection from '@/components/ui/EventsSection'
 import TestScene4Page from './test-scene4/page'
+import FooterContent from '@/components/ui/FooterContent' // Correctly import the new component
 
 // Dynamic import for Scene (no SSR for Three.js)
 const Scene = dynamic(() => import('@/components/canvas/Scene'), {
@@ -16,65 +16,26 @@ const Scene = dynamic(() => import('@/components/canvas/Scene'), {
 })
 
 // ============================================
-// MAIN PAGE
+// MAIN PAGE CONTENT
 // ============================================
 export default function HomePage() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [progress, setProgress] = useState(0)
-
-  // Simulate loading
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-        // Eased progress
-        const remaining = 100 - prev
-        return prev + Math.max(1, remaining * 0.08)
-      })
-    }, 60)
-
-    return () => clearInterval(interval)
-  }, [])
-
   return (
-    <div>
-      <main id='main-screen' className='relative bg-black' style={{
-        // position: 'fixed', 
-        inset: 0,
-
-      }}>
-        {/* 3D Background */}
+    <>
+      {/* Main Hero Area */}
+      <main id='main-screen' className='relative w-full h-screen bg-black overflow-hidden'>
         <Scene />
-
-        {/* Loading Screen */}
-        {isLoading && (
-          <LoadingScreen
-            progress={Math.round(progress)}
-            onComplete={() => setIsLoading(false)}
-          />
-        )}
-
-        {/* Main Content (after loading) */}
-        {!isLoading && (
-          <>
-            {/* KPR Verse Style Boundary Frame */}
-            <BoundaryFrame />
-
-            {/* Navigation Bar */}
-            <Navbar />
-
-            {/* Hero Content */}
-            <HeroContent />
-          </>
-        )}
-
+        <BoundaryFrame />
+        <Navbar />
+        <HeroContent />
       </main>
+
+      {/* Other Scrollable Sections */}
       <HeroAboutSponsors />
       <EventsSection />
       <TestScene4Page />
-    </div>
+      
+      {/* The scrolling part of the footer */}
+      <FooterContent />
+    </>
   )
 }
