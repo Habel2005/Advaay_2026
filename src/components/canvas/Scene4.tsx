@@ -17,9 +17,28 @@ const FONTS = {
 }
 
 // 20 images total
-const ALL_IMAGES = Array.from({ length: 20 }, (_, i) => 
-  `https://picsum.photos/seed/advay${i + 1}/400/560`
-)
+const ALL_IMAGES = [
+  '/images/gallery/event-1.JPG',
+  '/images/gallery/event-2.JPG',
+  '/images/gallery/event-3.JPG',
+  '/images/gallery/event-4.JPG',
+  '/images/gallery/event-5.JPG',
+  '/images/gallery/event-6.JPG',
+  '/images/gallery/event-7.JPG',
+  '/images/gallery/event-8.JPG',
+  '/images/gallery/event-9.JPG',
+  '/images/gallery/event-10.JPG',
+  '/images/gallery/event-11.JPG',
+  '/images/gallery/event-12.JPG',
+  '/images/gallery/event-13.JPG',
+  '/images/gallery/event-14.JPG',
+  '/images/gallery/event-15.JPG',
+  '/images/gallery/event-16.JPG',
+  '/images/gallery/event-17.JPG',
+  '/images/gallery/event-18.JPG',
+  '/images/gallery/event-19.JPG',
+  '/images/gallery/event-20.JPG',
+]
 
 const LEFT_IMAGES = ALL_IMAGES.slice(0, 10)
 const RIGHT_IMAGES = ALL_IMAGES.slice(10, 20)
@@ -34,10 +53,7 @@ const DESKTOP_HEIGHT = 300
 const DESKTOP_SPACING = 160
 const VISIBLE_CARDS_DESKTOP = 6
 
-// Mobile Settings
-const MOBILE_WIDTH = 160
-const MOBILE_HEIGHT = 240
-const MOBILE_SIDE_OFFSET = 120 // How far side cards are from center
+// Mobile Settings - handled in MobileStackCard component
 
 // Animation timing
 const PAUSE_DURATION = 1200    
@@ -122,89 +138,6 @@ function DesktopGalleryCard({
           ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`
           : 'none',
         willChange: 'transform',
-      }}
-    >
-      <CardContent imageUrl={imageUrl} overlayColor={overlayColor} isCenter={isCenter} />
-    </div>
-  )
-}
-
-// ============================================
-// MOBILE GALLERY CARD - With Tilt
-// ============================================
-function MobileGalleryCard({ 
-  imageUrl,
-  imageIndex,
-  cardPosition, // 'left' | 'center' | 'right' | 'exiting-left' | 'exiting-right'
-  isShifting,
-  zIndex,
-}: {
-  imageUrl: string
-  imageIndex: number
-  cardPosition: 'left' | 'center' | 'right' | 'exiting-left' | 'exiting-right' | 'hidden'
-  isShifting: boolean
-  zIndex: number
-}) {
-  // Calculate transform based on position
-  let translateX = 0
-  let rotation = 0
-  let scale = 1
-  let opacity = 1
-  
-  switch (cardPosition) {
-    case 'left':
-      translateX = -MOBILE_SIDE_OFFSET
-      rotation = -12 // Tilted left
-      scale = 0.85
-      break
-    case 'right':
-      translateX = MOBILE_SIDE_OFFSET
-      rotation = 12 // Tilted right
-      scale = 0.85
-      break
-    case 'center':
-      translateX = 0
-      rotation = 0 // Straight
-      scale = 1
-      break
-    case 'exiting-left':
-      translateX = -MOBILE_SIDE_OFFSET * 1.8
-      rotation = -20
-      scale = 0.7
-      opacity = 0
-      break
-    case 'exiting-right':
-      translateX = MOBILE_SIDE_OFFSET * 1.8
-      rotation = 20
-      scale = 0.7
-      opacity = 0
-      break
-    case 'hidden':
-      opacity = 0
-      scale = 0.5
-      break
-  }
-  
-  const overlayColor = CARD_OVERLAYS[imageIndex % CARD_OVERLAYS.length]
-  const isCenter = cardPosition === 'center'
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        width: `${MOBILE_WIDTH}px`,
-        height: `${MOBILE_HEIGHT}px`,
-        marginLeft: `${-MOBILE_WIDTH / 2}px`,
-        marginTop: `${-MOBILE_HEIGHT / 2}px`,
-        transform: `translateX(${translateX}px) rotate(${rotation}deg) scale(${scale})`,
-        opacity,
-        zIndex,
-        transition: isShifting 
-          ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity ${SHIFT_DURATION}ms ease-out`
-          : 'none',
-        willChange: 'transform, opacity',
       }}
     >
       <CardContent imageUrl={imageUrl} overlayColor={overlayColor} isCenter={isCenter} />
@@ -322,173 +255,154 @@ function DesktopCarousel() {
 }
 
 // ============================================
-// MOBILE CAROUSEL - KPR Ping-Pong Style
-// Alternating: Left→Center→Right, then Right→Center→Left
+// MOBILE CAROUSEL - KPR Style Animation
 // ============================================
-interface MobileCardState {
-  id: number
-  imageIndex: number
-  position: 'left' | 'center' | 'right' | 'exiting-left' | 'exiting-right' | 'hidden'
-}
+
+// MODIFICATION: Increased size
+const MOBILE_CARD_W = 220 
+const MOBILE_CARD_H = 320
+const MOBILE_GAP = 55
 
 function MobileCarousel() {
-  // Track 3 visible cards: incoming, center, outgoing
-  const [cards, setCards] = useState<MobileCardState[]>([])
-  const [isShifting, setIsShifting] = useState(false)
-  
-  // Alternating direction: true = coming from left, false = coming from right
+  const [stack, setStack] = useState<Array<{id: number, img: number, pos: number}>>([])
   const [comingFromLeft, setComingFromLeft] = useState(true)
+  const [newCardId, setNewCardId] = useState<number | null>(null)
+  const [phase, setPhase] = useState<'idle' | 'enter' | 'move'>('idle')
   
-  const imageCounterRef = useRef(0)
-  const cardIdCounterRef = useRef(0)
+  const idCounter = useRef(100)
+  const imgCounter = useRef(0)
+  const initialized = useRef(false)
   
-  // Initialize with first center card
+  const CARDS_PER_SIDE = 3
+  
   useEffect(() => {
-    const initialCard: MobileCardState = {
-      id: cardIdCounterRef.current++,
-      imageIndex: imageCounterRef.current++ % ALL_IMAGES.length,
-      position: 'center',
+    if (initialized.current) return
+    initialized.current = true
+    
+    const initial: Array<{id: number, img: number, pos: number}> = []
+    for (let p = -CARDS_PER_SIDE; p <= CARDS_PER_SIDE; p++) {
+      initial.push({
+        id: idCounter.current++,
+        img: imgCounter.current++ % ALL_IMAGES.length,
+        pos: p
+      })
     }
-    setCards([initialCard])
+    setStack(initial)
   }, [])
   
-  const animateStep = useCallback(() => {
-    setIsShifting(true)
+  const doAnimation = useCallback(() => {
+    const cardId = idCounter.current++
+    const cardImg = imgCounter.current++ % ALL_IMAGES.length
+    const entryPos = comingFromLeft ? -CARDS_PER_SIDE - 2 : CARDS_PER_SIDE + 2
     
-    // Create new incoming card
-    const newCard: MobileCardState = {
-      id: cardIdCounterRef.current++,
-      imageIndex: imageCounterRef.current++ % ALL_IMAGES.length,
-      position: comingFromLeft ? 'left' : 'right', // Start position
-    }
+    const newCard = { id: cardId, img: cardImg, pos: entryPos }
     
-    setCards(prev => {
-      // Find current center card
-      const currentCenter = prev.find(c => c.position === 'center')
-      
-      // Update positions:
-      // - New card starts at 'left' or 'right' (will animate to center)
-      // - Current center exits to opposite side
-      // - Remove any cards that are already exiting
-      
-      const updated = prev
-        .filter(c => c.position !== 'exiting-left' && c.position !== 'exiting-right' && c.position !== 'hidden')
-        .map(c => {
-          if (c.position === 'center') {
-            // Center exits to opposite of where new card is coming from
-            return { ...c, position: comingFromLeft ? 'exiting-right' : 'exiting-left' as const }
-          }
-          if (c.position === 'left' || c.position === 'right') {
-            // Any side card becomes hidden (exit completely)
-            return { ...c, position: 'hidden' as const }
-          }
-          return c
-        })
-      
-      return [newCard, ...updated]
-    })
+    setNewCardId(cardId)
+    setPhase('enter')
+    setStack(prev => [...prev, newCard])
     
-    // After a brief moment, move incoming card to center
     setTimeout(() => {
-      setCards(prev => prev.map(c => {
-        if (c.position === 'left' || c.position === 'right') {
-          return { ...c, position: 'center' as const }
-        }
-        return c
-      }))
+      setPhase('move')
+      const shift = comingFromLeft ? 1 : -1
+      
+      setStack(prev => prev.map(card => ({
+        ...card,
+        pos: card.id === cardId ? 0 : card.pos + shift
+      })).filter(card => Math.abs(card.pos) <= CARDS_PER_SIDE + 2))
     }, 50)
     
-    // Clean up exited cards and end shifting
     setTimeout(() => {
-      setIsShifting(false)
-      setCards(prev => prev.filter(c => 
-        c.position !== 'exiting-left' && 
-        c.position !== 'exiting-right' && 
-        c.position !== 'hidden'
-      ))
-    }, SHIFT_DURATION + 100)
+      setPhase('idle')
+      setNewCardId(null)
+      setStack(prev => prev.filter(card => Math.abs(card.pos) <= CARDS_PER_SIDE))
+      setComingFromLeft(prev => !prev)
+    }, 50 + SHIFT_DURATION)
     
-    // Toggle direction for next iteration
-    setComingFromLeft(prev => !prev)
   }, [comingFromLeft])
   
-  // Animation loop
   useEffect(() => {
-    // Start after initial delay
-    const initialTimeout = setTimeout(() => {
-      animateStep()
-    }, PAUSE_DURATION)
+    if (stack.length === 0) return
     
-    const interval = setInterval(() => {
-      animateStep()
-    }, PAUSE_DURATION + SHIFT_DURATION + 100)
-    
-    return () => {
-      clearTimeout(initialTimeout)
-      clearInterval(interval)
-    }
-  }, [animateStep])
+    const timer = setInterval(doAnimation, PAUSE_DURATION + SHIFT_DURATION + 100)
+    return () => clearInterval(timer)
+  }, [doAnimation, stack.length])
   
-  // Calculate z-index: incoming card is always on top
-  const getZIndex = (position: string): number => {
-    switch (position) {
-      case 'left':
-      case 'right':
-        return 110 // Incoming is highest
-      case 'center':
-        return 100
-      case 'exiting-left':
-      case 'exiting-right':
-        return 90
-      default:
-        return 80
+  const getStyle = (card: {id: number, img: number, pos: number}) => {
+    const isNew = card.id === newCardId
+    const isMoving = phase === 'move'
+    
+    let x: number, rot: number, sc: number, z: number, op: number
+    
+    if (isNew && phase === 'enter') {
+      x = comingFromLeft ? -280 : 280
+      rot = comingFromLeft ? -25 : 25
+      sc = 0.8
+      z = 200
+      op = 1
+    } else {
+      x = card.pos * MOBILE_GAP
+      rot = card.pos === 0 ? 0 : card.pos * 3
+      sc = 1 - Math.abs(card.pos) * 0.06
+      z = 100 - Math.abs(card.pos) * 10
+      op = Math.abs(card.pos) > CARDS_PER_SIDE ? 0 : 1
+      
+      if (isNew && isMoving) {
+        z = 200
+      }
+    }
+    
+    const shouldAnimate = isMoving || (isNew && isMoving)
+    
+    return {
+      position: 'absolute' as const,
+      left: '50%',
+      top: '50%',
+      width: MOBILE_CARD_W,
+      height: MOBILE_CARD_H,
+      marginLeft: -MOBILE_CARD_W / 2,
+      marginTop: -MOBILE_CARD_H / 2,
+      transform: `translateX(${x}px) rotate(${rot}deg) scale(${sc})`,
+      zIndex: z,
+      opacity: op,
+      transition: shouldAnimate 
+        ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1), opacity ${SHIFT_DURATION}ms ease`
+        : 'none',
     }
   }
   
   return (
-    <div style={{ position: 'relative', width: '100%', height: '320px', overflow: 'hidden' }}>
-      {cards.map(card => (
-        <MobileGalleryCard
-          key={card.id}
-          imageUrl={ALL_IMAGES[card.imageIndex]}
-          imageIndex={card.imageIndex}
-          cardPosition={card.position}
-          isShifting={isShifting}
-          zIndex={getZIndex(card.position)}
-        />
+    <div style={{ position: 'relative', width: '100%', height: 350, overflow: 'hidden' }}>
+      {stack.map(card => (
+        <div key={card.id} style={getStyle(card)}>
+          <div style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: 12,
+            overflow: 'hidden',
+            // MODIFICATION: Removed red shadow
+            boxShadow: card.pos === 0 
+              ? `0 25px 50px rgba(0,0,0,0.5)`
+              : '0 15px 35px rgba(0,0,0,0.4)',
+            // MODIFICATION: Removed red border
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}>
+            <img
+              src={ALL_IMAGES[card.img]}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              draggable={false}
+            />
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: `linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4) 100%)`,
+              pointerEvents: 'none',
+            }} />
+          </div>
+        </div>
       ))}
       
-      {/* Subtle center indicator */}
-      <div style={{ 
-        position: 'absolute', 
-        left: '50%', 
-        bottom: '20px', 
-        transform: 'translateX(-50%)',
-        display: 'flex',
-        gap: '8px',
-        zIndex: 50,
-      }}>
-        <div style={{ 
-          width: '6px', 
-          height: '6px', 
-          borderRadius: '50%', 
-          background: comingFromLeft ? COLORS.red : `${COLORS.textMuted}40`,
-          transition: 'background 0.3s',
-        }} />
-        <div style={{ 
-          width: '6px', 
-          height: '6px', 
-          borderRadius: '50%', 
-          background: `${COLORS.textMuted}60`,
-        }} />
-        <div style={{ 
-          width: '6px', 
-          height: '6px', 
-          borderRadius: '50%', 
-          background: !comingFromLeft ? COLORS.red : `${COLORS.textMuted}40`,
-          transition: 'background 0.3s',
-        }} />
-      </div>
+      {/* MODIFICATION: REMOVED DOTS INDICATOR */}
     </div>
   )
 }
@@ -522,25 +436,31 @@ export default function Scene4({ className = '' }: { className?: string }) {
   
   if (isMobile) {
     return (
-      <div className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '600px', background: COLORS.bg, overflow: 'hidden' }}>
+      <div className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '700px', background: COLORS.bg, overflow: 'hidden' }}>
         <style jsx>{`@import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500&display=swap');`}</style>
         <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 50% 50%, ${COLORS.red}08 0%, transparent 60%), ${COLORS.bg}`, pointerEvents: 'none' }} />
         <BoundaryFrame />
-        <div style={{ position: 'absolute', top: '60px', left: '24px', right: '24px', zIndex: 1 }}>
+        
+        {/* Header Section */}
+        <div style={{ position: 'absolute', top: '90px', left: '24px', right: '24px', zIndex: 1 }}>
           <SectionCounter isMobile />
-          <h2 style={{ fontFamily: FONTS.heading, fontSize: '26px', fontWeight: 900, lineHeight: 0.95, color: COLORS.text, letterSpacing: '-0.02em', margin: 0, textTransform: 'uppercase' }}>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: '32px', fontWeight: 900, lineHeight: 0.95, color: COLORS.text, letterSpacing: '-0.02em', margin: 0, textTransform: 'uppercase' }}>
             MEMORIES<br />OF <span style={{ color: COLORS.red }}>ADVAY</span>.
           </h2>
         </div>
+        
+        {/* Carousel Section */}
         <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, transform: 'translateY(-50%)' }}>
           <MobileCarousel />
         </div>
-        <div style={{ position: 'absolute', bottom: '50px', left: '24px', right: '70px', zIndex: 1 }}>
-          <div style={{ fontFamily: FONTS.mono, fontSize: '8px', letterSpacing: '0.15em', color: COLORS.textMuted, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase' }}>
+        
+        {/* Description Section */}
+        <div style={{ position: 'absolute', bottom: '40px', left: '24px', right: '24px', zIndex: 1 }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: '9px', letterSpacing: '0.15em', color: COLORS.textMuted, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase' }}>
             <span style={{ color: COLORS.red, fontSize: '5px' }}>■</span> GALLERY COLLECTION
           </div>
-          <p style={{ fontFamily: FONTS.body, fontSize: '11px', lineHeight: 1.55, color: COLORS.textMuted, margin: 0 }}>
-            Moments that define ADVAY, flowing endlessly.
+          <p style={{ fontFamily: FONTS.body, fontSize: '12px', lineHeight: 1.6, color: COLORS.textMuted, margin: 0 }}>
+            Every moment captured, every memory preserved. Relive the energy, creativity, and celebration that defines ADVAY.
           </p>
         </div>
       </div>
