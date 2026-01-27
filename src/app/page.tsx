@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 // UI Components
 import { BoundaryFrame, LoadingScreen, Navbar, HeroContent } from '@/components/ui'
 import HeroAboutSponsors from '@/components/ui/HeroSection'
-import EventsSection from '@/components/ui/EventsSection'
+import { Events } from '@/components/ui'
 import TestScene4Page from './test-scene4/page'
 
 // Dynamic import for Scene (no SSR for Three.js)
@@ -73,7 +73,7 @@ export default function HomePage() {
 
       </main>
       <HeroAboutSponsors />
-      <EventsSection />
+      <Events />
       <TestScene4Page />
     </div>
   )

@@ -97,7 +97,7 @@ export default function EventsSection() {
       status: "Full",
       icon: Users,
       gradient: "from-red-900 via-black to-red-600",
-      image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80",
+      image: "https://images.unsplash.com/  photo-1551632811-561732d1e306?w=800&q=80",
       description: "Test your limits, face your fears"
     },
     {
