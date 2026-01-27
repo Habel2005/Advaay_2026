@@ -5,6 +5,9 @@ import dynamic from 'next/dynamic'
 
 // UI Components
 import { BoundaryFrame, LoadingScreen, Navbar, HeroContent } from '@/components/ui'
+import HeroAboutSponsors from '@/components/ui/HeroSection'
+import EventsSection from '@/components/ui/EventsSection'
+import TestScene4Page from './test-scene4/page'
 
 // Dynamic import for Scene (no SSR for Three.js)
 const Scene = dynamic(() => import('@/components/canvas/Scene'), {
@@ -18,7 +21,7 @@ const Scene = dynamic(() => import('@/components/canvas/Scene'), {
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [progress, setProgress] = useState(0)
-  
+
   // Simulate loading
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,40 +35,46 @@ export default function HomePage() {
         return prev + Math.max(1, remaining * 0.08)
       })
     }, 60)
-    
+
     return () => clearInterval(interval)
   }, [])
-  
+
   return (
-    <main style={{ 
-      position: 'fixed', 
-      inset: 0,
-      overflow: 'hidden',
-    }}>
-      {/* 3D Background */}
-      <Scene />
-      
-      {/* Loading Screen */}
-      {isLoading && (
-        <LoadingScreen
-          progress={Math.round(progress)}
-          onComplete={() => setIsLoading(false)}
-        />
-      )}
-      
-      {/* Main Content (after loading) */}
-      {!isLoading && (
-        <>
-          {/* KPR Verse Style Boundary Frame */}
-          <BoundaryFrame />
-          
-          {/* Navigation Bar */}
-          <Navbar />
-          
-          {/* Hero Content */}
-          <HeroContent />
-        </>
-      )}
-    </main>
+    <div>
+      <main id='main-screen' className='relative bg-black' style={{
+        // position: 'fixed', 
+        inset: 0,
+
+      }}>
+        {/* 3D Background */}
+        <Scene />
+
+        {/* Loading Screen */}
+        {isLoading && (
+          <LoadingScreen
+            progress={Math.round(progress)}
+            onComplete={() => setIsLoading(false)}
+          />
+        )}
+
+        {/* Main Content (after loading) */}
+        {!isLoading && (
+          <>
+            {/* KPR Verse Style Boundary Frame */}
+            <BoundaryFrame />
+
+            {/* Navigation Bar */}
+            <Navbar />
+
+            {/* Hero Content */}
+            <HeroContent />
+          </>
+        )}
+
+      </main>
+      <HeroAboutSponsors />
+      <EventsSection />
+      <TestScene4Page />
+    </div>
   )
 }

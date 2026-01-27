@@ -74,6 +74,12 @@ interface CardState {
   position: number
 }
 
+interface MobileCardState {
+  id: number
+  imageIndex: number
+  position: 'left' | 'center' | 'right' | 'exiting-left' | 'exiting-right' | 'hidden'
+}
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {

@@ -87,13 +87,14 @@ export default function HeroContent() {
     <div
       ref={containerRef}
       style={{
-        position: 'fixed',
+        // position: 'fixed',
         inset: 0,
         zIndex: 10,
         display: 'flex',
         flexDirection: 'column',
         padding: isMobile ? '80px 24px 24px 24px' : '80px 48px 32px 48px',
         overflow: 'hidden',
+        height: '100vh',
       }}
     >
       {/* Top Section - Description on RIGHT (under Register button) */}
