@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import ClientLayout from "@/components/ui/ClientLayout"
+import Footer from '@/components/ui/Footer'
 
 /* ---------------- FONTS ---------------- */
 
@@ -48,6 +49,7 @@ export default function RootLayout({
         <ClientLayout>
           {children}
         </ClientLayout>
+        <Footer />
       </body>
     </html>
   )
