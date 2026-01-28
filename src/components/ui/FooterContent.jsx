@@ -1,43 +1,7 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { ArrowDown } from 'lucide-react';
-
-// --- CipherText Component (for the glitch effect) ---
-const CipherText = ({ text, className = "", as: Component = "span" }) => {
-  const [displayText, setDisplayText] = useState(text);
-  const intervalRef = useRef(null);
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
-
-  const scramble = () => {
-    let iteration = 0;
-    clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      setDisplayText((prev) => 
-        text.split("").map((letter, index) => {
-            if (index < iteration) return text[index];
-            return chars[Math.floor(Math.random() * chars.length)];
-          }).join("")
-      );
-      if (iteration >= text.length) clearInterval(intervalRef.current);
-      iteration += 1 / 3; 
-    }, 30);
-  };
-
-  const stopScramble = () => {
-    clearInterval(intervalRef.current);
-    setDisplayText(text);
-  };
-
-  return (
-    <Component 
-      className={`inline-block cursor-pointer ${className}`}
-      onMouseEnter={scramble}
-      onMouseLeave={stopScramble}
-    >
-      {displayText}
-    </Component>
-  );
-};
+import CipherText from './CipherText'; // Import the new component
 
 // This component is the top part of the footer that scrolls with the page.
 export default function FooterContent() {
