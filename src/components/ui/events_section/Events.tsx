@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import styles from './Events.module.css';
 
 export default function Events() {
@@ -13,41 +13,136 @@ export default function Events() {
     offset: ['start start', 'end end']
   });
 
-  // --- ANIMATION MAPPING ---
+  // Responsive dimensions state
+  const [startDimensions, setStartDimensions] = useState({ w: '60px', h: '40px' });
 
-  // PHASE 1: ENTER (0% -> 35%)
-  // Slide up from bottom
-  const y = useTransform(scrollYProgress, [0, 0.35], ['100vh', '0vh']);
-  
-  // Rotate from 90deg (Y-axis this time) to 0deg (facing user). 
-  // 90deg Y means edge-on.
-  const rotateY = useTransform(scrollYProgress, [0, 0.35], [90, 0]);
-  
-  // Opacity fade in for smoothness
-  const opacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (window.innerWidth > 768) {
+        // Desktop: Thinner and Taller
+        setStartDimensions({ w: '20px', h: '60px' });
+      } else {
+        // Mobile: Original wide specific
+        setStartDimensions({ w: '60px', h: '40px' });
+      }
+    };
 
-  // PHASE 2: EXPAND (40% -> 80%)
-  // Grow from card size to full viewport size
-  const width = useTransform(scrollYProgress, [0.4, 0.8], ['60px', '100dvw']);
-  const height = useTransform(scrollYProgress, [0.4, 0.8], ['40px', '100dvh']);
+    // Initial call
+    updateDimensions();
+
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+
+  // 2. MOUSE & TILT SETUP (Moved up to be available for transforms)
+  const mouseX = useMotionValue(0.5); // 0..1
+  const mouseY = useMotionValue(0.5); // 0..1
+
+  // Smooth the mouse values
+  const springConfig = { damping: 20, stiffness: 300 };
+  const smoothMouseX = useSpring(mouseX, springConfig);
+  const smoothMouseY = useSpring(mouseY, springConfig);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    mouseX.set(clientX / innerWidth);
+    mouseY.set(clientY / innerHeight);
+  };
+
+  // --- ANIMATION MAPPING (3 CARDS) ---
+  // Total Scroll Range: 0 to 1
   
-  // Remove border radius as it fills screen
-  const borderRadius = useTransform(scrollYProgress, [0.4, 0.8], ['6px', '0px']);
+  // SHARED TILT LOGIC (Re-used for simplicity across active cards)
+  // Tilt strength fades out during transitions to avoid jarring jumps
+  // We keep it active mostly when cards are stationary.
+  
+  // CARD 1: FASHION
+  // Enter: 0 -> 0.2
+  // Exit: 0.35 -> 0.55
+  const y1 = useTransform(scrollYProgress, [0, 0.2, 0.35, 0.55], ['100vh', '0vh', '0vh', '-100vh']);
+  const scrollRotateY = useTransform(scrollYProgress, [0, 0.2], [90, 0]);
+  const opacity1 = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+  
+  const width1 = useTransform(scrollYProgress, [0.2, 0.35], [startDimensions.w, '100dvw']);
+  const height1 = useTransform(scrollYProgress, [0.2, 0.35], [startDimensions.h, '100dvh']);
+  const borderRadius1 = useTransform(scrollYProgress, [0.2, 0.35], ['6px', '0px']);
+  
+  const fgTranslateY = useTransform(scrollYProgress, [0.2, 0.35], ['200%', '0%']);
+  const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
+
+  const scale1 = useTransform(scrollYProgress, [0.35, 0.55], [1, 0.8]);
+  const exitRotateX1 = useTransform(scrollYProgress, [0.35, 0.55], [0, 10]);
+
+
+  // CARD 2: DECADANCE
+  // Enter: 0.35 -> 0.55 (Sync with C1 Exit)
+  // Exit: 0.65 -> 0.85 
+  const y2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], ['100vh', '0vh', '0vh', '-100vh']);
+  const scale2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], [0.5, 1, 1, 0.8]); // Enter Scale -> Stay -> Exit Scale
+  const borderRadius2 = useTransform(scrollYProgress, [0.35, 0.55], ['20px', '0px']);
+  
+  const enterRotateX2 = useTransform(scrollYProgress, [0.35, 0.55], [-10, 0]);
+  const exitRotateX2 = useTransform(scrollYProgress, [0.65, 0.85], [0, 10]);
+  
+  // Combine rotations for Card 2
+  const rotateX2 = useTransform([enterRotateX2, exitRotateX2], ([enter, exit]: number[]) => enter + exit);
+
+
+  // CARD 3: DRIFTX
+  // Enter: 0.65 -> 0.85 (Sync with C2 Exit)
+  // Stay: 0.85 -> 1.0
+  const y3 = useTransform(scrollYProgress, [0.65, 0.85], ['100vh', '0vh']);
+  const scale3 = useTransform(scrollYProgress, [0.65, 0.85], [0.5, 1]);
+  const borderRadius3 = useTransform(scrollYProgress, [0.65, 0.85], ['20px', '0px']);
+  const enterRotateX3 = useTransform(scrollYProgress, [0.65, 0.85], [-10, 0]);
+
+  // TILT CALCULATION
+  // Reduced global tilt (was +/- 5, now +/- 2)
+  const baseTiltRotateY = useTransform(smoothMouseX, [0, 1], [-2, 2]); 
+  const baseTiltRotateX = useTransform(smoothMouseY, [0, 1], [2, -2]);
+  
+  // REDUCED TILT FOR CARD 3 (Minute effect)
+  const baseTiltRotateY3 = useTransform(smoothMouseX, [0, 1], [0, 1]); 
+  // Disable X-axis tilt (up/down) for Card 3 as requested
+  const baseTiltRotateX3 = useTransform(smoothMouseY, [0, 1], [0, 0]);
+  
+  // Damping: Reduce tilt during transitions (approximate centers of transitions)
+  const tiltStrength = useTransform(scrollYProgress, [0.2, 0.35, 0.55, 0.65, 0.85], [1, 0, 1, 0, 1]);
+  
+  const tiltRotateY = useTransform([baseTiltRotateY, tiltStrength], ([rot, strength]: number[]) => rot * strength);
+  const tiltRotateX = useTransform([baseTiltRotateX, tiltStrength], ([rot, strength]: number[]) => rot * strength);
+
+  const tiltRotateY3 = useTransform([baseTiltRotateY3, tiltStrength], ([rot, strength]: number[]) => rot * strength);
+  const tiltRotateX3 = useTransform([baseTiltRotateX3, tiltStrength], ([rot, strength]: number[]) => rot * strength);
+
+  // Final Rotations
+  const finalRotateY1 = useTransform([scrollRotateY, tiltRotateY], ([s, t]: number[]) => s + t);
+  const finalRotateX1 = useTransform([tiltRotateX, exitRotateX1], ([t, e]: number[]) => t + e);
+  
+  const finalRotateY2 = tiltRotateY; // No scroll rotate for C2
+  const finalRotateX2 = useTransform([tiltRotateX, rotateX2], ([t, r]: number[]) => t + r);
+  
+  const finalRotateY3 = tiltRotateY3;
+  const finalRotateX3 = useTransform([tiltRotateX3, enterRotateX3], ([t, e]: number[]) => t + e);
 
   return (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
       <div className={styles.stickyWrapper}>
         
-        {/* THE CARD */}
+        {/* CARD 1 - EXISTING */}
         <motion.div 
           className={styles.card}
           style={{
-            y,
-            rotateY,
-            width,
-            height,
-            borderRadius,
-            opacity
+            y: y1,
+            scale: scale1,
+            rotateY: finalRotateY1,
+            rotateX: finalRotateX1,
+            width: width1,
+            height: height1,
+            borderRadius: borderRadius1,
+            opacity: opacity1,
+            zIndex: 10
           }}
         >
             {/* BACKGROUND IMAGE - AUTO CROPPED BY PARENT DIMENSIONS */}
@@ -61,13 +156,70 @@ export default function Events() {
             />
 
             {/* CONTENT */}
-            <motion.div 
-              className={styles.textWrapper}
-            >
-               <h1 className={styles.title}>Avante Garde</h1>
-               <p className={styles.subtitle}>FASHION EXTRAVAGANZA</p>
-            </motion.div>
+            {/* MIDDLE GROUND (mg2) - Always visible, layered on top of BG */}
+            <div 
+              className={styles.layerMg}
+              style={{ 
+                  backgroundImage: 'url("/images/FASHOIN/mg2.png")',
+              }} 
+            />
 
+            {/* FOREGROUND (fg) - Slides up */}
+            <motion.div 
+              className={styles.layerFg}
+              style={{ 
+                  backgroundImage: 'url("/images/FASHOIN/fg.png")',
+                  y: fgTranslateY,
+                  x: fgTranslateX
+              }} 
+            />
+
+        </motion.div>
+
+        {/* CARD 2 - DECADANCE */}
+        <motion.div 
+          className={styles.card}
+          style={{
+             y: y2,
+             scale: scale2,
+             rotateX: finalRotateX2,
+             rotateY: finalRotateY2,
+             width: '100dvw',
+             height: '100dvh',
+             borderRadius: borderRadius2,
+             zIndex: 20, 
+             position: 'absolute',
+          }}
+        >
+             <div 
+               className={styles.layerBg}
+               style={{ 
+                   backgroundImage: 'url("/images/decadance.png")',
+               }} 
+             />
+        </motion.div>
+
+        {/* CARD 3 - DRIFTX */}
+        <motion.div 
+          className={styles.card}
+          style={{
+             y: y3,
+             scale: scale3,
+             rotateX: finalRotateX3,
+             rotateY: finalRotateY3,
+             width: '100dvw',
+             height: '100dvh',
+             borderRadius: borderRadius3,
+             zIndex: 30,
+             position: 'absolute',
+          }}
+        >
+             <div 
+               className={styles.layerBg}
+               style={{ 
+                   backgroundImage: 'url("/images/driftx.png")',
+               }} 
+             />
         </motion.div>
 
       </div>
