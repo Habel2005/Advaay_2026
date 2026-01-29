@@ -76,6 +76,7 @@ export default function LogoReveal({
           muted
           playsInline
           autoPlay
+          webkit-playsinline
           preload="auto"
           controls={false}
         />
