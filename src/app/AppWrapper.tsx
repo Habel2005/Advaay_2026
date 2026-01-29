@@ -51,7 +51,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
         }`}
       >
         {/* THE "CURTAIN" WRAPPER (Your footer settings are preserved) */}
-        <div className="relative z-10 bg-black mb-[70vh] md:mb-[50vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <div className="relative z-10 bg-black mb-[25vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           {children}
         </div>
 

@@ -4,7 +4,7 @@ import CipherText from './CipherText';
 // This is the fixed part of the footer that is revealed on scroll.
 export default function FooterReveal() {
   return (
-    <div className="fixed bottom-0 left-0 w-full h-[70vh] md:h-[50vh] z-0 flex flex-col justify-end bg-[#050000] overflow-hidden">
+    <div className="fixed bottom-0 left-0 w-full h-[25vh] md:h-[46vh] z-0 flex flex-col justify-end bg-[#050000] overflow-hidden">
       
       {/* 1. GIANT BACKGROUND TEXT */}
       <div className="absolute inset-0 flex justify-center items-end pointer-events-none select-none z-0 pb-20 md:pb-0">
