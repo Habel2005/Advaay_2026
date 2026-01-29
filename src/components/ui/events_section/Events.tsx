@@ -20,9 +20,9 @@ export default function Events() {
   const [showOverlay, setShowOverlay] = useState(false);
   
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    // Card 1 expands 0.2->0.35, stays/exits 0.35->0.55.
-    // We allow interaction when it's mostly expanded.
-    if (latest > 0.32 && latest < 0.55) {
+    // Card 1 now expands 0.2->0.3, stays 0.3->0.35, exits 0.35->...
+    // Show overlay during the stationary full-screen phase.
+    if (latest > 0.29 && latest < 0.35) {
       setShowOverlay(true);
     } else {
       setShowOverlay(false);
@@ -48,8 +48,8 @@ export default function Events() {
   }, []);
 
   // 2. MOUSE & TILT SETUP (Moved up to be available for transforms)
-  const mouseX = useMotionValue(0.5); // 0..1
-  const mouseY = useMotionValue(0.5); // 0..1
+  const mouseX = useMotionValue(0.5); // 0..1 (Center)
+  const mouseY = useMotionValue(0.85); // 0..1 (Bottom Center default)
 
   // Smooth the mouse values
   const springConfig = { damping: 20, stiffness: 300 };
@@ -77,11 +77,11 @@ export default function Events() {
   const scrollRotateY = useTransform(scrollYProgress, [0, 0.2], [90, 0]);
   const opacity1 = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
   
-  const width1 = useTransform(scrollYProgress, [0.2, 0.35], [startDimensions.w, '100dvw']);
-  const height1 = useTransform(scrollYProgress, [0.2, 0.35], [startDimensions.h, '100dvh']);
-  const borderRadius1 = useTransform(scrollYProgress, [0.2, 0.35], ['6px', '0px']);
+  const width1 = useTransform(scrollYProgress, [0.2, 0.3], [startDimensions.w, '100dvw']);
+  const height1 = useTransform(scrollYProgress, [0.2, 0.3], [startDimensions.h, '100dvh']);
+  const borderRadius1 = useTransform(scrollYProgress, [0.2, 0.3], ['6px', '0px']);
   
-  const fgTranslateY = useTransform(scrollYProgress, [0.2, 0.35], ['200%', '0%']);
+  const fgTranslateY = useTransform(scrollYProgress, [0.2, 0.3], ['200%', '0%']);
   const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   const scale1 = useTransform(scrollYProgress, [0.35, 0.55], [1, 0.8]);
@@ -154,6 +154,10 @@ export default function Events() {
     }
   };
 
+  // Cursor movements (Defined at top level to avoid hook errors)
+  const cursorX = useTransform(smoothMouseX, [0, 1], ['0%', '100%']);
+  const cursorY = useTransform(smoothMouseY, [0, 1], ['0%', '100%']);
+
   return (
     <div className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
       <div className={styles.stickyWrapper}>
@@ -173,7 +177,8 @@ export default function Events() {
             height: height1,
             borderRadius: borderRadius1,
             opacity: opacity1,
-            zIndex: 10
+            zIndex: 10,
+            cursor: showOverlay ? 'none' : 'auto' // Hide default cursor when active
           }}
         >
             {/* BACKGROUND IMAGE - AUTO CROPPED BY PARENT DIMENSIONS */}
@@ -261,6 +266,19 @@ export default function Events() {
                }} 
              />
         </motion.div>
+
+        {/* CUSTOM CURSOR (Only when Card 1 is full screen) */}
+        {showOverlay && (
+          <motion.div 
+            className={styles.customCursor}
+            style={{
+              left: cursorX,
+              top: cursorY,
+            }}
+          >
+            TAP AND HOLD
+          </motion.div>
+        )}
 
       </div>
 

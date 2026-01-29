@@ -18,6 +18,29 @@
   perspective: 1200px; /* Essential for 3D rotation */
 }
 
+.customCursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 80px;
+  background-color: transparent; /* Hollow */
+  border: 1px solid white; /* White border */
+  border-radius: 50%;
+  color: white; /* White text */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  z-index: 100; /* Topmost */
+  pointer-events: none; /* Pass clicks through */
+  transform: translate(-50%, -50%); /* Center on coordinates */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
 .card {
   position: relative;
   width: 60px;
