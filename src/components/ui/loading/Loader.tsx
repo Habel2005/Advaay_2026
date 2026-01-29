@@ -122,6 +122,13 @@ export default function Loader({
         Advay.2026
       </motion.div>
       <motion.div 
+        className="absolute top-4 sm:top-8 right-4 sm:right-8 text-[9px] text-black/40 tracking-[0.2em] uppercase"
+        initial={{ opacity: 1 }}
+        animate={textControls}
+      >
+        MuLearn TIST
+      </motion.div>
+      <motion.div 
         className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 text-[9px] text-black/40 tracking-[0.2em] uppercase"
         initial={{ opacity: 1 }}
         animate={textControls}

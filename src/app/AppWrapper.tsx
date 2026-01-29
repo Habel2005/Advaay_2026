@@ -23,10 +23,10 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
     <>
       {/* --- Loading Sequence --- */}
       {!revealDone && (
-        <div className="fixed inset-0 z-50">
-          {/* 1. The Loader. It sits on top and now hides instantly. */}
+        <div className="fixed inset-0 z-50 bg-white">
+          {/* 1. The Loader. It now fades out to create an overlap. */}
           <div
-            className={`absolute inset-0 z-20 ${// Transition classes have been removed for an instant switch
+            className={`absolute inset-0 z-20 transition-opacity duration-700 ease-out ${
               loaderDone ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
@@ -51,7 +51,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
         }`}
       >
         {/* THE "CURTAIN" WRAPPER (Your footer settings are preserved) */}
-        <div className="relative z-10 bg-black mb-[60vh] md:mb-[40vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <div className="relative z-10 bg-black mb-[25vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           {children}
         </div>
 
