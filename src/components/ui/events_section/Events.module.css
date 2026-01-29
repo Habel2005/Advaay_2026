@@ -66,6 +66,30 @@
   pointer-events: none;
 }
 
+.cardOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 5; /* Above FG */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* Allow interaction to pass through if needed, though card handles tap */
+}
+
+.overlayText {
+  color: white;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Clean modern font */
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .layerMg {
     top: -54px;
@@ -74,6 +98,10 @@
   .layerFg {
     background-size: auto 85%; /* Reduced height on mobile */
     background-repeat: no-repeat;
+  }
+
+  .overlayText {
+    font-size: 1rem; /* Smaller text on mobile to fit */
   }
 }
 

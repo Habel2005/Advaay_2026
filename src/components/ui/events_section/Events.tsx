@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent } from 'framer-motion';
 import styles from './Events.module.css';
 
 export default function Events() {
@@ -15,6 +15,19 @@ export default function Events() {
 
   // Responsive dimensions state
   const [startDimensions, setStartDimensions] = useState({ w: '60px', h: '40px' });
+  
+  // Interaction State (Only allow click-hold when card is roughly full screen)
+  const [showOverlay, setShowOverlay] = useState(false);
+  
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    // Card 1 expands 0.2->0.35, stays/exits 0.35->0.55.
+    // We allow interaction when it's mostly expanded.
+    if (latest > 0.32 && latest < 0.55) {
+      setShowOverlay(true);
+    } else {
+      setShowOverlay(false);
+    }
+  });
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -126,6 +139,21 @@ export default function Events() {
   const finalRotateY3 = tiltRotateY3;
   const finalRotateX3 = useTransform([tiltRotateX3, enterRotateX3], ([t, e]: number[]) => t + e);
 
+  // INTERACTION VARIANTS (Click & Hold)
+  const overlayVariants = {
+    rest: { opacity: 0 },
+    pressed: { opacity: 1, transition: { duration: 0.2 } }
+  };
+
+  const textVariants = {
+    rest: { opacity: 0, y: 10 },
+    pressed: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { delay: 0.2, duration: 0.3 } // Text fades in AFTER overlay appears
+    }
+  };
+
   return (
     <div className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
       <div className={styles.stickyWrapper}>
@@ -133,6 +161,9 @@ export default function Events() {
         {/* CARD 1 - EXISTING */}
         <motion.div 
           className={styles.card}
+          initial="rest"
+          whileTap="pressed" // Triggers variants in children
+          whileHover="hover" // Optional: we could add hover effects too
           style={{
             y: y1,
             scale: scale1,
@@ -173,6 +204,15 @@ export default function Events() {
                   x: fgTranslateX
               }} 
             />
+
+            {/* OVERLAY & TEXT (Appears on Hold) - Conditional Rendering */}
+            {showOverlay && (
+              <motion.div className={styles.cardOverlay} variants={overlayVariants}>
+                <motion.div className={styles.overlayText} variants={textVariants}>
+                  AVANTE GARDE
+                </motion.div>
+              </motion.div>
+            )}
 
         </motion.div>
 
