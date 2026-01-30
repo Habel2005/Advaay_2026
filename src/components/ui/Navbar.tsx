@@ -1,36 +1,34 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { useGSAP } from '@gsap/react'
-import { COLORS, NAV_ITEMS } from '@/lib/constants'
-import MobileMenu from './MobileMenu'
+import { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { COLORS, NAV_ITEMS } from '@/lib/constants';
+import MobileMenu from './MobileMenu';
+import CipherText from './CipherText'; // Import the new component
 
-// ============================================
-// NAVBAR COMPONENT (Responsive)
-// ============================================
 export default function Navbar() {
-  const navRef = useRef<HTMLElement>(null)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-  
-  // Check if mobile
+  const navRef = useRef<HTMLElement>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-  
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   useGSAP(() => {
-    gsap.fromTo(navRef.current,
+    gsap.fromTo(
+      navRef.current,
       { opacity: 0, y: -20 },
       { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 0.2 }
-    )
-  }, { scope: navRef })
-  
+    );
+  }, { scope: navRef });
+
   return (
     <>
       <nav
@@ -48,12 +46,7 @@ export default function Navbar() {
         }}
       >
         {/* Left Section */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
-        }}>
-          {/* Hamburger Menu (Mobile Only) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {isMobile && (
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -71,8 +64,6 @@ export default function Navbar() {
               <div style={{ width: '24px', height: '2px', background: COLORS.text }} />
             </button>
           )}
-          
-          {/* ADVAY Logo (Always visible) */}
           <div style={{
             fontFamily: 'system-ui, sans-serif',
             fontSize: isMobile ? '16px' : '20px',
@@ -81,18 +72,13 @@ export default function Navbar() {
             color: COLORS.text,
           }}>
             ADVAY
+            {/* <CipherText text="ADVAY" /> */}
           </div>
         </div>
-        
+
         {/* Center Navigation Links (Desktop Only) */}
         {!isMobile && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '32px',
-            }}
-          >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
             {NAV_ITEMS.map((item) => (
               <a
                 key={item.label}
@@ -110,27 +96,21 @@ export default function Navbar() {
                   gap: '6px',
                 }}
                 onMouseEnter={(e) => {
-                  if (!item.active) e.currentTarget.style.color = COLORS.text
+                  if (!item.active) e.currentTarget.style.color = COLORS.text;
                 }}
                 onMouseLeave={(e) => {
-                  if (!item.active) e.currentTarget.style.color = COLORS.textMuted
+                  if (!item.active) e.currentTarget.style.color = COLORS.textMuted;
                 }}
               >
-                {/* Active indicator dot */}
                 {item.active && (
-                  <span style={{
-                    width: '4px',
-                    height: '4px',
-                    background: COLORS.red,
-                    borderRadius: '50%',
-                  }} />
+                  <span style={{ width: '4px', height: '4px', background: COLORS.red, borderRadius: '50%' }} />
                 )}
-                {item.label}
+                <CipherText text={item.label} />
               </a>
             ))}
           </div>
         )}
-        
+
         {/* Register Button */}
         <button
           style={{
@@ -146,23 +126,20 @@ export default function Navbar() {
             transition: 'all 0.2s ease',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = COLORS.red
-            e.currentTarget.style.color = COLORS.text
+            e.currentTarget.style.background = COLORS.red;
+            e.currentTarget.style.color = COLORS.text;
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent'
-            e.currentTarget.style.color = COLORS.text
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = COLORS.text;
           }}
         >
           {isMobile ? 'REGISTER' : 'REGISTER NOW'}
+          {/* <CipherText text={isMobile ? 'REGISTER' : 'REGISTER NOW'} /> */}
         </button>
       </nav>
-      
-      {/* Mobile Menu */}
-      <MobileMenu 
-        isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)} 
-      />
+
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </>
-  )
+  );
 }
