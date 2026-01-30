@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent } from 'framer-motion';
 import styles from './Events.module.css';
+import 'dotlottie-player';
 
 export default function Events() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -29,6 +30,23 @@ export default function Events() {
     }
   });
 
+  const lottieRef = useRef<any>(null);
+
+  useEffect(() => {
+    const currentLottie = lottieRef.current;
+    if (currentLottie) {
+      const onComplete = () => {
+        window.location.href = "https://www.google.com";
+      };
+      // dotlottie-player emits 'complete' event
+      currentLottie.addEventListener('complete', onComplete);
+      return () => {
+        currentLottie.removeEventListener('complete', onComplete);
+      };
+    }
+  }, [showOverlay]); // Re-bind when overlay (and thus player) appears
+
+
   useEffect(() => {
     const updateDimensions = () => {
       if (window.innerWidth > 768) {
@@ -42,6 +60,8 @@ export default function Events() {
 
     // Initial call
     updateDimensions();
+
+    import('dotlottie-player'); // Dynamic import for client-side only
 
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
@@ -83,6 +103,13 @@ export default function Events() {
   
   const fgTranslateY = useTransform(scrollYProgress, [0.2, 0.3], ['200%', '0%']);
   const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
+
+  const mgTranslateX2 = useTransform(smoothMouseX, [0, 1], ['25px', '-25px']);
+  
+  // Card 3 MG Parallax
+  const mgTranslateX3 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
+  // Card 3 FG Parallax (Subtle)
+  const fgTranslateX3 = useTransform(smoothMouseX, [0, 1], ['5px', '-5px']);
 
   const scale1 = useTransform(scrollYProgress, [0.35, 0.55], [1, 0.8]);
   const exitRotateX1 = useTransform(scrollYProgress, [0.35, 0.55], [0, 10]);
@@ -139,6 +166,35 @@ export default function Events() {
   const finalRotateY3 = tiltRotateY3;
   const finalRotateX3 = useTransform([tiltRotateX3, enterRotateX3], ([t, e]: number[]) => t + e);
 
+  // Parallax Transitions (Image moves 1/4 speed relative to Card Movement)
+  // Card moves 100vh -> 0. Image should move -25vh -> 0 (Relative shift UP 25vh? No relative shift DOWN)
+  // Actually, we established: Transition UP (0->0.2) => Image Relative DOWN (-75vh -> 0).
+  // Transition DOWN (Exit) => Image Relative UP (0 -> 75vh).
+  
+  // Card 1 Exit Parallax (0.35 -> 0.55)
+  const parallaxY1_Exit = useTransform(scrollYProgress, [0.35, 0.55], ['0vh', '75vh']);
+  
+  // Card 2 Parallax (Enter 0.35->0.55, Exit 0.65->0.85)
+  const parallaxY2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], ['-75vh', '0vh', '0vh', '75vh']);
+  
+  // Card 3 Parallax (Enter 0.65->0.85)
+  const parallaxY3 = useTransform(scrollYProgress, [0.65, 0.85], ['-75vh', '0vh']);
+
+  // Card 1 FG Composite: Popup (0.2->0.3) + Parallax Exit (0.35->0.55)
+  // Original fgTranslateY: [0.2, 0.3] -> ['200%', '0%']
+  // We need to map to: 0.2->200%, 0.3->0%, 0.35->0vh, 0.55->75vh
+  const fgParaY1 = useTransform(scrollYProgress, [0.2, 0.3, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
+
+  // Red Vignette Transition Opacity
+  // Card 1 Exit (0.35 -> 0.55)
+  const transitionOpacity1 = useTransform(scrollYProgress, [0.35, 0.45, 0.55], [0, 1, 0]);
+  
+  // Card 2 Enter (0.35 -> 0.55) & Exit (0.65 -> 0.85)
+  const transitionOpacity2 = useTransform(scrollYProgress, [0.35, 0.45, 0.55, 0.65, 0.75, 0.85], [0, 1, 0, 0, 1, 0]);
+
+  // Card 3 Enter (0.65 -> 0.85)
+  const transitionOpacity3 = useTransform(scrollYProgress, [0.65, 0.75, 0.85], [0, 1, 0]);
+
   // INTERACTION VARIANTS (Click & Hold)
   const overlayVariants = {
     rest: { opacity: 0 },
@@ -178,25 +234,42 @@ export default function Events() {
             borderRadius: borderRadius1,
             opacity: opacity1,
             zIndex: 10,
-            cursor: showOverlay ? 'none' : 'auto' // Hide default cursor when active
+            cursor: showOverlay ? 'none' : 'auto', // Hide default cursor when active
+          }}
+          onTapStart={() => {
+            if (lottieRef.current) {
+              lottieRef.current.play();
+            }
+          }}
+          onTap={() => {
+            if (lottieRef.current) {
+              lottieRef.current.stop();
+            }
+          }}
+          onTapCancel={() => {
+            if (lottieRef.current) {
+              lottieRef.current.stop();
+            }
           }}
         >
             {/* BACKGROUND IMAGE - AUTO CROPPED BY PARENT DIMENSIONS */}
             {/* Using a simple div with background-size: cover handles the "crop then reveal" logic perfectly 
                 as the parent aspect ratio changes from portrait (card) to landscape (screen). */}
-            <div 
+            <motion.div 
               className={styles.layerBg}
               style={{ 
                   backgroundImage: 'url("/images/FASHOIN/bg.png")',
+                  y: parallaxY1_Exit
               }} 
             />
 
             {/* CONTENT */}
             {/* MIDDLE GROUND (mg2) - Always visible, layered on top of BG */}
-            <div 
+            <motion.div 
               className={styles.layerMg}
               style={{ 
                   backgroundImage: 'url("/images/FASHOIN/mg2.png")',
+                  y: parallaxY1_Exit
               }} 
             />
 
@@ -205,17 +278,38 @@ export default function Events() {
               className={styles.layerFg}
               style={{ 
                   backgroundImage: 'url("/images/FASHOIN/fg.png")',
-                  y: fgTranslateY,
+                  y: fgParaY1, // Uses composite transform
                   x: fgTranslateX
               }} 
             />
 
-            {/* OVERLAY & TEXT (Appears on Hold) - Conditional Rendering */}
+            {/* RED VIGNETTE OVERLAY */}
+            <motion.div 
+              className={styles.transitionOverlay}
+              style={{ opacity: transitionOpacity1 }}
+            />
+
+            {/* OVERLAY & LOTTIE (Appears on Hold) - Conditional Rendering */}
             {showOverlay && (
-              <motion.div className={styles.cardOverlay} variants={overlayVariants}>
-                <motion.div className={styles.overlayText} variants={textVariants}>
-                  AVANTE GARDE
-                </motion.div>
+              <motion.div 
+                className={styles.cardOverlay} 
+                variants={overlayVariants}
+                style={{ 
+                  pointerEvents: 'none',
+                  clipPath: 'inset(0px 0px 116px 0px)', // Clip bottom 116px
+                  background: 'transparent',
+                }} 
+              >
+                 {/* @ts-ignore */}
+                 <dotlottie-player
+                    ref={lottieRef}
+                    src="/animations/test.lottie"
+                    background="transparent"
+                    speed="1"
+                    style={{ width: '100%', height: '100%' }}
+                    objectFit="cover"
+                    loop={false}
+                  ></dotlottie-player>
               </motion.div>
             )}
 
@@ -236,11 +330,31 @@ export default function Events() {
              position: 'absolute',
           }}
         >
-             <div 
+             <motion.div 
                className={styles.layerBg}
                style={{ 
-                   backgroundImage: 'url("/images/decadance.png")',
+                   backgroundImage: 'url("/images/Dance/bg.png")',
+                   y: parallaxY2
                }} 
+             />
+             <motion.div 
+               className={styles.layerBMg}
+               style={{ 
+                   backgroundImage: 'url("/images/Dance/mg.png")',
+                   x: mgTranslateX2,
+                   y: parallaxY2
+               }} 
+             />
+             <motion.div 
+               className={styles.layerFg}
+               style={{ 
+                   backgroundImage: 'url("/images/Dance/fg.png")',
+                   y: parallaxY2
+               }} 
+             />
+             <motion.div 
+               className={styles.transitionOverlay}
+               style={{ opacity: transitionOpacity2 }}
              />
         </motion.div>
 
@@ -259,11 +373,32 @@ export default function Events() {
              position: 'absolute',
           }}
         >
-             <div 
+             <motion.div 
                className={styles.layerBg}
                style={{ 
-                   backgroundImage: 'url("/images/driftx.png")',
+                   backgroundImage: 'url("/images/Drift/bg.png")',
+                   y: parallaxY3
                }} 
+             />
+             <motion.div 
+               className={styles.layerDMg}
+               style={{ 
+                   backgroundImage: 'url("/images/Drift/mg.png")',
+                   x: mgTranslateX3,
+                   y: parallaxY3
+               }} 
+             />
+             <motion.div 
+               className={styles.layerDFg}
+               style={{ 
+                   backgroundImage: 'url("/images/Drift/fg.png")',
+                   x: fgTranslateX3,
+                   y: parallaxY3
+               }} 
+             />
+             <motion.div 
+               className={styles.transitionOverlay}
+               style={{ opacity: transitionOpacity3 }}
              />
         </motion.div>
 
