@@ -392,16 +392,24 @@ export function ParallaxReveal({
                         WebkitBackfaceVisibility: 'hidden',
                     }}
                 >
-                    <Image
-                        src={backgroundImage}
-                        alt="Background Concert"
-                        fill
-                        className="object-cover"
-                        style={{ objectPosition: 'center center', transform: 'translateZ(0)' }}
-                        sizes="100vw"
-                        unoptimized // Restore original quality
-                        priority
-                    />
+                    <div className="absolute inset-0 w-full h-full">
+                        <Image
+                            src={backgroundImage}
+                            alt="Background Concert"
+                            className="w-full h-full object-cover"
+                            style={{
+                                objectPosition: 'center center',
+                                transform: 'translateZ(0)',
+                                width: '100%',
+                                height: '100%'
+                            }}
+                            width={1920}
+                            height={1080}
+                            sizes="100vw"
+                            unoptimized // Restore original quality
+                            priority
+                        />
+                    </div>
                 </motion.div>
 
                 {/* Content Layer - Between background and foreground */}
@@ -419,16 +427,23 @@ export function ParallaxReveal({
                     className="absolute inset-0 w-full h-full z-10 pointer-events-none"
                     style={{ scale: 1 }}
                 >
-                    <Image
-                        src={foregroundImage}
-                        alt="Foreground Crowd"
-                        fill
-                        className="object-cover"
-                        style={{ objectPosition: 'center center' }}
-                        sizes="100vw"
-                        quality={90}
-                        priority
-                    />
+                    <div className="absolute inset-0 w-full h-full">
+                        <Image
+                            src={foregroundImage}
+                            alt="Foreground Crowd"
+                            className="w-full h-full object-cover"
+                            style={{
+                                objectPosition: 'center center',
+                                width: '100%',
+                                height: '100%'
+                            }}
+                            width={1920}
+                            height={1080}
+                            sizes="100vw"
+                            quality={90}
+                            priority
+                        />
+                    </div>
                 </motion.div>
             </div>
         </div>
