@@ -23,11 +23,13 @@ export default function HomePage() {
   return (
     <>
       {/* Main Hero Area */}
-      <main id='main-screen' className='relative w-full h-screen bg-black overflow-hidden'>
+      <main id='main-screen' className='relative w-full h-screen bg-black overflow-hidden z-20'>
         <Scene />
         <BoundaryFrame />
         <Navbar />
         <HeroContent />
+        {/* Bottom gradient fade for smooth transition */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 md:h-48 bg-gradient-to-b from-transparent to-black pointer-events-none z-10" />
       </main>
 
       {/* Other Scrollable Sections */}

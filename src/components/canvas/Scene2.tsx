@@ -536,8 +536,10 @@ export function ScrollFadeText({
 }
 
 export default function Scene2() {
+    const isMobile = useMobile();
+
     return (
-        <div className="bg-black relative z-10">
+        <div className={`bg-black relative z-10 ${isMobile ? '-mt-48' : ''}`}>
 
 
 
