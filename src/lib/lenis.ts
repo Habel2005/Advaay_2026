@@ -14,11 +14,8 @@ export function initLenis(): Lenis {
     gestureOrientation: 'vertical',
     smoothWheel: true,
     wheelMultiplier: 1.5, // Increased scroll speed
-    smoothTouch: false, // Disabled on mobile for better performance
     touchMultiplier: 2.5, // Faster touch scrolling
     infinite: false,
-    syncTouch: true, // Better touch sync
-    syncTouchLerp: 0.1, // Smooth touch interpolation
   });
 
   return lenis;
