@@ -36,7 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}>
         {/* The AppWrapper now handles all client-side logic */}
-        <AppWrapper>{children}</AppWrapper>
+        <AppWrapper>
+          {children}
+        </AppWrapper>
       </body>
     </html>
   );

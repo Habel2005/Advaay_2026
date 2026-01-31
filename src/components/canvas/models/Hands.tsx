@@ -5,7 +5,11 @@ import { useThree } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
-export function Hands(props: any) {
+interface HandsProps {
+  canPlay?: boolean; // New prop to control when animations can start
+}
+
+export function Hands({ canPlay = false, ...props }: HandsProps) {
   const group = useRef<any>(null);
   const { nodes, animations } = useGLTF('/models/hands_iridescent-transformed.glb') as any;
   const { actions } = useAnimations(animations, group);
@@ -19,6 +23,9 @@ export function Hands(props: any) {
   let responsivePosition: [number, number, number] = isMobile ? [0, 0, -2] : isTablet ? [0, 0, -1] : [0, 0, 0];
 
   useEffect(() => {
+    // Only play animations when canPlay is true
+    if (!canPlay) return;
+
     const intro = actions['intro'];
     const twitch = actions['twitch'];
 
@@ -40,7 +47,7 @@ export function Hands(props: any) {
       clearTimeout(startTimer);
       clearTimeout(twitchTimeout);
     };
-  }, [actions]);
+  }, [actions, canPlay]); // Added canPlay to dependency array
 
   if (!nodes) return null;
 
