@@ -394,8 +394,8 @@ export function ParallaxReveal({
                         fill
                         className="object-cover"
                         style={{ objectPosition: 'center center' }}
-                        sizes="(max-width: 768px) 100vw, 100vw"
-                        quality={70} // Slightly reduced quality further
+                        sizes="100vw"
+                        quality={90}
                         priority
                     />
                 </motion.div>
@@ -421,8 +421,8 @@ export function ParallaxReveal({
                         fill
                         className="object-cover"
                         style={{ objectPosition: 'center center' }}
-                        sizes="(max-width: 768px) 100vw, 100vw"
-                        quality={70}
+                        sizes="100vw"
+                        quality={90}
                         priority
                     />
                 </motion.div>
