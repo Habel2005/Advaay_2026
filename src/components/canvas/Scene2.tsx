@@ -77,18 +77,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export function FloatingPaths({ position }: { position: number }) {
-    const paths = Array.from({ length: 36 }, (_, i) => ({
+    const paths = Array.from({ length: 15 }, (_, i) => ({ // Reduced count from 36
         id: i,
-        d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position
-            } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position
-            } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position
-            } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+        d: `M-${380 - i * 15 * position} -${189 + i * 6}C-${380 - i * 15 * position
+            } -${189 + i * 6} -${312 - i * 15 * position} ${216 - i * 6} ${152 - i * 15 * position
+            } ${343 - i * 6}C${616 - i * 15 * position} ${470 - i * 6} ${684 - i * 15 * position
+            } ${875 - i * 6} ${684 - i * 15 * position} ${875 - i * 6}`,
         color: `rgba(15,23,42,${0.1 + i * 0.03})`,
         width: 0.5 + i * 0.03,
     }));
 
     return (
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none will-change-transform">
             <svg
                 className="w-full h-full text-slate-950 dark:text-white"
                 viewBox="0 0 696 316"
@@ -130,7 +130,7 @@ export function BackgroundPaths({
         <div className="relative w-full h-full overflow-hidden bg-transparent opacity-60">
             <div className="absolute inset-0">
                 <FloatingPaths position={1} />
-                <FloatingPaths position={-1} />
+                {/* Removed second FloatingPaths for performance */}
             </div>
         </div>
     );
@@ -403,8 +403,8 @@ export function ParallaxReveal({
                         fill
                         className="object-cover"
                         style={{ objectPosition: 'center center' }}
-                        sizes="100vw"
-                        unoptimized
+                        sizes="(max-width: 768px) 100vw, 100vw"
+                        quality={75}
                         priority
                     />
                 </motion.div>
@@ -430,8 +430,8 @@ export function ParallaxReveal({
                         fill
                         className="object-cover"
                         style={{ objectPosition: 'center center' }}
-                        sizes="100vw"
-                        unoptimized
+                        sizes="(max-width: 768px) 100vw, 100vw"
+                        quality={75}
                         priority
                     />
                 </motion.div>
@@ -583,7 +583,8 @@ export default function Scene2() {
                                     <img
                                         src="/images/advay_fashion_bw.png"
                                         alt="ADVAY Fashion"
-                                        className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-110 grayscale contrast-125"
+                                        loading="lazy"
+                                        className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-105 grayscale contrast-125"
                                     />
                                     {/* Glitch Overlay Elements - Removed IMG_SEQ_001 */}
                                 </div>
@@ -594,7 +595,7 @@ export default function Scene2() {
 
                             {/* Content Card - Overlapping */}
                             <div className="w-full md:w-2/5 relative z-20 -mt-10 md:mt-0 md:-ml-20">
-                                <div className="bg-black/60 backdrop-blur-xl border border-white/10 p-8 md:p-12 relative overflow-hidden">
+                                <div className="bg-black/80 border border-white/10 p-8 md:p-12 relative overflow-hidden">
                                     {/* Card Shine Effect */}
                                     <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white/5 to-transparent rotate-45 pointer-events-none" />
 
@@ -639,7 +640,8 @@ export default function Scene2() {
                                     <img
                                         src="/images/voice_advay.JPG"
                                         alt="ADVAY Music"
-                                        className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-110 grayscale contrast-125"
+                                        loading="lazy"
+                                        className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-105 grayscale contrast-125"
                                     />
                                 </div>
                                 {/* Floating Decor Element */}
@@ -648,7 +650,7 @@ export default function Scene2() {
 
                             {/* Content Card - Overlapping */}
                             <div className="w-full md:w-2/5 relative z-20 -mt-10 md:mt-0 md:-mr-20">
-                                <div className="bg-black/60 backdrop-blur-xl border border-white/10 p-8 md:p-12 relative overflow-hidden">
+                                <div className="bg-black/80 border border-white/10 p-8 md:p-12 relative overflow-hidden">
                                     <div className="space-y-6 relative z-10">
                                         <div className="space-y-1 text-right md:text-left">
                                             <span className="block font-mono text-xs text-red-500 tracking-[0.3em] uppercase">Tech // Cultural</span>
