@@ -363,13 +363,13 @@ export function ParallaxReveal({
 
     const childrenOpacity = useTransform(
         scrollYProgress,
-        [0.45, 0.65],
+        [0.30, 0.50],
         [0, 1]
     );
 
     const childrenY = useTransform(
         scrollYProgress,
-        [0.45, 0.65],
+        [0.30, 0.50],
         [50, 0]
     );
 
