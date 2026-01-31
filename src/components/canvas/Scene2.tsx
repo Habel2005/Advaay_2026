@@ -354,20 +354,11 @@ export function ParallaxReveal({
     const backgroundY = useTransform(
         scrollYProgress,
         [0, 0.4],
-        isMobile ? ['10vh', '0vh'] : ['12vh', '0vh']
+        ['8vh', '0vh'] // Reduced from 12vh to 8vh for less pixel pushing
     );
 
-    const backgroundScale = useTransform(
-        scrollYProgress,
-        [0, 0.35],
-        isMobile ? [1.07, 1.02] : [1.07, 1.02]
-    );
-
-    const foregroundScale = useTransform(
-        scrollYProgress,
-        [0, 0.15],
-        isMobile ? [1, 1.01] : [1, 1.015]
-    );
+    // Removed expensive backgroundScale and foregroundScale to fix lag
+    const scale = 1;
 
 
     const childrenOpacity = useTransform(
@@ -394,8 +385,8 @@ export function ParallaxReveal({
 
                 {/* Background Layer - up.JPG (moves up from below) */}
                 <motion.div
-                    className="absolute inset-0 w-full h-full"
-                    style={{ y: backgroundY, scale: backgroundScale, willChange }}
+                    className="absolute inset-0 w-full h-full will-change-transform" // Added explicit will-change
+                    style={{ y: backgroundY, scale: 1 }}
                 >
                     <Image
                         src={backgroundImage}
@@ -404,7 +395,7 @@ export function ParallaxReveal({
                         className="object-cover"
                         style={{ objectPosition: 'center center' }}
                         sizes="(max-width: 768px) 100vw, 100vw"
-                        quality={75}
+                        quality={70} // Slightly reduced quality further
                         priority
                     />
                 </motion.div>
@@ -422,7 +413,7 @@ export function ParallaxReveal({
                 {/* Foreground Layer - down.png (stays fixed) */}
                 <motion.div
                     className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-                    style={{ scale: foregroundScale, willChange }}
+                    style={{ scale: 1 }}
                 >
                     <Image
                         src={foregroundImage}
@@ -431,7 +422,7 @@ export function ParallaxReveal({
                         className="object-cover"
                         style={{ objectPosition: 'center center' }}
                         sizes="(max-width: 768px) 100vw, 100vw"
-                        quality={75}
+                        quality={70}
                         priority
                     />
                 </motion.div>
