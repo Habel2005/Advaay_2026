@@ -379,7 +379,7 @@ export function ParallaxReveal({
             className="relative w-full"
             style={{ height }}
         >
-            <div className="sticky top-0 h-[100dvh] w-full overflow-hidden bg-black">
+            <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
                 {/* Background Layer - up.JPG (moves up from below) */}
                 <motion.div
