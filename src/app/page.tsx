@@ -1,7 +1,8 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-
+import Scene2 from "@/components/canvas/Scene2";
+import { SmoothScrollProvider } from "@/components/canvas/Scene2";
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
 import HeroAboutSponsors from '@/components/ui/HeroSection'
@@ -30,6 +31,9 @@ export default function HomePage() {
       </main>
 
       {/* Other Scrollable Sections */}
+      <SmoothScrollProvider>
+       <Scene2 />
+      </SmoothScrollProvider>
       <HeroAboutSponsors />
       <EventsSection />
       <TestScene4Page />
