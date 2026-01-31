@@ -395,7 +395,7 @@ export function ParallaxReveal({
                         className="object-cover"
                         style={{ objectPosition: 'center center' }}
                         sizes="100vw"
-                        quality={90}
+                        unoptimized // Restore original quality
                         priority
                     />
                 </motion.div>
