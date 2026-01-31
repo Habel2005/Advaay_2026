@@ -396,7 +396,7 @@ export function ParallaxReveal({
                         <Image
                             src={backgroundImage}
                             alt="Background Concert"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover grayscale"
                             style={{
                                 objectPosition: 'center center',
                                 transform: 'translateZ(0)',
@@ -431,7 +431,7 @@ export function ParallaxReveal({
                         <Image
                             src={foregroundImage}
                             alt="Foreground Crowd"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover grayscale"
                             style={{
                                 objectPosition: 'center center',
                                 width: '100%',
@@ -545,7 +545,7 @@ export default function Scene2() {
             <ParallaxReveal
                 backgroundImage="/images/up3.JPG"
                 foregroundImage="/images/down2.png"
-                height="140vh"
+                height="100vh"
             >
                 {/* ABOUT US text - positioned centrally above audience layer */}
                 <div className="w-full flex justify-center items-center px-4 translate-y-[38vh]">
