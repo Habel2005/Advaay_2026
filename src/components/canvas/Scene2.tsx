@@ -354,7 +354,7 @@ export function ParallaxReveal({
     const backgroundY = useTransform(
         scrollYProgress,
         [0, 0.4],
-        ['8vh', '0vh'] // Reduced from 12vh to 8vh for less pixel pushing
+        ['5vh', '0vh'] // Reduced to 5vh for smoother start
     );
 
     // Removed expensive backgroundScale and foregroundScale to fix lag
@@ -373,8 +373,6 @@ export function ParallaxReveal({
         [50, 0]
     );
 
-    const willChange = 'transform';
-
     return (
         <div
             ref={containerRef}
@@ -385,15 +383,21 @@ export function ParallaxReveal({
 
                 {/* Background Layer - up.JPG (moves up from below) */}
                 <motion.div
-                    className="absolute inset-0 w-full h-full will-change-transform" // Added explicit will-change
-                    style={{ y: backgroundY, scale: 1 }}
+                    className="absolute inset-0 w-full h-full"
+                    style={{
+                        y: backgroundY,
+                        scale: 1,
+                        willChange: 'transform',
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                    }}
                 >
                     <Image
                         src={backgroundImage}
                         alt="Background Concert"
                         fill
                         className="object-cover"
-                        style={{ objectPosition: 'center center' }}
+                        style={{ objectPosition: 'center center', transform: 'translateZ(0)' }}
                         sizes="100vw"
                         unoptimized // Restore original quality
                         priority
