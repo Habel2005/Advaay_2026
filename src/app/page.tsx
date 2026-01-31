@@ -5,7 +5,7 @@ import Scene2 from "@/components/canvas/Scene2";
 import { SmoothScrollProvider } from "@/components/canvas/Scene2";
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
-import HeroAboutSponsors from '@/components/ui/HeroSection'
+
 import EventsSection from '@/components/ui/EventsSection'
 import TestScene4Page from './test-scene4/page'
 import FooterContent from '@/components/ui/FooterContent' // Correctly import the new component
@@ -32,12 +32,11 @@ export default function HomePage() {
 
       {/* Other Scrollable Sections */}
       <SmoothScrollProvider>
-       <Scene2 />
+        <Scene2 />
       </SmoothScrollProvider>
-      <HeroAboutSponsors />
       <EventsSection />
       <TestScene4Page />
-      
+
       {/* The scrolling part of the footer */}
       <FooterContent />
     </>
