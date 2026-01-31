@@ -16,9 +16,12 @@ export default function Events() {
 
   // Responsive dimensions state
   const [startDimensions, setStartDimensions] = useState({ w: '60px', h: '40px' });
+  const [isMobile, setIsMobile] = useState(false);
   
   // Interaction State (Only allow click-hold when card is roughly full screen)
   const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay2, setShowOverlay2] = useState(false);
+  const [showOverlay3, setShowOverlay3] = useState(false);
   
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     // Card 1 now expands 0.2->0.3, stays 0.3->0.35, exits 0.35->...
@@ -28,9 +31,25 @@ export default function Events() {
     } else {
       setShowOverlay(false);
     }
+
+    // Card 2 enters 0.35->0.55, stays 0.55->0.65, exits 0.65->0.85
+    if (latest > 0.55 && latest < 0.65) {
+      setShowOverlay2(true);
+    } else {
+      setShowOverlay2(false);
+    }
+
+    // Card 3 enters 0.65->0.85, stays 0.85->1.0
+    if (latest > 0.85) {
+      setShowOverlay3(true);
+    } else {
+      setShowOverlay3(false);
+    }
   });
 
   const lottieRef = useRef<any>(null);
+  const lottieRef2 = useRef<any>(null);
+  const lottieRef3 = useRef<any>(null);
 
   useEffect(() => {
     const currentLottie = lottieRef.current;
@@ -46,15 +65,45 @@ export default function Events() {
     }
   }, [showOverlay]); // Re-bind when overlay (and thus player) appears
 
+  useEffect(() => {
+    const currentLottie2 = lottieRef2.current;
+    if (currentLottie2) {
+      const onComplete = () => {
+        window.location.href = "https://www.google.com";
+      };
+      // dotlottie-player emits 'complete' event
+      currentLottie2.addEventListener('complete', onComplete);
+      return () => {
+        currentLottie2.removeEventListener('complete', onComplete);
+      };
+    }
+  }, [showOverlay2]);
+
+  useEffect(() => {
+    const currentLottie3 = lottieRef3.current;
+    if (currentLottie3) {
+      const onComplete = () => {
+        window.location.href = "/events";
+      };
+      // dotlottie-player emits 'complete' event
+      currentLottie3.addEventListener('complete', onComplete);
+      return () => {
+        currentLottie3.removeEventListener('complete', onComplete);
+      };
+    }
+  }, [showOverlay3]);
+
 
   useEffect(() => {
     const updateDimensions = () => {
       if (window.innerWidth > 768) {
         // Desktop: Thinner and Taller
         setStartDimensions({ w: '20px', h: '60px' });
+        setIsMobile(false);
       } else {
         // Mobile: Original wide specific
         setStartDimensions({ w: '60px', h: '40px' });
+        setIsMobile(true);
       }
     };
 
@@ -97,11 +146,11 @@ export default function Events() {
   const scrollRotateY = useTransform(scrollYProgress, [0, 0.2], [90, 0]);
   const opacity1 = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
   
-  const width1 = useTransform(scrollYProgress, [0.2, 0.3], [startDimensions.w, '100dvw']);
-  const height1 = useTransform(scrollYProgress, [0.2, 0.3], [startDimensions.h, '100dvh']);
-  const borderRadius1 = useTransform(scrollYProgress, [0.2, 0.3], ['6px', '0px']);
+  const width1 = useTransform(scrollYProgress, [0.14, 0.3], [startDimensions.w, '100dvw']);
+  const height1 = useTransform(scrollYProgress, [0.14, 0.3], [startDimensions.h, '100dvh']);
+  const borderRadius1 = useTransform(scrollYProgress, [0.14, 0.3], ['6px', '0px']);
   
-  const fgTranslateY = useTransform(scrollYProgress, [0.2, 0.3], ['200%', '0%']);
+  const fgTranslateY = useTransform(scrollYProgress, [0.14, 0.3], ['200%', '0%']);
   const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   const mgTranslateX2 = useTransform(smoothMouseX, [0, 1], ['25px', '-25px']);
@@ -180,10 +229,10 @@ export default function Events() {
   // Card 3 Parallax (Enter 0.65->0.85)
   const parallaxY3 = useTransform(scrollYProgress, [0.65, 0.85], ['-75vh', '0vh']);
 
-  // Card 1 FG Composite: Popup (0.2->0.3) + Parallax Exit (0.35->0.55)
-  // Original fgTranslateY: [0.2, 0.3] -> ['200%', '0%']
-  // We need to map to: 0.2->200%, 0.3->0%, 0.35->0vh, 0.55->75vh
-  const fgParaY1 = useTransform(scrollYProgress, [0.2, 0.3, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
+  // Card 1 FG Composite: Popup (0.14->0.3) + Parallax Exit (0.35->0.55)
+  // Original fgTranslateY: [0.14, 0.3] -> ['200%', '0%']
+  // We need to map to: 0.14->200%, 0.3->0%, 0.35->0vh, 0.55->75vh
+  const fgParaY1 = useTransform(scrollYProgress, [0.14, 0.3, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
 
   // Red Vignette Transition Opacity
   // Card 1 Exit (0.35 -> 0.55)
@@ -213,6 +262,15 @@ export default function Events() {
   // Cursor movements (Defined at top level to avoid hook errors)
   const cursorX = useTransform(smoothMouseX, [0, 1], ['0%', '100%']);
   const cursorY = useTransform(smoothMouseY, [0, 1], ['0%', '100%']);
+
+  // Card 1 MG Parallax & Scaling
+  // Small (0-0.2) -> Expanded (0.3+) ... now starts at 0.14
+  const mgBgSize = useTransform(scrollYProgress, [0.14, 0.3], ['150%', isMobile ? '200%' : '50%']);
+  const mgBgPos = useTransform(scrollYProgress, [0.14, 0.3], ['center 90%', 'center 100%']);
+  
+  // Card 1 MG Parallax (X-axis)
+  // "Slightly maybe .2" - interpreted as a subtle shift, e.g., 20px range
+  const mgTranslateX1 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   return (
     <div className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
@@ -268,20 +326,15 @@ export default function Events() {
             <motion.div 
               className={styles.layerMg}
               style={{ 
-                  backgroundImage: 'url("/images/FASHOIN/mg2.png")',
-                  y: parallaxY1_Exit
+                  backgroundImage: 'url("/images/FASHOIN/mg.png")',
+                  y: parallaxY1_Exit,
+                  x: mgTranslateX1,
+                  backgroundSize: mgBgSize,
+                  backgroundPosition: mgBgPos
               }} 
             />
 
-            {/* FOREGROUND (fg) - Slides up */}
-            <motion.div 
-              className={styles.layerFg}
-              style={{ 
-                  backgroundImage: 'url("/images/FASHOIN/fg.png")',
-                  y: fgParaY1, // Uses composite transform
-                  x: fgTranslateX
-              }} 
-            />
+            
 
             {/* RED VIGNETTE OVERLAY */}
             <motion.div 
@@ -296,17 +349,17 @@ export default function Events() {
                 variants={overlayVariants}
                 style={{ 
                   pointerEvents: 'none',
-                  clipPath: 'inset(0px 0px 116px 0px)', // Clip bottom 116px
+                  clipPath: 'inset(0px 0px 0px 0px)', // Clip bottom 116px
                   background: 'transparent',
                 }} 
               >
                  {/* @ts-ignore */}
                  <dotlottie-player
                     ref={lottieRef}
-                    src="/animations/test.lottie"
+                    className={styles.lottiePlayer}
+                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/test.lottie"}
                     background="transparent"
-                    speed="1"
-                    style={{ width: '100%', height: '100%' }}
+                    speed=".5"
                     objectFit="cover"
                     loop={false}
                   ></dotlottie-player>
@@ -328,6 +381,24 @@ export default function Events() {
              borderRadius: borderRadius2,
              zIndex: 20, 
              position: 'absolute',
+             cursor: showOverlay2 ? 'none' : 'auto',
+          }}
+          initial="rest"
+          whileTap="pressed"
+          onTapStart={() => {
+            if (lottieRef2.current) {
+              lottieRef2.current.play();
+            }
+          }}
+          onTap={() => {
+            if (lottieRef2.current) {
+              lottieRef2.current.stop();
+            }
+          }}
+          onTapCancel={() => {
+            if (lottieRef2.current) {
+              lottieRef2.current.stop();
+            }
           }}
         >
              <motion.div 
@@ -356,6 +427,30 @@ export default function Events() {
                className={styles.transitionOverlay}
                style={{ opacity: transitionOpacity2 }}
              />
+
+             {/* OVERLAY & LOTTIE FOR CARD 2 */}
+             {showOverlay2 && (
+              <motion.div 
+                className={styles.cardOverlay} 
+                variants={overlayVariants}
+                style={{ 
+                  pointerEvents: 'none',
+                  clipPath: 'inset(0px 0px 0px 0px)',
+                  background: 'transparent',
+                }} 
+              >
+                 {/* @ts-ignore */}
+                 <dotlottie-player
+                    ref={lottieRef2}
+                    className={styles.lottiePlayer}
+                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/test.lottie"}
+                    background="transparent"
+                    speed=".5"
+                    objectFit="cover"
+                    loop={false}
+                  ></dotlottie-player>
+              </motion.div>
+            )}
         </motion.div>
 
         {/* CARD 3 - DRIFTX */}
@@ -371,6 +466,24 @@ export default function Events() {
              borderRadius: borderRadius3,
              zIndex: 30,
              position: 'absolute',
+             cursor: showOverlay3 ? 'none' : 'auto',
+          }}
+          initial="rest"
+          whileTap="pressed"
+          onTapStart={() => {
+            if (lottieRef3.current) {
+              lottieRef3.current.play();
+            }
+          }}
+          onTap={() => {
+            if (lottieRef3.current) {
+              lottieRef3.current.stop();
+            }
+          }}
+          onTapCancel={() => {
+            if (lottieRef3.current) {
+              lottieRef3.current.stop();
+            }
           }}
         >
              <motion.div 
@@ -397,13 +510,37 @@ export default function Events() {
                }} 
              />
              <motion.div 
-               className={styles.transitionOverlay}
-               style={{ opacity: transitionOpacity3 }}
-             />
+                className={styles.transitionOverlay}
+                style={{ opacity: transitionOpacity3 }}
+              />
+
+             {/* OVERLAY & LOTTIE FOR CARD 3 */}
+             {showOverlay3 && (
+              <motion.div 
+                className={styles.cardOverlay} 
+                variants={overlayVariants}
+                style={{ 
+                  pointerEvents: 'none',
+                  clipPath: 'inset(0px 0px 0px 0px)',
+                  background: 'transparent',
+                }} 
+              >
+                 {/* @ts-ignore */}
+                 <dotlottie-player
+                    ref={lottieRef3}
+                    className={styles.lottiePlayer}
+                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/test.lottie"}
+                    background="transparent"
+                    speed=".5"
+                    objectFit="cover"
+                    loop={false}
+                  ></dotlottie-player>
+              </motion.div>
+            )}
         </motion.div>
 
-        {/* CUSTOM CURSOR (Only when Card 1 is full screen) */}
-        {showOverlay && (
+        {/* CUSTOM CURSOR (Only when Card 1 or Card 2 is full screen) */}
+        {(showOverlay || showOverlay2 || showOverlay3) && (
           <motion.div 
             className={styles.customCursor}
             style={{
