@@ -89,7 +89,7 @@ export default function HeroContent() {
       style={{
         // position: 'fixed',
         inset: 0,
-        zIndex: 10,
+        zIndex: 20,
         display: 'flex',
         flexDirection: 'column',
         padding: isMobile ? '80px 24px 24px 24px' : '80px 48px 32px 48px',

@@ -1,14 +1,14 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import Scene2 from "@/components/canvas/Scene2";
-import { SmoothScrollProvider } from "@/components/canvas/Scene2";
+import { useState, useEffect } from 'react'
+
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
 
 import EventsSection from '@/components/ui/EventsSection'
 import TestScene4Page from './test-scene4/page'
-import FooterContent from '@/components/ui/FooterContent' // Correctly import the new component
+import FooterContent from '@/components/ui/FooterContent'
 
 // Dynamic import for Scene (no SSR for Three.js)
 const Scene = dynamic(() => import('@/components/canvas/Scene'), {
@@ -20,16 +20,49 @@ const Scene = dynamic(() => import('@/components/canvas/Scene'), {
 // MAIN PAGE CONTENT
 // ============================================
 export default function HomePage() {
+  const [sceneReady, setSceneReady] = useState(false)
+  const [canPlayAnimations, setCanPlayAnimations] = useState(false)
+
+  useEffect(() => {
+    // Wait for Scene to initialize before rendering overlay elements
+    const timer = setTimeout(() => setSceneReady(true), 100)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    // Check if loading sequence is complete
+    // This assumes the AppWrapper sets opacity to 100 when done
+    const checkLoadingComplete = () => {
+      const mainContent = document.querySelector('[data-main-content]')
+      if (mainContent) {
+        const opacity = window.getComputedStyle(mainContent).opacity
+        if (opacity === '1') {
+          setCanPlayAnimations(true)
+        }
+      }
+    }
+
+    const interval = setInterval(checkLoadingComplete, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <>
-      {/* Main Hero Area */}
-      <main id='main-screen' className='relative w-full h-screen bg-black overflow-hidden z-20'>
-        <Scene />
-        <BoundaryFrame />
-        <Navbar />
-        <HeroContent />
-        {/* Bottom gradient fade for smooth transition */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 md:h-48 bg-gradient-to-b from-transparent to-black pointer-events-none z-10" />
+      {/* Main Hero Area - Scene renders first */}
+      <main id='main-screen' className='relative w-full h-screen bg-black overflow-hidden'>
+        {/* Scene background layer */}
+        {/* <div className='absolute w-full h-full z-0'>
+          <Scene canPlayAnimations={canPlayAnimations} />
+        </div> */}
+
+        {/* UI overlay - renders after Scene is ready */}
+        {sceneReady && (
+          <div className='absolute w-full h-full z-10 pointer-events-none'>
+            <BoundaryFrame />
+            <Navbar />
+            <HeroContent />
+          </div>
+        )}
       </main>
 
       {/* Other Scrollable Sections */}
