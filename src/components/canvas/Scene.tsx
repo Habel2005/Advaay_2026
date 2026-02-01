@@ -1,29 +1,31 @@
 // src/components/canvas/Scene.tsx
 'use client';
-import { Suspense, use, useState } from 'react';
+import { Suspense } from 'react'; // Removed unused 'use' and 'useState'
 import { Canvas } from '@react-three/fiber';
 import { Environment, OrbitControls } from '@react-three/drei';
-import { Hands } from './models/Hands';
-import { ResponsiveFog } from './props/Responsivefog';
+import { Hands, ResponsiveFog } from './models/Hands';
+import {Logo} from './models/Logo';
 
 interface SceneProps {
-  canPlayAnimations?: boolean; // New prop to control animations
+  canPlayAnimations?: boolean;
 }
 
 export default function Scene({ canPlayAnimations = false }: SceneProps) {
-  const [canPlayAnimationsState, setCanPlayAnimationsState] = useState(canPlayAnimations); // Placeholder for future state management if needed
   return (
-    <>
+    <Canvas 
+      camera={{ position: [0, 0, 8], fov: 30 }} 
+      shadows 
+      gl={{ antialias: true, powerPreference: "high-performance" }}
+    >
+      <ResponsiveFog />
       
-      <Canvas camera={{ position: [0, 0, 8], fov: 30 }} shadows gl={{ antialias: true, powerPreference: "high-performance" }}>
-        <ResponsiveFog />
-
-        <Suspense fallback={null}>
-          <Environment preset="lobby" />
-          <Hands canPlay={canPlayAnimations} />
-          <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
-        </Suspense>
-      </Canvas>
-    </>
+      <Suspense fallback={null}>
+        <Environment preset="lobby" />
+        {/* Pass the prop directly here */}
+        <Logo canPlay={canPlayAnimations}/>
+        <Hands canPlay={canPlayAnimations} />
+        <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
+      </Suspense>
+    </Canvas>
   );
 }
