@@ -73,11 +73,12 @@ export default function Navbar() {
             color: COLORS.text,
             height: isMobile ? '24px' : '28px',
             minWidth: isMobile ? '60px' : '80px',
+            transform: 'translateY(11px)',
           }}>
             <GooeyText
               texts={["ADVAY", "അധ്വയ്", "अधवे"]}
               morphTime={1.5}
-              cooldownTime={2}
+              cooldownTime={0.5}
               className="h-full"
               textClassName="text-white font-bold"
             />
@@ -102,7 +103,7 @@ export default function Navbar() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  zIndex: 50, 
+                  zIndex: 50,
                 }}
                 onMouseEnter={(e) => {
                   if (!item.active) e.currentTarget.style.color = COLORS.text;

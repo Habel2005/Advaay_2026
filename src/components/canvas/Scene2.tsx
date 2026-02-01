@@ -543,6 +543,7 @@ export default function Scene2() {
 
     return (
         <motion.div
+            id="about"
             className="bg-black relative z-10"
             style={{ marginTop: isMobile ? marginTop : undefined }}
         >
