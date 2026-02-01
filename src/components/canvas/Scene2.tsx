@@ -77,6 +77,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
+export function FloatingPaths({ position }: { position: number }) {
+    const paths = Array.from({ length: 8 }, (_, i) => ({ // Reduced count from 15 to 8 for performance
+        id: i,
+        d: `M-${380 - i * 15 * position} -${189 + i * 6}C-${380 - i * 15 * position
+            } -${189 + i * 6} -${312 - i * 15 * position} ${216 - i * 6} ${152 - i * 15 * position
+            } ${343 - i * 6}C${616 - i * 15 * position} ${470 - i * 6} ${684 - i * 15 * position
+            } ${875 - i * 6} ${684 - i * 15 * position} ${875 - i * 6}`,
+        color: `rgba(15,23,42,${0.1 + i * 0.03})`,
+        width: 0.5 + i * 0.03,
+    }));
 
 
 export function GyroTiltBox({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -486,7 +496,6 @@ export default function Scene2() {
 
     return (
         <motion.div
-            id="about"
             className="bg-black relative z-10"
             style={{ marginTop: isMobile ? marginTop : undefined }}
         >
