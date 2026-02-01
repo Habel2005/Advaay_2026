@@ -9,6 +9,7 @@ import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
 import EventsSection from '@/components/ui/EventsSection'
 import TestScene4Page from './test-scene4/page'
 import FooterContent from '@/components/ui/FooterContent'
+import Scene2, { SmoothScrollProvider } from '@/components/canvas/Scene2'
 
 // Dynamic import for Scene (no SSR for Three.js)
 const Scene = dynamic(() => import('@/components/canvas/Scene'), {
