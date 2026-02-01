@@ -6,14 +6,24 @@ import { ScrollTrigger } from "gsap/all"
 import React, { useRef, useState, useMemo } from "react"
 import {
   Music, Users, Trophy, Car, Film,
-  Gamepad2, Sparkles, Zap, Star, Calendar
+  Gamepad2, Sparkles, Zap, Star, Calendar, LucideIcon
 } from "lucide-react"
 
 gsap.registerPlugin(ScrollTrigger)
 
+interface Event {
+  title: string;
+  subtitle: string;
+  status: string;
+  icon: LucideIcon;
+  gradient: string;
+  image: string;
+  description: string;
+}
+
 export default function EventsSection() {
 
-  const sectionRef = useRef(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
 
   const [activeCategory, setActiveCategory] = useState("featured")
   const [selectedFact, setSelectedFact] = useState(0)
@@ -30,14 +40,14 @@ export default function EventsSection() {
 
   /* ---------------- DATA ---------------- */
 
-  const funFacts = [
+  const funFacts: { icon: LucideIcon; fact: string }[] = [
     { icon: Star, fact: "Over 5000+ students participate in Advay annually from across India!" },
     { icon: Zap, fact: "Advay has been running for 15+ years, making it one of Kerala's longest-running fests!" },
     { icon: Trophy, fact: "₹10 Lakhs+ in prizes distributed across all events every year!" },
     { icon: Calendar, fact: "3 Days of non-stop entertainment, competition, and celebration!" }
   ]
 
-  const featuredEvents = [
+  const featuredEvents: Event[] = [
     {
       title: "Avante Garde",
       subtitle: "Fashion Extravaganza",
@@ -76,7 +86,7 @@ export default function EventsSection() {
     }
   ]
 
-  const allEvents = [
+  const allEvents: Event[] = [
     ...featuredEvents,
     {
       title: "DriftX",
@@ -151,7 +161,7 @@ export default function EventsSection() {
       }
     )
 
-    gsap.utils.toArray(".event-card").forEach(card => {
+    gsap.utils.toArray<HTMLElement>(".event-card").forEach(card => {
       gsap.fromTo(card,
         { opacity: 0, y: 100, scale: 0.8 },
         {
@@ -180,7 +190,7 @@ export default function EventsSection() {
 
   /* ---------------- CARD ---------------- */
 
-  function EventCard({ event }) {
+  function EventCard({ event }: { event: Event }) {
 
     const Icon = event.icon
     const [flip, setFlip] = useState(false)

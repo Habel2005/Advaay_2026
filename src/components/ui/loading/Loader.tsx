@@ -126,14 +126,14 @@ export default function Loader({
         initial={{ opacity: 1 }}
         animate={textControls}
       >
-        MuLearn TIST
+        v2.5.1_STABLE
       </motion.div>
       <motion.div 
         className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 text-[9px] text-black/40 tracking-[0.2em] uppercase"
         initial={{ opacity: 1 }}
         animate={textControls}
       >
-        v2.5.1_STABLE
+        Developed by MuLearn TIST
       </motion.div>
     </div>
   );
