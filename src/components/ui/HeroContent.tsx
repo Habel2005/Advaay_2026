@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { COLORS, HERO_WORDS } from '@/lib/constants'
+import { GooeyText } from './GooeyText'
 
 // ============================================
 // HERO CONTENT COMPONENT
@@ -15,7 +16,7 @@ export default function HeroContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const indexRef = useRef<HTMLDivElement>(null)
   const [isMobile, setIsMobile] = useState(false)
-  
+
   // Check if mobile
   useEffect(() => {
     const checkMobile = () => {
@@ -25,16 +26,16 @@ export default function HeroContent() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-  
+
   useGSAP(() => {
     const tl = gsap.timeline({ delay: 0.3 })
-    
+
     // Description
     tl.fromTo(descRef.current,
       { opacity: 0, x: 30 },
       { opacity: 1, x: 0, duration: 0.7, ease: 'power2.out' }
     )
-    
+
     // Index numbers (like KPR Verse 01K, 02P, 03R)
     const wordIndexElements = indexRef.current?.querySelectorAll('.word-index')
     if (wordIndexElements && wordIndexElements.length > 0) {
@@ -44,23 +45,23 @@ export default function HeroContent() {
         '-=0.4'
       )
     }
-    
+
     // Title letters
     const letters = titleRef.current?.querySelectorAll('.hero-letter')
     if (letters) {
       tl.fromTo(letters,
         { opacity: 0, y: 60 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.6, 
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
           stagger: 0.02,
-          ease: 'power3.out' 
+          ease: 'power3.out'
         },
         '-=0.5'
       )
     }
-    
+
     // Scroll indicator
     tl.fromTo(scrollRef.current,
       { opacity: 0 },
@@ -68,12 +69,12 @@ export default function HeroContent() {
       '-=0.2'
     )
   }, { scope: containerRef })
-  
+
   // Animated scroll indicator
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-    
+
     gsap.to(el, {
       y: 6,
       duration: 1,
@@ -82,14 +83,14 @@ export default function HeroContent() {
       ease: 'power1.inOut',
     })
   }, [])
-  
+
   return (
     <div
       ref={containerRef}
       style={{
         // position: 'fixed',
         inset: 0,
-        zIndex: 10,
+        zIndex: 50,
         display: 'flex',
         flexDirection: 'column',
         padding: isMobile ? '80px 24px 24px 24px' : '80px 48px 32px 48px',
@@ -111,24 +112,24 @@ export default function HeroContent() {
           marginTop: isMobile ? '8px' : '16px',
         }}
       >
-        <span style={{ color: COLORS.text, fontWeight: 500 }}>ADVAY</span> is the National-level Techno-Cultural fest 
-        that's a celebration of creativity and innovation. It offers students from all over the country an exciting 
+        <span style={{ color: COLORS.text, fontWeight: 500 }}>ADVAY</span> is the National-level Techno-Cultural fest
+        that's a celebration of creativity and innovation. It offers students from all over the country an exciting
         platform to showcase their talents and abilities. With a diverse range of events and exciting cash prizes.
       </div>
-      
+
       {/* Main Content - Vertically Centered */}
-      <div style={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         marginTop: isMobile ? '-20px' : '-40px', // Offset to visually center with 3D model
       }}>
         {/* Hero Title with Index Numbers */}
-        <div 
+        <div
           ref={titleRef}
         >
-          <div ref={indexRef}>
+          {/* <div ref={indexRef}>
             {HERO_WORDS.map((word, wordIndex) => (
               <div
                 key={word.text}
@@ -143,7 +144,7 @@ export default function HeroContent() {
                 }}
               >
                 {/* Index code (like KPR Verse 01K, 02P, 03R) - Hide on mobile */}
-                {!isMobile && (
+          {/* {!isMobile && (
                   <span
                     className="word-index"
                     style={{
@@ -182,10 +183,10 @@ export default function HeroContent() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
-      
+
       {/* Bottom Footer - Always visible */}
       <div style={{
         display: 'flex',
@@ -223,7 +224,7 @@ export default function HeroContent() {
             TIST, ARAKKUNNAM
           </div>
         </div>
-        
+
         {/* Right - Scroll indicator */}
         <div
           ref={scrollRef}
@@ -239,7 +240,7 @@ export default function HeroContent() {
         >
           SCROLL
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 5L6 9L10 5" stroke={COLORS.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 5L6 9L10 5" stroke={COLORS.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       </div>

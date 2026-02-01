@@ -6,6 +6,7 @@ import { useGSAP } from '@gsap/react';
 import { COLORS, NAV_ITEMS } from '@/lib/constants';
 import MobileMenu from './MobileMenu';
 import CipherText from './CipherText'; // Import the new component
+import { GooeyText } from './GooeyText';
 
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
@@ -38,7 +39,7 @@ export default function Navbar() {
           top: '20px',
           left: '20px',
           right: '20px',
-          zIndex: 60,
+          zIndex: 50,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -70,9 +71,16 @@ export default function Navbar() {
             fontWeight: 700,
             letterSpacing: '0.05em',
             color: COLORS.text,
+            height: isMobile ? '24px' : '28px',
+            minWidth: isMobile ? '60px' : '80px',
           }}>
-            ADVAY
-            {/* <CipherText text="ADVAY" /> */}
+            <GooeyText
+              texts={["ADVAY", "അധ്വയ്", "अधवे"]}
+              morphTime={1.5}
+              cooldownTime={2}
+              className="h-full"
+              textClassName="text-white font-bold"
+            />
           </div>
         </div>
 
@@ -94,6 +102,7 @@ export default function Navbar() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
+                  zIndex: 50, 
                 }}
                 onMouseEnter={(e) => {
                   if (!item.active) e.currentTarget.style.color = COLORS.text;

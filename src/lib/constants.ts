@@ -27,7 +27,7 @@ export const MENU_ITEMS = [
 ]
 
 export const HERO_WORDS = [
-  { text: 'IGNITE.', index: '01I', align: 'left' },
-  { text: 'CREATE.', index: '02C', align: 'center' },
-  { text: 'CELEBRATE.', index: '03C', align: 'left' },
+  { text: 'ADVAY 26', index: '01I', align: 'left' },
+  { text: 'ADVAY 26', index: '02C', align: 'center' },
+  { text: 'ADVAY 26', index: '03C', align: 'left' },
 ]
