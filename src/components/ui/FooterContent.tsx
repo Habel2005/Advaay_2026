@@ -9,25 +9,28 @@ export default function FooterContent() {
     <div className="w-full grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-red-900/30 border-t border-red-900/30 bg-black">
       
       {/* COLUMN 1 */}
-      <div className="p-6 md:p-8 flex flex-col justify-between group h-[20vh] md:h-[40vh] hover:bg-red-900/10 transition-colors">
-          <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
-            <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
-            <CipherText text="DISCOVER MORE" />
-          </div>
-          <div className="mt-auto hidden md:block">
-            <p className="text-neutral-500 text-sm max-w-[150px] group-hover:text-red-400 transition-colors">
-              The future of tech innovation.
+      <div className="p-6 md:p-8 flex flex-col justify-end group h-[30vh] md:h-[40vh] hover:bg-red-900/10 transition-colors">
+          <div className="space-y-4">
+            <p className="text-xs text-neutral-400 uppercase tracking-widest leading-relaxed">
+              MODEL CREATED BY: <br/>
+              <span className="text-red-500 font-bold">GEMINI</span>
+            </p>
+            <p className="text-xs text-neutral-400 uppercase tracking-widest leading-relaxed">
+              INSPIRED BY: <br/>
+              <a href="https://kprverse.com" target="_blank" rel="noopener noreferrer" className="text-red-500 font-bold hover:text-white transition-colors">
+                KPRVERSE.COM
+              </a>
             </p>
           </div>
       </div>
 
       {/* COLUMN 2 */}
-      <div className="p-6 md:p-8 flex flex-col justify-between hover:bg-red-900/10 transition-colors">
-        <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest mb-4 md:mb-12">
+      <div className="p-6 md:p-8 flex flex-col justify-between h-[30vh] md:h-auto hover:bg-red-900/10 transition-colors">
+        <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
             <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
             <CipherText text="SITEMAP" />
           </div>
-        <nav className="flex flex-col gap-2 md:gap-4 text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none">
+        <nav className="flex flex-col gap-2 text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none mt-auto">
           {['About', 'Events', 'Gallery', 'Contact'].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="text-white hover:text-red-500 transition-colors w-max">
                 <CipherText text={item} />
@@ -37,12 +40,12 @@ export default function FooterContent() {
       </div>
 
       {/* COLUMN 3 */}
-      <div className="p-6 md:p-8 flex flex-col justify-between hover:bg-red-900/10 transition-colors">
-          <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest mb-4 md:mb-12">
+      <div className="p-6 md:p-8 flex flex-col justify-between h-[30vh] md:h-auto hover:bg-red-900/10 transition-colors">
+          <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
             <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
             <CipherText text="SOCIALS" />
           </div>
-          <div className="flex flex-col gap-2 md:gap-4 text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none">
+          <div className="flex flex-col gap-2 text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none mt-auto">
             {['INSTAGRAM', 'LINKEDIN', 'YOUTUBE'].map(social => (
                 <a key={social} href="#" className="text-white hover:text-red-500 transition-colors w-max">
                     <CipherText text={social} />
@@ -52,12 +55,12 @@ export default function FooterContent() {
       </div>
 
       {/* COLUMN 4 */}
-      <div className="p-6 md:p-8 flex flex-col justify-between hover:bg-red-900/10 transition-colors">
+      <div className="p-6 md:p-8 flex flex-col justify-between h-[30vh] md:h-auto hover:bg-red-900/10 transition-colors">
           <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
             <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
             <CipherText text="DETAILS" />
           </div>
-          <div className="mt-8 md:mt-auto space-y-8">
+          <div className="mt-auto space-y-4">
             <p className="text-xs text-neutral-400 uppercase tracking-widest leading-relaxed">
               Get In Touch <br/>
               <span className="text-red-500 font-bold hover:text-white transition-colors cursor-pointer">INFO@ADVAAY.COM</span>

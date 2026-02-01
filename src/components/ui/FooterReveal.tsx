@@ -14,12 +14,12 @@ export default function FooterReveal() {
       </div>
 
       {/* 2. BOTTOM LEGAL STRIP */}
-      <div className="relative z-10 w-full flex flex-wrap justify-center md:justify-between px-8 py-8 text-[10px] uppercase tracking-widest text-red-900/70 border-t border-red-900/20 bg-transparent">
-          <div className="flex gap-4 md:gap-8">
+      <div className="relative z-10 w-full grid grid-cols-1 md:grid-cols-3 items-center gap-y-4 md:gap-y-0 px-8 py-8 text-[10px] uppercase tracking-widest text-red-900/70 border-t border-red-900/20 bg-transparent">
+          <div className="flex justify-center gap-4 md:gap-8 md:col-start-2">
               <a href="#" className="hover:text-red-500 transition-colors"><CipherText text="Privacy Policy"></CipherText></a>
               <a href="#" className="hover:text-red-500 transition-colors"><CipherText text="Terms of Service"></CipherText></a>
           </div>
-          <div className="flex gap-2 text-red-900/50 mt-4 md:mt-0">
+          <div className="flex justify-center md:justify-start text-red-900/50">
                 <span>© 2026 ADVAAY</span>
           </div>
       </div>
