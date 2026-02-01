@@ -50,7 +50,7 @@ export default function HomePage() {
   return (
     <>
       {/* Main Hero Area - Scene renders first */}
-      <main id='main-screen' className='relative w-full h-screen bg-black overflow-hidden'>
+      <main id='main-screen' className='relative w-full h-screen overflow-hidden'>
         {/* Scene background layer */}
         {/* <div className='absolute w-full h-full z-0'>
           <Scene canPlayAnimations={canPlayAnimations} />
@@ -58,7 +58,7 @@ export default function HomePage() {
 
         {/* UI overlay - renders after Scene is ready */}
         {sceneReady && (
-          <div className='absolute w-full h-full z-10 pointer-events-none'>
+          <div className='absolute w-full h-full z-50 pointer-events-none'>
             <BoundaryFrame />
             <Navbar />
             <HeroContent />
