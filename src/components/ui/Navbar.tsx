@@ -39,7 +39,7 @@ export default function Navbar() {
           top: '20px',
           left: '20px',
           right: '20px',
-          zIndex: 50,
+          zIndex: 60,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -102,7 +102,6 @@ export default function Navbar() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  zIndex: 50, 
                 }}
                 onMouseEnter={(e) => {
                   if (!item.active) e.currentTarget.style.color = COLORS.text;

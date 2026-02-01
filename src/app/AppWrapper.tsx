@@ -49,11 +49,11 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
         className={`transition-opacity duration-700 ${revealDone ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
           }`}
       >
-        <div className='absolute w-full h-full z-10 bg-black'>
+        <div className='absolute w-full h-full z-50'>
           <Scene canPlayAnimations={revealDone} />
         </div>
         {/* THE "CURTAIN" WRAPPER (Your footer settings are preserved) */}
-        <div className="relative z-30  mb-[25vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <div className="relative z-10 bg-black mb-[25vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           {children}
         </div>
 
