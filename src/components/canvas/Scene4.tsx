@@ -36,7 +36,7 @@ const ALL_IMAGES = [
   '/images/gallery/event-16.JPG',
   '/images/gallery/event-17.JPG',
   '/images/gallery/event-18.JPG',
-  '/images/gallery/event-19.JPG',
+  '/images/gallery/event-19.jpg',
   '/images/gallery/event-20.JPG',
 ]
 
