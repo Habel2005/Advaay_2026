@@ -77,7 +77,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export function FloatingPaths({ position }: { position: number }) {
-    const paths = Array.from({ length: 15 }, (_, i) => ({ // Reduced count from 36
+    const paths = Array.from({ length: 8 }, (_, i) => ({ // Reduced count from 15 to 8 for performance
         id: i,
         d: `M-${380 - i * 15 * position} -${189 + i * 6}C-${380 - i * 15 * position
             } -${189 + i * 6} -${312 - i * 15 * position} ${216 - i * 6} ${152 - i * 15 * position
@@ -440,7 +440,7 @@ export function ParallaxReveal({
                             width={1920}
                             height={1080}
                             sizes="100vw"
-                            quality={90}
+                            unoptimized // Restore original quality
                             priority
                         />
                     </div>
