@@ -348,13 +348,13 @@ export function ParallaxReveal({
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ['start start', 'end start'],
+        offset: ['start 40%', 'end start'], // Starts transition even earlier (at 40% viewport)
     });
 
     const backgroundY = useTransform(
         scrollYProgress,
-        [0, 0.4],
-        ['5vh', '0vh'] // Reduced to 5vh for smoother start
+        [0, 0.30],
+        ['5vh', '0vh'] // More gradual transition (0.3) to maintain sync and smoothness
     );
 
     // Removed expensive backgroundScale and foregroundScale to fix lag
@@ -363,13 +363,13 @@ export function ParallaxReveal({
 
     const childrenOpacity = useTransform(
         scrollYProgress,
-        [0.30, 0.50],
+        [0.20, 0.30],
         [0, 1]
     );
 
     const childrenY = useTransform(
         scrollYProgress,
-        [0.30, 0.50],
+        [0.0, 0.2],
         [50, 0]
     );
 
@@ -425,7 +425,7 @@ export function ParallaxReveal({
                 {/* Foreground Layer - down.png (stays fixed) */}
                 <motion.div
                     className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-                    style={{ scale: 1 }}
+                    style={{ scale: 1, y: '-3vh' }}
                 >
                     <div className="absolute inset-0 w-full h-full">
                         <Image
@@ -537,9 +537,15 @@ export function ScrollFadeText({
 
 export default function Scene2() {
     const isMobile = useMobile();
+    const { scrollY } = useScroll();
+    // Dynamically reduce overlap from -130px to 0 as user scrolls (starting after 300px)
+    const marginTop = useTransform(scrollY, [300, 800], [-145, 0]);
 
     return (
-        <div className={`bg-black relative z-10 ${isMobile ? '-mt-48' : ''}`}>
+        <motion.div
+            className="bg-black relative z-10"
+            style={{ marginTop: isMobile ? marginTop : undefined }}
+        >
 
 
 
@@ -550,7 +556,13 @@ export default function Scene2() {
                 height="100vh"
             >
                 {/* ABOUT US text - positioned centrally above audience layer */}
-                <div className="w-full flex justify-center items-center px-4 translate-y-[38vh]">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="w-full flex justify-center items-center px-4 translate-y-[33vh]"
+                >
                     <div className="flex flex-col items-center gap-2">
                         <h2 className="text-4xl md:text-6xl font-mono tracking-tighter text-center leading-none flex gap-3 justify-center items-center group">
                             <span className="font-bold text-white">ABOUT</span>
@@ -558,7 +570,7 @@ export default function Scene2() {
                             <span className="font-light text-gray-300 group-hover:text-white transition-colors">US</span>
                         </h2>
                     </div>
-                </div>
+                </motion.div>
             </ParallaxReveal>
 
             {/* NEON NOIR FEATURE SECTION */}
@@ -702,6 +714,6 @@ export default function Scene2() {
             </section>
 
 
-        </div>
+        </motion.div>
     );
 }
