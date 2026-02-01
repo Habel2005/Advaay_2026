@@ -9,7 +9,7 @@ export default function FooterContent() {
     <div id="contact" className="w-full grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-red-900/30 border-t border-red-900/30 bg-black">
 
       {/* COLUMN 1 */}
-      <div className="p-6 md:p-8 flex flex-col justify-start group h-[30vh] md:h-auto hover:bg-red-900/10 transition-colors">
+      <div className="p-6 md:p-8 flex flex-col justify-start group h-auto hover:bg-red-900/10 transition-colors">
         <div className="space-y-4">
           <p className="text-[10px] text-neutral-400 leading-relaxed">
             <a href="https://skfb.ly/68QGs" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">"Arm & Hand sculpting"</a> by <span className="font-bold">alfance</span><br />
@@ -25,7 +25,7 @@ export default function FooterContent() {
       </div>
 
       {/* COLUMN 2 */}
-      <div className="p-6 md:p-8 flex flex-col justify-start gap-12 h-[30vh] md:h-auto hover:bg-red-900/10 transition-colors">
+      <div className="p-6 md:p-8 flex flex-col justify-start gap-12 h-auto hover:bg-red-900/10 transition-colors">
         <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
           <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
           <CipherText text="SITEMAP" />
@@ -40,7 +40,7 @@ export default function FooterContent() {
       </div>
 
       {/* COLUMN 3 */}
-      <div className="p-6 md:p-8 flex flex-col justify-start gap-12 h-[30vh] md:h-auto hover:bg-red-900/10 transition-colors">
+      <div className="p-6 md:p-8 flex flex-col justify-start gap-12 h-auto hover:bg-red-900/10 transition-colors">
         <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
           <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
           <CipherText text="SOCIALS" />
@@ -59,7 +59,7 @@ export default function FooterContent() {
       </div>
 
       {/* COLUMN 4 */}
-      <div className="p-6 md:p-8 flex flex-col justify-between h-[30vh] md:h-auto hover:bg-red-900/10 transition-colors">
+      <div className="p-6 md:p-8 flex flex-col justify-between h-auto hover:bg-red-900/10 transition-colors">
         <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
           <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
           <CipherText text="DETAILS" />
