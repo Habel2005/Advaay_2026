@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
-import HeroAboutSponsors from '@/components/ui/HeroSection'
+
 import EventsSection from '@/components/ui/EventsSection'
 import TestScene4Page from './test-scene4/page'
 import FooterContent from '@/components/ui/FooterContent'
@@ -66,7 +66,9 @@ export default function HomePage() {
       </main>
 
       {/* Other Scrollable Sections */}
-      <HeroAboutSponsors />
+      <SmoothScrollProvider>
+        <Scene2 />
+      </SmoothScrollProvider>
       <EventsSection />
       <TestScene4Page />
 
