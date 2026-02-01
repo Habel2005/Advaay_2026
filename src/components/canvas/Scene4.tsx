@@ -56,8 +56,8 @@ const VISIBLE_CARDS_DESKTOP = 6
 // Mobile Settings - handled in MobileStackCard component
 
 // Animation timing
-const PAUSE_DURATION = 1200    
-const SHIFT_DURATION = 400     
+const PAUSE_DURATION = 1200
+const SHIFT_DURATION = 400
 
 const CARD_OVERLAYS = [
   'rgba(229, 9, 20, 0.12)',
@@ -94,32 +94,32 @@ function useIsMobile() {
 // ============================================
 // DESKTOP GALLERY CARD
 // ============================================
-function DesktopGalleryCard({ 
+function DesktopGalleryCard({
   imageUrl,
   imageIndex,
-  position, 
-  side, 
+  position,
+  side,
   maxPosition,
   isShifting,
 }: {
   imageUrl: string
   imageIndex: number
-  position: number 
+  position: number
   side: 'left' | 'right'
   maxPosition: number
   isShifting: boolean
 }) {
   const direction = side === 'left' ? -1 : 1
-  
+
   const centerCardOffset = (DESKTOP_WIDTH / 2) + 10
-  
+
   let moveOffset: number
   if (position === 0) {
     moveOffset = direction * centerCardOffset
   } else {
     moveOffset = direction * (centerCardOffset + (position * DESKTOP_SPACING))
   }
-  
+
   const normalizedPos = Math.max(0, Math.min(position / maxPosition, 1))
   const scale = 1.1 - (normalizedPos * 0.25)
   const zIndex = position === 0 ? 120 : Math.round(100 - position * 10)
@@ -140,7 +140,7 @@ function DesktopGalleryCard({
         transform: `translate3d(${moveOffset}px, 0px, ${translateZ}px) scale(${scale})`,
         zIndex,
         transformStyle: 'preserve-3d',
-        transition: isShifting 
+        transition: isShifting
           ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`
           : 'none',
         willChange: 'transform',
@@ -154,14 +154,14 @@ function DesktopGalleryCard({
 // ============================================
 // SHARED CARD CONTENT
 // ============================================
-function CardContent({ 
-  imageUrl, 
-  overlayColor, 
-  isCenter 
-}: { 
+function CardContent({
+  imageUrl,
+  overlayColor,
+  isCenter
+}: {
   imageUrl: string
   overlayColor: string
-  isCenter: boolean 
+  isCenter: boolean
 }) {
   return (
     <div
@@ -171,7 +171,7 @@ function CardContent({
         borderRadius: '12px',
         overflow: 'hidden',
         position: 'relative',
-        boxShadow: isCenter 
+        boxShadow: isCenter
           ? `0 25px 50px rgba(0,0,0,0.5), 0 0 40px ${COLORS.red}20`
           : '0 15px 35px rgba(0,0,0,0.4)',
         border: isCenter ? `1px solid ${COLORS.red}25` : '1px solid rgba(255,255,255,0.05)',
@@ -196,14 +196,14 @@ function DesktopCarousel() {
   const [leftCards, setLeftCards] = useState<CardState[]>([])
   const [rightCards, setRightCards] = useState<CardState[]>([])
   const [isShifting, setIsShifting] = useState(false)
-  
+
   const leftImageCounterRef = useRef(0)
   const rightImageCounterRef = useRef(0)
   const cardIdCounterRef = useRef(0)
-  
+
   const addNewCards = useCallback(() => {
     setIsShifting(true)
-    
+
     const newLeft: CardState = {
       id: cardIdCounterRef.current++,
       imageIndex: leftImageCounterRef.current++ % LEFT_IMAGES.length,
@@ -214,42 +214,42 @@ function DesktopCarousel() {
       imageIndex: rightImageCounterRef.current++ % RIGHT_IMAGES.length,
       position: 0,
     }
-    
+
     setLeftCards(prev => [newLeft, ...prev.map(c => ({ ...c, position: c.position + 1 })).filter(c => c.position <= VISIBLE_CARDS_DESKTOP)])
     setRightCards(prev => [newRight, ...prev.map(c => ({ ...c, position: c.position + 1 })).filter(c => c.position <= VISIBLE_CARDS_DESKTOP)])
-    
+
     setTimeout(() => setIsShifting(false), SHIFT_DURATION)
   }, [])
-  
+
   useEffect(() => {
     addNewCards()
     const interval = setInterval(addNewCards, PAUSE_DURATION + SHIFT_DURATION)
     return () => clearInterval(interval)
   }, [addNewCards])
-  
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '420px', perspective: '1200px', perspectiveOrigin: '50% 50%', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d' }}>
         {leftCards.map(card => (
-          <DesktopGalleryCard 
-            key={card.id} 
-            imageUrl={LEFT_IMAGES[card.imageIndex]} 
-            imageIndex={card.imageIndex} 
-            position={card.position} 
-            side="left" 
-            maxPosition={VISIBLE_CARDS_DESKTOP} 
-            isShifting={isShifting} 
+          <DesktopGalleryCard
+            key={card.id}
+            imageUrl={LEFT_IMAGES[card.imageIndex]}
+            imageIndex={card.imageIndex}
+            position={card.position}
+            side="left"
+            maxPosition={VISIBLE_CARDS_DESKTOP}
+            isShifting={isShifting}
           />
         ))}
         {rightCards.map(card => (
-          <DesktopGalleryCard 
-            key={card.id} 
-            imageUrl={RIGHT_IMAGES[card.imageIndex]} 
-            imageIndex={card.imageIndex} 
-            position={card.position} 
-            side="right" 
-            maxPosition={VISIBLE_CARDS_DESKTOP} 
-            isShifting={isShifting} 
+          <DesktopGalleryCard
+            key={card.id}
+            imageUrl={RIGHT_IMAGES[card.imageIndex]}
+            imageIndex={card.imageIndex}
+            position={card.position}
+            side="right"
+            maxPosition={VISIBLE_CARDS_DESKTOP}
+            isShifting={isShifting}
           />
         ))}
       </div>
@@ -265,27 +265,27 @@ function DesktopCarousel() {
 // ============================================
 
 // MODIFICATION: Increased size
-const MOBILE_CARD_W = 220 
+const MOBILE_CARD_W = 220
 const MOBILE_CARD_H = 320
 const MOBILE_GAP = 55
 
 function MobileCarousel() {
-  const [stack, setStack] = useState<Array<{id: number, img: number, pos: number}>>([])
+  const [stack, setStack] = useState<Array<{ id: number, img: number, pos: number }>>([])
   const [comingFromLeft, setComingFromLeft] = useState(true)
   const [newCardId, setNewCardId] = useState<number | null>(null)
   const [phase, setPhase] = useState<'idle' | 'enter' | 'move'>('idle')
-  
+
   const idCounter = useRef(100)
   const imgCounter = useRef(0)
   const initialized = useRef(false)
-  
+
   const CARDS_PER_SIDE = 3
-  
+
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
-    
-    const initial: Array<{id: number, img: number, pos: number}> = []
+
+    const initial: Array<{ id: number, img: number, pos: number }> = []
     for (let p = -CARDS_PER_SIDE; p <= CARDS_PER_SIDE; p++) {
       initial.push({
         id: idCounter.current++,
@@ -295,50 +295,50 @@ function MobileCarousel() {
     }
     setStack(initial)
   }, [])
-  
+
   const doAnimation = useCallback(() => {
     const cardId = idCounter.current++
     const cardImg = imgCounter.current++ % ALL_IMAGES.length
     const entryPos = comingFromLeft ? -CARDS_PER_SIDE - 2 : CARDS_PER_SIDE + 2
-    
+
     const newCard = { id: cardId, img: cardImg, pos: entryPos }
-    
+
     setNewCardId(cardId)
     setPhase('enter')
     setStack(prev => [...prev, newCard])
-    
+
     setTimeout(() => {
       setPhase('move')
       const shift = comingFromLeft ? 1 : -1
-      
+
       setStack(prev => prev.map(card => ({
         ...card,
         pos: card.id === cardId ? 0 : card.pos + shift
       })).filter(card => Math.abs(card.pos) <= CARDS_PER_SIDE + 2))
     }, 50)
-    
+
     setTimeout(() => {
       setPhase('idle')
       setNewCardId(null)
       setStack(prev => prev.filter(card => Math.abs(card.pos) <= CARDS_PER_SIDE))
       setComingFromLeft(prev => !prev)
     }, 50 + SHIFT_DURATION)
-    
+
   }, [comingFromLeft])
-  
+
   useEffect(() => {
     if (stack.length === 0) return
-    
+
     const timer = setInterval(doAnimation, PAUSE_DURATION + SHIFT_DURATION + 100)
     return () => clearInterval(timer)
   }, [doAnimation, stack.length])
-  
-  const getStyle = (card: {id: number, img: number, pos: number}) => {
+
+  const getStyle = (card: { id: number, img: number, pos: number }) => {
     const isNew = card.id === newCardId
     const isMoving = phase === 'move'
-    
+
     let x: number, rot: number, sc: number, z: number, op: number
-    
+
     if (isNew && phase === 'enter') {
       x = comingFromLeft ? -280 : 280
       rot = comingFromLeft ? -25 : 25
@@ -351,14 +351,14 @@ function MobileCarousel() {
       sc = 1 - Math.abs(card.pos) * 0.06
       z = 100 - Math.abs(card.pos) * 10
       op = Math.abs(card.pos) > CARDS_PER_SIDE ? 0 : 1
-      
+
       if (isNew && isMoving) {
         z = 200
       }
     }
-    
+
     const shouldAnimate = isMoving || (isNew && isMoving)
-    
+
     return {
       position: 'absolute' as const,
       left: '50%',
@@ -370,12 +370,12 @@ function MobileCarousel() {
       transform: `translateX(${x}px) rotate(${rot}deg) scale(${sc})`,
       zIndex: z,
       opacity: op,
-      transition: shouldAnimate 
+      transition: shouldAnimate
         ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1), opacity ${SHIFT_DURATION}ms ease`
         : 'none',
     }
   }
-  
+
   return (
     <div style={{ position: 'relative', width: '100%', height: 350, overflow: 'hidden' }}>
       {stack.map(card => (
@@ -386,7 +386,7 @@ function MobileCarousel() {
             borderRadius: 12,
             overflow: 'hidden',
             // MODIFICATION: Removed red shadow
-            boxShadow: card.pos === 0 
+            boxShadow: card.pos === 0
               ? `0 25px 50px rgba(0,0,0,0.5)`
               : '0 15px 35px rgba(0,0,0,0.4)',
             // MODIFICATION: Removed red border
@@ -407,7 +407,7 @@ function MobileCarousel() {
           </div>
         </div>
       ))}
-      
+
       {/* MODIFICATION: REMOVED DOTS INDICATOR */}
     </div>
   )
@@ -439,14 +439,14 @@ function SectionCounter({ isMobile }: { isMobile: boolean }) {
 // ============================================
 export default function Scene4({ className = '' }: { className?: string }) {
   const isMobile = useIsMobile()
-  
+
   if (isMobile) {
     return (
-      <div className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '700px', background: COLORS.bg, overflow: 'hidden' }}>
+      <div id="gallery" className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '700px', background: COLORS.bg, overflow: 'hidden' }}>
         <style jsx>{`@import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500&display=swap');`}</style>
         <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 50% 50%, ${COLORS.red}08 0%, transparent 60%), ${COLORS.bg}`, pointerEvents: 'none' }} />
         <BoundaryFrame />
-        
+
         {/* Header Section */}
         <div style={{ position: 'absolute', top: '90px', left: '24px', right: '24px', zIndex: 1 }}>
           <SectionCounter isMobile />
@@ -454,12 +454,12 @@ export default function Scene4({ className = '' }: { className?: string }) {
             MEMORIES<br />OF <span style={{ color: COLORS.red }}>ADVAY</span>.
           </h2>
         </div>
-        
+
         {/* Carousel Section */}
         <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, transform: 'translateY(-50%)' }}>
           <MobileCarousel />
         </div>
-        
+
         {/* Description Section */}
         <div style={{ position: 'absolute', bottom: '40px', left: '24px', right: '24px', zIndex: 1 }}>
           <div style={{ fontFamily: FONTS.mono, fontSize: '9px', letterSpacing: '0.15em', color: COLORS.textMuted, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase' }}>
@@ -472,9 +472,9 @@ export default function Scene4({ className = '' }: { className?: string }) {
       </div>
     )
   }
-  
+
   return (
-    <div className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '650px', maxHeight: '900px', background: COLORS.bg, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div id="gallery" className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '650px', maxHeight: '900px', background: COLORS.bg, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500&display=swap');
         @keyframes bounceUp { 0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; } 50% { transform: translateX(-50%) translateY(-6px); opacity: 0.8; } }

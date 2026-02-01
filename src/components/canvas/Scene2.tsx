@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { cn } from "@/lib/utils";
 import { useMobile } from '@/hooks/useMobile';
 import { initLenis, startLenisRAF } from '@/lib/lenis';
+import { FloatingPaths } from '@/components/ui/background-paths';
 
 export function SmoothScrollProvider({
     children,
@@ -87,54 +88,6 @@ export function FloatingPaths({ position }: { position: number }) {
         width: 0.5 + i * 0.03,
     }));
 
-    return (
-        <div className="absolute inset-0 pointer-events-none will-change-transform">
-            <svg
-                className="w-full h-full text-slate-950 dark:text-white"
-                viewBox="0 0 696 316"
-                fill="none"
-                preserveAspectRatio="none"
-            >
-                <title>Background Paths</title>
-                {paths.map((path) => (
-                    <motion.path
-                        key={path.id}
-                        d={path.d}
-                        stroke="currentColor"
-                        strokeWidth={path.width}
-                        strokeOpacity={0.1 + path.id * 0.03}
-                        initial={{ pathLength: 0.3, opacity: 0.6 }}
-                        animate={{
-                            pathLength: 1,
-                            opacity: [0.3, 0.6, 0.3],
-                            pathOffset: [0, 1, 0],
-                        }}
-                        transition={{
-                            duration: 20 + Math.random() * 10,
-                            repeat: Number.POSITIVE_INFINITY,
-                            ease: "linear",
-                        }}
-                    />
-                ))}
-            </svg>
-        </div>
-    );
-}
-
-export function BackgroundPaths({
-    title = "Background Paths",
-}: {
-    title?: string;
-}) {
-    return (
-        <div className="relative w-full h-full overflow-hidden bg-transparent opacity-60">
-            <div className="absolute inset-0">
-                <FloatingPaths position={1} />
-                {/* Removed second FloatingPaths for performance */}
-            </div>
-        </div>
-    );
-}
 
 export function GyroTiltBox({ children, className }: { children: React.ReactNode, className?: string }) {
     const x = useMotionValue(0);
@@ -590,7 +543,12 @@ export default function Scene2() {
 
                 {/* Background Paths Layer - Absolute Full Width */}
                 <div className="absolute top-1/2 left-0 w-full h-[80vh] -translate-y-1/2 -z-0 opacity-80 pointer-events-none mix-blend-screen scale-150 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]">
-                    <BackgroundPaths title="NEON NOIR" />
+                    <div className="relative w-full h-full overflow-hidden bg-transparent opacity-60">
+                        <div className="absolute inset-0">
+                            <FloatingPaths position={1} />
+                            <FloatingPaths position={-1} />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-12 lg:px-24 space-y-12 md:space-y-24">
