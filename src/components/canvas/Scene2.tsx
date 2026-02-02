@@ -78,7 +78,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button"
 
 export function FloatingPaths({ position }: { position: number }) {
-    const paths = Array.from({ length: 8 }, (_, i) => ({ // Reduced count from 15 to 8 for performance
+    const paths = Array.from({ length: 5 }, (_, i) => ({ // Reduced count to 5 for performance
         id: i,
         d: `M-${380 - i * 15 * position} -${189 + i * 6}C-${380 - i * 15 * position
             } -${189 + i * 6} -${312 - i * 15 * position} ${216 - i * 6} ${152 - i * 15 * position
@@ -323,6 +323,7 @@ interface ParallaxRevealProps {
     children?: React.ReactNode; // Content to show between the layers
 }
 
+
 export function ParallaxReveal({
     backgroundImage,
     foregroundImage,
@@ -330,32 +331,86 @@ export function ParallaxReveal({
     children,
 }: ParallaxRevealProps) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const isMobile = useMobile();
+    const [viewportFactor, setViewportFactor] = useState(1);
 
+    useEffect(() => {
+        const updateViewport = () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const aspectRatio = width / height;
+            const viewportWidth = aspectRatio * 5;
+            
+            // Calculate smooth responsive factor: 0 (mobile) to 1 (desktop)
+            // Mobile: < 2.5 viewport units -> factor: 0
+            // Desktop: > 8 viewport units -> factor: 1
+            // Tablet/In-between: smooth interpolation
+            const factor = Math.min(1, Math.max(0, (viewportWidth - 2.5) / (8 - 2.5)));
+            setViewportFactor(factor);
+        };
+        updateViewport();
+        window.addEventListener('resize', updateViewport);
+        return () => window.removeEventListener('resize', updateViewport);
+    }, []);
+
+    const isMobile = viewportFactor < 0.2;
+    
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ['start 40%', 'end start'], // Starts transition even earlier (at 40% viewport)
+        offset: [isMobile ? 'start 40%' : 'start start', isMobile ? 'start start' : 'end start'],
     });
 
+    const smoothProgress = useSpring(scrollYProgress, {
+        mass: 0.2,
+        stiffness: 50,
+        damping: 15,
+        restDelta: 0.005
+    });
+
+    // Unified background animation using viewport factor
+    const backgroundYStart = -5 + (viewportFactor * 5); // -5vh (mobile) to 0vh (desktop)
+    const backgroundYEnd = 5;
+    
     const backgroundY = useTransform(
-        scrollYProgress,
-        [0, 0.30],
-        ['5vh', '0vh'] // More gradual transition (0.3) to maintain sync and smoothness
+        smoothProgress,
+        [0, isMobile ? 0.7 : 0.25],
+        [`${backgroundYStart}vh`, `${backgroundYEnd}vh`]
     );
 
-    // Removed expensive backgroundScale and foregroundScale to fix lag
-    const scale = 1;
+    const backgroundScale = useTransform(
+        smoothProgress,
+        [0, isMobile ? 0.7 : 0.25],
+        [1.1, 1.0]
+    );
+
+    // Unified foreground animation using viewport factor
+    const foregroundYStart = -10 + (viewportFactor * 12); // -10vh (mobile) to 2vh (desktop)
+    const foregroundYEnd = 0 + (viewportFactor * 5); // 0vh (mobile) to 5vh (desktop)
+    
+    const foregroundY = useTransform(
+        smoothProgress,
+        [isMobile ? 0.2 : 0, isMobile ? 0.7 : 0.25],
+        [`${foregroundYStart}vh`, `${foregroundYEnd}vh`]
+    );
+
+    const foregroundScaleStart = 1.0;
+    const foregroundScaleEnd = 1.02 + (viewportFactor * 0.03); // 1.02 (mobile) to 1.05 (desktop)
+
+    const foregroundScale = useTransform(
+        smoothProgress,
+        [0, isMobile ? 0.7 : 0.25],
+        [foregroundScaleStart, foregroundScaleEnd]
+    );
 
 
     const childrenOpacity = useTransform(
-        scrollYProgress,
-        [0.20, 0.30],
+        smoothProgress,
+        [0.10, 0.30],
         [0, 1]
     );
 
     const childrenY = useTransform(
-        scrollYProgress,
-        [0.0, 0.2],
+        smoothProgress,
+        [0.0, 0.30],
         [50, 0]
     );
 
@@ -369,10 +424,10 @@ export function ParallaxReveal({
 
                 {/* Background Layer - up.JPG (moves up from below) */}
                 <motion.div
-                    className="absolute inset-0 w-full h-full"
+                    className="absolute inset-0 w-full h-full transform-gpu"
                     style={{
                         y: backgroundY,
-                        scale: 1,
+                        scale: backgroundScale,
                         willChange: 'transform',
                         backfaceVisibility: 'hidden',
                         WebkitBackfaceVisibility: 'hidden',
@@ -384,7 +439,7 @@ export function ParallaxReveal({
                             alt="Background Concert"
                             className="w-full h-full object-cover grayscale"
                             style={{
-                                objectPosition: 'center center',
+                                objectPosition: isMobile ? 'center center' : 'center 25%', // Favor top even more
                                 transform: 'translateZ(0)',
                                 width: '100%',
                                 height: '100%'
@@ -392,8 +447,9 @@ export function ParallaxReveal({
                             width={1920}
                             height={1080}
                             sizes="100vw"
-                            unoptimized // Restore original quality
+                            quality={100}
                             priority
+                            unoptimized
                         />
                     </div>
                 </motion.div>
@@ -410,8 +466,14 @@ export function ParallaxReveal({
 
                 {/* Foreground Layer - down.png (stays fixed) */}
                 <motion.div
-                    className="absolute inset-0 w-full h-full z-10 pointer-events-none"
-                    style={{ scale: 1, y: '-3vh' }}
+                    className="absolute inset-0 w-full h-full z-10 pointer-events-none transform-gpu"
+                    style={{ 
+                        scale: foregroundScale, 
+                        y: foregroundY,
+                        willChange: 'transform',
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                    }}
                 >
                     <div className="absolute inset-0 w-full h-full">
                         <Image
@@ -421,14 +483,18 @@ export function ParallaxReveal({
                             style={{
                                 objectPosition: 'center center',
                                 width: '100%',
-                                height: '100%'
+                                height: '100%',
+                                transform: 'translateZ(0)'
                             }}
                             width={1920}
                             height={1080}
                             sizes="100vw"
-                            unoptimized // Restore original quality
+                            quality={100}
                             priority
+                            unoptimized
                         />
+                        {/* Dark gradient at bottom for smooth transition */}
+                        <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black via-black to-transparent"></div>
                     </div>
                 </motion.div>
             </div>
@@ -522,32 +588,26 @@ export function ScrollFadeText({
 }
 
 export default function Scene2() {
-    const isMobile = useMobile();
-    const { scrollY } = useScroll();
-    // Dynamically reduce overlap from -130px to 0 as user scrolls (starting after 300px)
-    const marginTop = useTransform(scrollY, [300, 800], [-145, 0]);
-
     return (
         <motion.div
-            className="bg-black relative z-10"
-            style={{ marginTop: isMobile ? marginTop : undefined }}
+            className="bg-black relative z-10 -mt-16 md:-mt-1"
         >
-
-
-
-            {/* Your Parallax Reveal Effect with Text Between Layers */}
+            {/* Your Parallax Reveal Effect */}
             <ParallaxReveal
                 backgroundImage="/images/up6.JPG"
                 foregroundImage="/images/down5.png"
                 height="100vh"
             >
-                {/* ABOUT US text - positioned centrally above audience layer */}
+            </ParallaxReveal>
+
+            {/* ABOUT US text - pulled up with negative margin on mobile */}
+            <div className="relative z-50 bg-black -mt-32 md:mt-0 py-8 md:py-8">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="w-full flex justify-center items-center px-4 translate-y-[33vh]"
+                    className="w-full flex justify-center items-center px-4"
                 >
                     <div className="flex flex-col items-center gap-2">
                         <h2 className="text-4xl md:text-6xl font-mono tracking-tighter text-center leading-none flex gap-3 justify-center items-center group">
@@ -557,7 +617,10 @@ export default function Scene2() {
                         </h2>
                     </div>
                 </motion.div>
-            </ParallaxReveal>
+            </div>
+
+            {/* Spacer between parallax and next section */}
+            <div className="h-12 md:h-10 bg-black"></div>
 
             {/* NEON NOIR FEATURE SECTION */}
             <section className="relative bg-black pt-0 md:pt-12 pb-32 overflow-hidden">
@@ -588,11 +651,11 @@ export default function Scene2() {
 
                     {/* Feature 1: FASHION (Runway) */}
                     <div className="relative group">
-                        {/* Asymmetrical Layout */}
-                        <div className="flex flex-col md:flex-row items-center justify-center gap-0 md:gap-12 relative">
+                        {/* Asymmetrical Layout - stacks on mobile/tablet, horizontal on desktop */}
+                        <div className="flex flex-col lg:flex-row items-center justify-center gap-0 lg:gap-12 relative">
 
                             {/* Image Composition */}
-                            <div className="w-full md:w-1/2 relative z-10">
+                            <div className="w-full lg:w-1/2 relative z-10">
                                 <div className="relative aspect-[4/5] overflow-hidden rounded-sm border border-white/10 shadow-[0_0_50px_-10px_rgba(220,38,38,0.3)] group-hover:shadow-[0_0_80px_-10px_rgba(220,38,38,0.5)] transition-shadow duration-700">
                                     <div className="absolute inset-0 bg-red-900/20 mix-blend-overlay z-10" />
                                     <img
@@ -601,23 +664,22 @@ export default function Scene2() {
                                         loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-105 grayscale contrast-125"
                                     />
-                                    {/* Glitch Overlay Elements - Removed IMG_SEQ_001 */}
                                 </div>
 
                                 {/* Floating Decor Element */}
-                                <div className="absolute -bottom-10 -left-10 w-full h-full border border-red-500/20 z-0 hidden md:block" />
+                                <div className="absolute -bottom-10 -left-10 w-full h-full border border-red-500/20 z-0 hidden lg:block" />
                             </div>
 
                             {/* Content Card - Overlapping */}
-                            <div className="w-full md:w-2/5 relative z-20 -mt-10 md:mt-0 md:-ml-20">
-                                <div className="bg-black/80 border border-white/10 p-8 md:p-12 relative overflow-hidden">
+                            <div className="w-full lg:w-2/5 relative z-20 -mt-10 lg:mt-0 lg:-ml-20">
+                                <div className="bg-black/90 border border-white/10 p-6 lg:p-12 relative overflow-hidden">
                                     {/* Card Shine Effect */}
                                     <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white/5 to-transparent rotate-45 pointer-events-none" />
 
                                     <div className="space-y-6 relative z-10">
                                         <div className="space-y-1">
                                             <span className="block font-mono text-xs text-red-500 tracking-[0.3em]">NATIONAL // LEVEL</span>
-                                            <h2 className="text-6xl md:text-7xl font-bebas text-white tracking-wide leading-[0.85]">
+                                            <h2 className="text-5xl lg:text-7xl font-bebas text-white tracking-wide leading-[0.85]">
                                                 <span className="text-red-500">A</span>DVAY
                                             </h2>
                                         </div>
@@ -628,7 +690,7 @@ export default function Scene2() {
                                             <p className="text-white font-medium text-lg leading-tight">
                                                 Advay is a <span className="text-red-500 italic">National-level</span> Techno Cultural fest of Toc H Institute of Science & Technology.
                                             </p>
-                                            <p className="text-gray-400 font-light leading-relaxed text-sm md:text-base">
+                                            <p className="text-gray-400 font-light leading-relaxed text-sm lg:text-base">
                                                 Taking place annually at TIST, Advay features a wide range of cultural and technical events, including Deca Dance, Roadies, Fashion show, and music performances. Since 2009, it has been a major hub for talented students across Kerala to showcase their skills.
                                             </p>
                                         </div>
@@ -646,11 +708,11 @@ export default function Scene2() {
 
                     {/* Feature 2: MUSIC (Highlights/Symphony) - Reversed */}
                     <div className="relative group">
-                        <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-0 md:gap-12 relative">
+                        <div className="flex flex-col lg:flex-row-reverse items-center justify-center gap-0 lg:gap-12 relative">
 
                             {/* Image Composition */}
-                            <div className="w-full md:w-1/2 relative z-10">
-                                <div className="relative aspect-video md:aspect-[4/3] overflow-hidden rounded-sm border border-white/10 shadow-[0_0_50px_-10px_rgba(220,38,38,0.3)] group-hover:shadow-[0_0_80px_-10px_rgba(220,38,38,0.5)] transition-shadow duration-700">
+                            <div className="w-full lg:w-1/2 relative z-10">
+                                <div className="relative aspect-video lg:aspect-[4/3] overflow-hidden rounded-sm border border-white/10 shadow-[0_0_50px_-10px_rgba(220,38,38,0.3)] group-hover:shadow-[0_0_80px_-10px_rgba(220,38,38,0.5)] transition-shadow duration-700">
                                     <div className="absolute inset-0 bg-red-900/20 mix-blend-overlay z-10" />
                                     <img
                                         src="/images/voice_advay24.JPG"
@@ -660,34 +722,34 @@ export default function Scene2() {
                                     />
                                 </div>
                                 {/* Floating Decor Element */}
-                                <div className="absolute -top-10 -right-10 w-full h-full border border-red-500/20 z-0 hidden md:block" />
+                                <div className="absolute -top-10 -right-10 w-full h-full border border-red-500/20 z-0 hidden lg:block" />
                             </div>
 
                             {/* Content Card - Overlapping */}
-                            <div className="w-full md:w-2/5 relative z-20 -mt-10 md:mt-0 md:-mr-20">
-                                <div className="bg-black/80 border border-white/10 p-8 md:p-12 relative overflow-hidden">
+                            <div className="w-full lg:w-2/5 relative z-20 -mt-10 lg:mt-0 lg:-mr-20">
+                                <div className="bg-black/90 border border-white/10 p-6 lg:p-12 relative overflow-hidden">
                                     <div className="space-y-6 relative z-10">
-                                        <div className="space-y-1 text-right md:text-left">
+                                        <div className="space-y-1 text-right lg:text-left">
                                             <span className="block font-mono text-xs text-red-500 tracking-[0.3em] uppercase">Tech // Cultural</span>
-                                            <h2 className="text-5xl md:text-6xl font-bebas text-white tracking-wide leading-[0.85]">
+                                            <h2 className="text-5xl lg:text-6xl font-bebas text-white tracking-wide leading-[0.85]">
                                                 HIGH<span className="text-white">LIGHTS</span>
                                             </h2>
                                         </div>
 
-                                        <div className="flex justify-end md:justify-start">
+                                        <div className="flex justify-end lg:justify-start">
                                             <div className="h-px w-12 bg-red-500" />
                                         </div>
 
-                                        <div className="space-y-6 text-right md:text-left">
+                                        <div className="space-y-6 text-right lg:text-left">
                                             <div>
                                                 <h3 className="text-xl font-bold text-white mb-1">120+ Events</h3>
-                                                <p className="text-gray-400 font-light leading-relaxed text-sm md:text-base">
+                                                <p className="text-gray-400 font-light leading-relaxed text-sm lg:text-base">
                                                     A plethora of events ranging from enigmatic culturals to brain-storming technical shows shall be proudly presented to all of you.
                                                 </p>
                                             </div>
                                             <div>
                                                 <h3 className="text-xl font-bold text-white mb-1">KTU Points</h3>
-                                                <p className="text-gray-400 font-light leading-relaxed text-sm md:text-base">
+                                                <p className="text-gray-400 font-light leading-relaxed text-sm lg:text-base">
                                                     Hop onto a meritorious journey where entertainment, informative workshops, and engaging events are all just a tap away!!
                                                 </p>
                                             </div>
