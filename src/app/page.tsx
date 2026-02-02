@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
-
+import { Events } from '@/components/ui'
 import EventsSection from '@/components/ui/EventsSection'
 import TestScene4Page from './test-scene4/page'
 import FooterContent from '@/components/ui/FooterContent'

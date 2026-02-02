@@ -265,7 +265,7 @@ export default function Events() {
 
   // Card 1 MG Parallax & Scaling
   // Small (0-0.2) -> Expanded (0.3+) ... now starts at 0.14
-  const mgBgSize = useTransform(scrollYProgress, [0.14, 0.3], ['150%', isMobile ? '200%' : '50%']);
+  const mgBgSize = useTransform(scrollYProgress, [0.14, 0.3], ['100%', isMobile ? '150%' : '40%']);
   const mgBgPos = useTransform(scrollYProgress, [0.14, 0.3], ['center 90%', 'center 100%']);
   
   // Card 1 MG Parallax (X-axis)
@@ -443,7 +443,7 @@ export default function Events() {
                  <dotlottie-player
                     ref={lottieRef2}
                     className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/test.lottie"}
+                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/DecaDance.lottie"}
                     background="transparent"
                     speed=".5"
                     objectFit="cover"
@@ -529,9 +529,9 @@ export default function Events() {
                  <dotlottie-player
                     ref={lottieRef3}
                     className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/test.lottie"}
+                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/More Events.lottie"}
                     background="transparent"
-                    speed=".5"
+                    speed=".9"
                     objectFit="cover"
                     loop={false}
                   ></dotlottie-player>
