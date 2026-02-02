@@ -259,6 +259,11 @@ export default function Events() {
     }
   };
 
+  const cardTitleVariants = {
+    rest: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+    pressed: { opacity: 0, y: 10, transition: { duration: 0.2 } }
+  };
+
   // Cursor movements (Defined at top level to avoid hook errors)
   const cursorX = useTransform(smoothMouseX, [0, 1], ['0%', '100%']);
   const cursorY = useTransform(smoothMouseY, [0, 1], ['0%', '100%']);
@@ -341,6 +346,14 @@ export default function Events() {
               className={styles.transitionOverlay}
               style={{ opacity: transitionOpacity1 }}
             />
+
+            {/* TITLE: Avante Garde */}
+            <motion.div
+              className={styles.cardTitle}
+              variants={cardTitleVariants}
+            >
+              Avante Garde
+            </motion.div>
 
             {/* OVERLAY & LOTTIE (Appears on Hold) - Conditional Rendering */}
             {showOverlay && (
@@ -428,6 +441,14 @@ export default function Events() {
                style={{ opacity: transitionOpacity2 }}
              />
 
+             {/* TITLE: Deca Dacnce */}
+             <motion.div
+               className={styles.cardTitle}
+               variants={cardTitleVariants}
+             >
+               Deca Dacnce
+             </motion.div>
+
              {/* OVERLAY & LOTTIE FOR CARD 2 */}
              {showOverlay2 && (
               <motion.div 
@@ -513,6 +534,14 @@ export default function Events() {
                 className={styles.transitionOverlay}
                 style={{ opacity: transitionOpacity3 }}
               />
+
+             {/* TITLE: More Events */}
+             <motion.div
+               className={styles.cardTitle}
+               variants={cardTitleVariants}
+             >
+               More Events
+             </motion.div>
 
              {/* OVERLAY & LOTTIE FOR CARD 3 */}
              {showOverlay3 && (
