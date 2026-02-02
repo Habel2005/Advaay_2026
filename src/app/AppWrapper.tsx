@@ -53,7 +53,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
           <Scene canPlayAnimations={revealDone} />
         </div>
         {/* THE "CURTAIN" WRAPPER (Your footer settings are preserved) */}
-        <div className="relative z-30  mb-[25vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <div className="relative z-30  mb-[10vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           {children}
         </div>
 
