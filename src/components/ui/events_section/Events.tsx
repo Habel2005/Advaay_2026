@@ -142,15 +142,15 @@ export default function Events() {
   // CARD 1: FASHION
   // Enter: 0 -> 0.2
   // Exit: 0.35 -> 0.55
-  const y1 = useTransform(scrollYProgress, [0, 0.2, 0.35, 0.55], ['100vh', '0vh', '0vh', '-100vh']);
-  const scrollRotateY = useTransform(scrollYProgress, [0, 0.2], [90, 0]);
+  const y1 = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.55], ['100vh', '0vh', '0vh', '-100vh']);
+  const scrollRotateY = useTransform(scrollYProgress, [0, 0.15], [90, 0]);
   const opacity1 = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
   
-  const width1 = useTransform(scrollYProgress, [0.14, 0.3], [startDimensions.w, '100dvw']);
-  const height1 = useTransform(scrollYProgress, [0.14, 0.3], [startDimensions.h, '100dvh']);
-  const borderRadius1 = useTransform(scrollYProgress, [0.14, 0.3], ['6px', '0px']);
+  const width1 = useTransform(scrollYProgress, [0.1, 0.25], [startDimensions.w, '100dvw']);
+  const height1 = useTransform(scrollYProgress, [0.1, 0.25], [startDimensions.h, '100dvh']);
+  const borderRadius1 = useTransform(scrollYProgress, [0.1, 0.25], ['6px', '0px']);
   
-  const fgTranslateY = useTransform(scrollYProgress, [0.14, 0.3], ['200%', '0%']);
+  const fgTranslateY = useTransform(scrollYProgress, [0.1, 0.25], ['200%', '0%']);
   const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   const mgTranslateX2 = useTransform(smoothMouseX, [0, 1], ['25px', '-25px']);
@@ -232,7 +232,7 @@ export default function Events() {
   // Card 1 FG Composite: Popup (0.14->0.3) + Parallax Exit (0.35->0.55)
   // Original fgTranslateY: [0.14, 0.3] -> ['200%', '0%']
   // We need to map to: 0.14->200%, 0.3->0%, 0.35->0vh, 0.55->75vh
-  const fgParaY1 = useTransform(scrollYProgress, [0.14, 0.3, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
+  const fgParaY1 = useTransform(scrollYProgress, [0.1, 0.25, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
 
   // Red Vignette Transition Opacity
   // Card 1 Exit (0.35 -> 0.55)
@@ -270,8 +270,8 @@ export default function Events() {
 
   // Card 1 MG Parallax & Scaling
   // Small (0-0.2) -> Expanded (0.3+) ... now starts at 0.14
-  const mgBgSize = useTransform(scrollYProgress, [0.14, 0.3], ['100%', isMobile ? '150%' : '40%']);
-  const mgBgPos = useTransform(scrollYProgress, [0.14, 0.3], ['center 90%', 'center 100%']);
+  const mgBgSize = useTransform(scrollYProgress, [0.1, 0.25], ['100%', isMobile ? '150%' : '40%']);
+  const mgBgPos = useTransform(scrollYProgress, [0.1, 0.25], ['center 90%', 'center 100%']);
   
   // Card 1 MG Parallax (X-axis)
   // "Slightly maybe .2" - interpreted as a subtle shift, e.g., 20px range
