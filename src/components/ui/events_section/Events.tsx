@@ -55,7 +55,7 @@ export default function Events() {
     const currentLottie = lottieRef.current;
     if (currentLottie) {
       const onComplete = () => {
-        window.location.href = "https://www.google.com";
+        window.location.href = "/events";
       };
       // dotlottie-player emits 'complete' event
       currentLottie.addEventListener('complete', onComplete);
@@ -69,7 +69,7 @@ export default function Events() {
     const currentLottie2 = lottieRef2.current;
     if (currentLottie2) {
       const onComplete = () => {
-        window.location.href = "https://www.google.com";
+        window.location.href = "/events";
       };
       // dotlottie-player emits 'complete' event
       currentLottie2.addEventListener('complete', onComplete);
@@ -441,12 +441,12 @@ export default function Events() {
                style={{ opacity: transitionOpacity2 }}
              />
 
-             {/* TITLE: Deca Dacnce */}
+             {/* TITLE: Deca Dance */}
              <motion.div
                className={styles.cardTitle}
                variants={cardTitleVariants}
              >
-               Deca Dacnce
+               Deca Dance
              </motion.div>
 
              {/* OVERLAY & LOTTIE FOR CARD 2 */}
