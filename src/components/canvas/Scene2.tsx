@@ -537,8 +537,8 @@ export default function Scene2() {
 
             {/* Your Parallax Reveal Effect with Text Between Layers */}
             <ParallaxReveal
-                backgroundImage="/images/up3.JPG"
-                foregroundImage="/images/down2.png"
+                backgroundImage="/images/up6.JPG"
+                foregroundImage="/images/down5.png"
                 height="100vh"
             >
                 {/* ABOUT US text - positioned centrally above audience layer */}
@@ -596,7 +596,7 @@ export default function Scene2() {
                                 <div className="relative aspect-[4/5] overflow-hidden rounded-sm border border-white/10 shadow-[0_0_50px_-10px_rgba(220,38,38,0.3)] group-hover:shadow-[0_0_80px_-10px_rgba(220,38,38,0.5)] transition-shadow duration-700">
                                     <div className="absolute inset-0 bg-red-900/20 mix-blend-overlay z-10" />
                                     <img
-                                        src="/images/advay_fashion_bw.png"
+                                        src="/images/advay_fashion_bw1.jpg"
                                         alt="ADVAY Fashion"
                                         loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-105 grayscale contrast-125"
@@ -653,7 +653,7 @@ export default function Scene2() {
                                 <div className="relative aspect-video md:aspect-[4/3] overflow-hidden rounded-sm border border-white/10 shadow-[0_0_50px_-10px_rgba(220,38,38,0.3)] group-hover:shadow-[0_0_80px_-10px_rgba(220,38,38,0.5)] transition-shadow duration-700">
                                     <div className="absolute inset-0 bg-red-900/20 mix-blend-overlay z-10" />
                                     <img
-                                        src="/images/voice_advay.JPG"
+                                        src="/images/voice_advay24.JPG"
                                         alt="ADVAY Music"
                                         loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-105 grayscale contrast-125"
