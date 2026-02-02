@@ -14,7 +14,7 @@ export const NAV_ITEMS = [
   { label: 'HOME', href: '#', active: true },
   { label: 'ABOUT', href: '#about' },
   { label: 'EVENTS', href: '#events' },
-  { label: 'NEWS', href: '#news' },
+  { label: 'GALLERY', href: '#gallery' }, // Added Gallery as it was requested earlier to be linked
   { label: 'CONTACT', href: '#contact' },
 ]
 
@@ -22,7 +22,7 @@ export const MENU_ITEMS = [
   { label: 'HOME', href: '#', highlight: true },
   { label: 'ABOUT', href: '#about' },
   { label: 'EVENTS', href: '#events' },
-  { label: 'NEWS', href: '#news' },
+  { label: 'GALLERY', href: '#gallery' },
   { label: 'CONTACT', href: '#contact' },
 ]
 
