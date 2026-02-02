@@ -278,7 +278,7 @@ export default function Events() {
   const mgTranslateX1 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   return (
-    <div className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
+    <div id="events" className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
       <div className={styles.stickyWrapper}>
         
         {/* CARD 1 - EXISTING */}

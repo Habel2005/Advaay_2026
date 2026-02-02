@@ -590,6 +590,7 @@ export function ScrollFadeText({
 export default function Scene2() {
     return (
         <motion.div
+            id="about"
             className="bg-black relative z-10 -mt-16 md:-mt-1"
         >
             {/* Your Parallax Reveal Effect */}
