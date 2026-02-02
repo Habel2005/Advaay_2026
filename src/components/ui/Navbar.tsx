@@ -73,12 +73,11 @@ export default function Navbar() {
             color: COLORS.text,
             height: isMobile ? '24px' : '28px',
             minWidth: isMobile ? '60px' : '80px',
-            transform: 'translateY(11px)',
           }}>
             <GooeyText
               texts={["ADVAY", "അധ്വയ്", "अधवे"]}
               morphTime={1.5}
-              cooldownTime={0.5}
+              cooldownTime={2}
               className="h-full"
               textClassName="text-white font-bold"
             />

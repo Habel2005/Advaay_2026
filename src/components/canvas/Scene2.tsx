@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { cn } from "@/lib/utils";
 import { useMobile } from '@/hooks/useMobile';
 import { initLenis, startLenisRAF } from '@/lib/lenis';
-import { FloatingPaths } from '@/components/ui/background-paths';
+
 
 export function SmoothScrollProvider({
     children,
@@ -77,6 +77,49 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
+export function FloatingPaths({ position }: { position: number }) {
+    const paths = Array.from({ length: 8 }, (_, i) => ({ // Reduced count from 15 to 8 for performance
+        id: i,
+        d: `M-${380 - i * 15 * position} -${189 + i * 6}C-${380 - i * 15 * position
+            } -${189 + i * 6} -${312 - i * 15 * position} ${216 - i * 6} ${152 - i * 15 * position
+            } ${343 - i * 6}C${616 - i * 15 * position} ${470 - i * 6} ${684 - i * 15 * position
+            } ${875 - i * 6} ${684 - i * 15 * position} ${875 - i * 6}`,
+        color: `rgba(15,23,42,${0.1 + i * 0.03})`,
+        width: 0.5 + i * 0.03,
+    }));
+
+    return (
+        <div className="absolute inset-0 pointer-events-none" >
+            <svg
+                className="w-full h-full text-slate-950 dark:text-white"
+                viewBox="0 0 696 316"
+                fill="none"
+            >
+                <title>Background Paths</title>
+                {paths.map((path) => (
+                    <motion.path
+                        key={path.id}
+                        d={path.d}
+                        stroke="currentColor"
+                        strokeWidth={path.width}
+                        strokeOpacity={0.1 + path.id * 0.03}
+                        initial={{ pathLength: 0.3, opacity: 0.6 }}
+                        animate={{
+                            pathLength: 1,
+                            opacity: [0.3, 0.6, 0.3],
+                            pathOffset: [0, 1, 0],
+                        }}
+                        transition={{
+                            duration: 20 + Math.random() * 10,
+                            repeat: Number.POSITIVE_INFINITY,
+                            ease: "linear",
+                        }}
+                    />
+                ))}
+            </svg>
+        </div >
+    );
+}
 
 
 export function GyroTiltBox({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -486,7 +529,6 @@ export default function Scene2() {
 
     return (
         <motion.div
-            id="about"
             className="bg-black relative z-10"
             style={{ marginTop: isMobile ? marginTop : undefined }}
         >
