@@ -58,7 +58,7 @@ export default function HomePage() {
 
         {/* UI overlay - renders after Scene is ready */}
         {sceneReady && (
-          <div className='absolute w-full h-full z-50 pointer-events-none'>
+          <div className='absolute w-full h-full z-50'>
             <BoundaryFrame />
             <Navbar />
             <HeroContent />
