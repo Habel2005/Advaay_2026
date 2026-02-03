@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent } from 'framer-motion';
 import styles from './Events.module.css';
-import 'dotlottie-player';
+import { DotLottiePlayer, DotLottieCommonPlayer } from '@dotlottie/react-player';
 
 export default function Events() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,13 +57,17 @@ export default function Events() {
       const onComplete = () => {
         window.location.href = "https://www.google.com";
       };
-      // dotlottie-player emits 'complete' event
-      currentLottie.addEventListener('complete', onComplete);
+      // Check if addEventListener is available (it might be a web component or wrapper)
+      if (typeof currentLottie.addEventListener === 'function') {
+        currentLottie.addEventListener('complete', onComplete);
+      }
       return () => {
-        currentLottie.removeEventListener('complete', onComplete);
+        if (typeof currentLottie.removeEventListener === 'function') {
+            currentLottie.removeEventListener('complete', onComplete);
+        }
       };
     }
-  }, [showOverlay]); // Re-bind when overlay (and thus player) appears
+  }, [isMobile]);
 
   useEffect(() => {
     const currentLottie2 = lottieRef2.current;
@@ -71,13 +75,16 @@ export default function Events() {
       const onComplete = () => {
         window.location.href = "https://www.google.com";
       };
-      // dotlottie-player emits 'complete' event
-      currentLottie2.addEventListener('complete', onComplete);
+      if (typeof currentLottie2.addEventListener === 'function') {
+        currentLottie2.addEventListener('complete', onComplete);
+      }
       return () => {
-        currentLottie2.removeEventListener('complete', onComplete);
+         if (typeof currentLottie2.removeEventListener === 'function') {
+            currentLottie2.removeEventListener('complete', onComplete);
+         }
       };
     }
-  }, [showOverlay2]);
+  }, [isMobile]);
 
   useEffect(() => {
     const currentLottie3 = lottieRef3.current;
@@ -85,13 +92,16 @@ export default function Events() {
       const onComplete = () => {
         window.location.href = "/events";
       };
-      // dotlottie-player emits 'complete' event
-      currentLottie3.addEventListener('complete', onComplete);
+      if (typeof currentLottie3.addEventListener === 'function') {
+        currentLottie3.addEventListener('complete', onComplete);
+      }
       return () => {
-        currentLottie3.removeEventListener('complete', onComplete);
+         if (typeof currentLottie3.removeEventListener === 'function') {
+            currentLottie3.removeEventListener('complete', onComplete);
+         }
       };
     }
-  }, [showOverlay3]);
+  }, [isMobile]);
 
 
   useEffect(() => {
@@ -110,7 +120,7 @@ export default function Events() {
     // Initial call
     updateDimensions();
 
-    import('dotlottie-player'); // Dynamic import for client-side only
+    // import('dotlottie-player'); // Removed dynamic import
 
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
@@ -250,6 +260,11 @@ export default function Events() {
     pressed: { opacity: 1, transition: { duration: 0.2 } }
   };
 
+  const disabledVariants = {
+    rest: { opacity: 0 },
+    pressed: { opacity: 0 }
+  };
+
   const textVariants = {
     rest: { opacity: 0, y: 10 },
     pressed: { 
@@ -356,28 +371,25 @@ export default function Events() {
             </motion.div>
 
             {/* OVERLAY & LOTTIE (Appears on Hold) - Conditional Rendering */}
-            {showOverlay && (
+            {/* OVERLAY & LOTTIE (Appears on Hold) - Persistent Rendering with CSS Toggle */}
               <motion.div 
                 className={styles.cardOverlay} 
-                variants={overlayVariants}
+                variants={showOverlay ? overlayVariants : disabledVariants}
                 style={{ 
                   pointerEvents: 'none',
                   clipPath: 'inset(0px 0px 0px 0px)', // Clip bottom 116px
                   background: 'transparent',
                 }} 
               >
-                 {/* @ts-ignore */}
-                 <dotlottie-player
+                 <DotLottiePlayer
                     ref={lottieRef}
                     className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/test.lottie"}
+                    src={isMobile ? "/animations/AvanteGrandeMobile.lottie" : "/animations/test.lottie"}
                     background="transparent"
-                    speed=".5"
-                    objectFit="cover"
+                    speed={0.5}
                     loop={false}
-                  ></dotlottie-player>
+                  />
               </motion.div>
-            )}
 
         </motion.div>
 
@@ -450,28 +462,25 @@ export default function Events() {
              </motion.div>
 
              {/* OVERLAY & LOTTIE FOR CARD 2 */}
-             {showOverlay2 && (
+             {/* OVERLAY & LOTTIE FOR CARD 2 - Persistent Rendering */}
               <motion.div 
                 className={styles.cardOverlay} 
-                variants={overlayVariants}
+                variants={showOverlay2 ? overlayVariants : disabledVariants}
                 style={{ 
                   pointerEvents: 'none',
                   clipPath: 'inset(0px 0px 0px 0px)',
                   background: 'transparent',
                 }} 
               >
-                 {/* @ts-ignore */}
-                 <dotlottie-player
+                 <DotLottiePlayer
                     ref={lottieRef2}
                     className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/DecaDance.lottie"}
+                    src={isMobile ? "/animations/DecaDanceMobile.lottie" : "/animations/DecaDance.lottie"}
                     background="transparent"
-                    speed=".5"
-                    objectFit="cover"
+                    speed={0.5}
                     loop={false}
-                  ></dotlottie-player>
+                  />
               </motion.div>
-            )}
         </motion.div>
 
         {/* CARD 3 - DRIFTX */}
@@ -544,28 +553,25 @@ export default function Events() {
              </motion.div>
 
              {/* OVERLAY & LOTTIE FOR CARD 3 */}
-             {showOverlay3 && (
+             {/* OVERLAY & LOTTIE FOR CARD 3 - Persistent Rendering */}
               <motion.div 
                 className={styles.cardOverlay} 
-                variants={overlayVariants}
+                variants={showOverlay3 ? overlayVariants : disabledVariants}
                 style={{ 
                   pointerEvents: 'none',
                   clipPath: 'inset(0px 0px 0px 0px)',
                   background: 'transparent',
                 }} 
               >
-                 {/* @ts-ignore */}
-                 <dotlottie-player
+                 <DotLottiePlayer
                     ref={lottieRef3}
                     className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/mobiletest.lottie" : "/animations/More Events.lottie"}
+                    src={isMobile ? "/animations/MoreEventsMobile.lottie" : "/animations/More Events.lottie"}
                     background="transparent"
-                    speed=".9"
-                    objectFit="cover"
+                    speed={0.9}
                     loop={false}
-                  ></dotlottie-player>
+                  />
               </motion.div>
-            )}
         </motion.div>
 
         {/* CUSTOM CURSOR (Only when Card 1 or Card 2 is full screen) */}

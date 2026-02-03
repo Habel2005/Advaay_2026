@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dotlottie/react-player": "^1.6.19",
     "@gsap/react": "^2.1.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@react-three/drei": "^10.7.7",

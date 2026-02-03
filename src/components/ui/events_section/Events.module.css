@@ -91,8 +91,8 @@
 
 .layerBMg {
   position: absolute;
-  top: -950px;
-  left: -950px;
+  top: -89%;
+  left: -50%;
   width: 200%;  
   height: 200%;
   background-size: auto 50%; /* Height-based: 80% of container height */
@@ -133,7 +133,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: transparent; /* Removed dark background */
   z-index: 5; /* Above FG */
   display: flex;
   justify-content: center;
@@ -200,13 +200,16 @@
 
 .lottiePlayer {
   width: 100%;
-  height: 120%;
+  height: 150%;
   transform: translateY(50px);
+  object-fit: cover;
 }
+
+
 
 @media (max-width: 768px) {
   .lottiePlayer {
-    height: 100%;
+    height: 120%;
     transform: translateY(0);
   }
 }
