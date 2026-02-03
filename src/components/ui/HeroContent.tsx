@@ -212,7 +212,7 @@ export default function HeroContent() {
             color: COLORS.textMuted,
             letterSpacing: '0.08em',
           }}>
-            FEB 12-13, 2026
+            FEB 16-17, 2026
           </div>
           <div style={{
             fontFamily: 'system-ui, sans-serif',
