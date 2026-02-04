@@ -40,6 +40,7 @@ export default function LogoReveal({
     video.defaultMuted = true;
     video.playsInline = true;
     video.controls = false;
+    video.playbackRate = 1.5;
 
     const handleEnd = () => onComplete();
     video.currentTime = 0;
