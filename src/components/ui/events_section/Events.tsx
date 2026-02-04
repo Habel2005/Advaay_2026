@@ -47,7 +47,10 @@ export default function Events() {
     }
   });
 
-  const lottieRef = useRef<any>(null);
+  const lottieRef = useRef<any>(null); // Kept for reference or removal
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
+  const videoRef3 = useRef<HTMLVideoElement>(null);
   const lottieRef2 = useRef<any>(null);
   const lottieRef3 = useRef<any>(null);
 
@@ -315,18 +318,22 @@ export default function Events() {
             cursor: showOverlay ? 'none' : 'auto', // Hide default cursor when active
           }}
           onTapStart={() => {
-            if (lottieRef.current) {
-              lottieRef.current.play();
+            if (showOverlay && videoRef1.current) {
+               videoRef1.current.currentTime = 0;
+               videoRef1.current.style.opacity = '1';
+               videoRef1.current.play();
             }
           }}
           onTap={() => {
-            if (lottieRef.current) {
-              lottieRef.current.stop();
+            if (videoRef1.current) {
+               videoRef1.current.pause();
+               videoRef1.current.style.opacity = '0';
             }
           }}
           onTapCancel={() => {
-            if (lottieRef.current) {
-              lottieRef.current.stop();
+             if (videoRef1.current) {
+               videoRef1.current.pause();
+               videoRef1.current.style.opacity = '0';
             }
           }}
         >
@@ -381,13 +388,14 @@ export default function Events() {
                   background: 'transparent',
                 }} 
               >
-                 <DotLottiePlayer
-                    ref={lottieRef}
-                    className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/AvanteGrandeMobile.lottie" : "/animations/test.lottie"}
-                    background="transparent"
-                    speed={0.5}
-                    loop={false}
+                 <video
+                    ref={videoRef1}
+                    className={styles.videoPlayer}
+                    src={isMobile ? "/animations/AvanteGrandeMobile.webm" : "/animations/avantegarde.webm"}
+                    loop
+                    muted
+                    playsInline
+                    style={{ opacity: 0, transition: 'opacity 0.2s' }}
                   />
               </motion.div>
 
@@ -411,18 +419,22 @@ export default function Events() {
           initial="rest"
           whileTap="pressed"
           onTapStart={() => {
-            if (lottieRef2.current) {
-              lottieRef2.current.play();
+            if (showOverlay2 && videoRef2.current) {
+               videoRef2.current.currentTime = 0;
+               videoRef2.current.style.opacity = '1';
+               videoRef2.current.play();
             }
           }}
           onTap={() => {
-            if (lottieRef2.current) {
-              lottieRef2.current.stop();
+            if (videoRef2.current) {
+               videoRef2.current.pause();
+               videoRef2.current.style.opacity = '0';
             }
           }}
           onTapCancel={() => {
-            if (lottieRef2.current) {
-              lottieRef2.current.stop();
+             if (videoRef2.current) {
+               videoRef2.current.pause();
+               videoRef2.current.style.opacity = '0';
             }
           }}
         >
@@ -472,13 +484,14 @@ export default function Events() {
                   background: 'transparent',
                 }} 
               >
-                 <DotLottiePlayer
-                    ref={lottieRef2}
-                    className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/DecaDanceMobile.lottie" : "/animations/DecaDance.lottie"}
-                    background="transparent"
-                    speed={0.5}
-                    loop={false}
+                 <video
+                    ref={videoRef2}
+                    className={styles.videoPlayer}
+                    src={isMobile ? "/animations/DecaDanceMobile.webm" : "/animations/DecaDance.webm"}
+                    loop
+                    muted
+                    playsInline
+                    style={{ opacity: 0, transition: 'opacity 0.2s' }}
                   />
               </motion.div>
         </motion.div>
@@ -501,18 +514,22 @@ export default function Events() {
           initial="rest"
           whileTap="pressed"
           onTapStart={() => {
-            if (lottieRef3.current) {
-              lottieRef3.current.play();
+            if (showOverlay3 && videoRef3.current) {
+               videoRef3.current.currentTime = 0;
+               videoRef3.current.style.opacity = '1';
+               videoRef3.current.play();
             }
           }}
           onTap={() => {
-            if (lottieRef3.current) {
-              lottieRef3.current.stop();
+            if (videoRef3.current) {
+               videoRef3.current.pause();
+               videoRef3.current.style.opacity = '0';
             }
           }}
           onTapCancel={() => {
-            if (lottieRef3.current) {
-              lottieRef3.current.stop();
+             if (videoRef3.current) {
+               videoRef3.current.pause();
+               videoRef3.current.style.opacity = '0';
             }
           }}
         >
@@ -563,13 +580,14 @@ export default function Events() {
                   background: 'transparent',
                 }} 
               >
-                 <DotLottiePlayer
-                    ref={lottieRef3}
-                    className={styles.lottiePlayer}
-                    src={isMobile ? "/animations/MoreEventsMobile.lottie" : "/animations/More Events.lottie"}
-                    background="transparent"
-                    speed={0.9}
-                    loop={false}
+                 <video
+                    ref={videoRef3}
+                    className={styles.videoPlayer}
+                    src={isMobile ? "/animations/MoreEventsMobile.webm" : "/animations/More Events.webm"}
+                    loop
+                    muted
+                    playsInline
+                    style={{ opacity: 0, transition: 'opacity 0.2s' }}
                   />
               </motion.div>
         </motion.div>
