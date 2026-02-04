@@ -3,51 +3,54 @@
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/all"
-import React, { useRef, useState, useMemo } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import {
   Music, Users, Trophy, Car, Film,
-  Gamepad2, Sparkles, Zap, Star, Calendar, LucideIcon
+  Gamepad2, Sparkles, Zap, Star, Calendar,
+  LucideIcon
 } from "lucide-react"
+import Navbar from "@/components/ui/Navbar"
+import BoundaryFrame from "@/components/ui/BoundaryFrame"
 
 gsap.registerPlugin(ScrollTrigger)
 
-interface Event {
-  title: string;
-  subtitle: string;
-  status: string;
-  icon: LucideIcon;
-  gradient: string;
-  image: string;
-  description: string;
+interface EventItem {
+  title: string
+  subtitle: string
+  status: string
+  icon: LucideIcon
+  gradient: string
+  image: string
+  description: string
 }
 
-export default function EventsSection() {
+interface Particle {
+  left: number
+  top: number
+  delay: number
+}
+
+export default function EventsPage() {
 
   const sectionRef = useRef<HTMLDivElement>(null)
 
   const [activeCategory, setActiveCategory] = useState("featured")
-  const [selectedFact, setSelectedFact] = useState(0)
+  const [particles, setParticles] = useState<Particle[]>([])
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  /* ---------------- PARTICLES ---------------- */
+  /* Generate particles only on client after hydration */
+  useEffect(() => {
+    setParticles(
+      [...Array(20)].map(() => ({
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        delay: Math.random() * 2
+      }))
+    )
+    setIsHydrated(true)
+  }, [])
 
-  const particles = useMemo(() =>
-    [...Array(20)].map(() => ({
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      delay: Math.random() * 2
-    })), []
-  )
-
-  /* ---------------- DATA ---------------- */
-
-  const funFacts: { icon: LucideIcon; fact: string }[] = [
-    { icon: Star, fact: "Over 5000+ students participate in Advay annually from across India!" },
-    { icon: Zap, fact: "Advay has been running for 15+ years, making it one of Kerala's longest-running fests!" },
-    { icon: Trophy, fact: "₹10 Lakhs+ in prizes distributed across all events every year!" },
-    { icon: Calendar, fact: "3 Days of non-stop entertainment, competition, and celebration!" }
-  ]
-
-  const featuredEvents: Event[] = [
+  const featuredEvents: EventItem[] = [
     {
       title: "Avante Garde",
       subtitle: "Fashion Extravaganza",
@@ -86,7 +89,7 @@ export default function EventsSection() {
     }
   ]
 
-  const allEvents: Event[] = [
+  const allEvents: EventItem[] = [
     ...featuredEvents,
     {
       title: "DriftX",
@@ -144,8 +147,7 @@ export default function EventsSection() {
     }
   ]
 
-  /* ---------------- GSAP ---------------- */
-
+  /* GSAP animations */
   useGSAP(() => {
 
     gsap.fromTo("#events-title",
@@ -161,7 +163,7 @@ export default function EventsSection() {
       }
     )
 
-    gsap.utils.toArray<HTMLElement>(".event-card").forEach(card => {
+    gsap.utils.toArray(".event-card").forEach((card: any) => {
       gsap.fromTo(card,
         { opacity: 0, y: 100, scale: 0.8 },
         {
@@ -188,9 +190,8 @@ export default function EventsSection() {
 
   }, { scope: sectionRef })
 
-  /* ---------------- CARD ---------------- */
-
-  function EventCard({ event }: { event: Event }) {
+  /* EVENT CARD COMPONENT */
+  function EventCard({ event }: { event: EventItem }) {
 
     const Icon = event.icon
     const [flip, setFlip] = useState(false)
@@ -288,65 +289,87 @@ export default function EventsSection() {
     )
   }
 
-  /* ---------------- RENDER ---------------- */
-
+  /* RENDER */
   return (
-    <section
-      id="events-section"
-      ref={sectionRef}
-      className="relative min-h-screen bg-black py-24 px-6 overflow-hidden"
-    >
+    <main className="bg-black min-h-screen relative">
+      <Navbar />
+      <BoundaryFrame />
+      
+      <section
+        id="events-section"
+        ref={sectionRef}
+        className="relative min-h-screen py-24 px-6 overflow-hidden"
+      >
 
-      {/* PARTICLES */}
-      {particles.map((p, i) => (
-        <div
-          key={i}
-          className="particle absolute w-2 h-2 bg-red-500/30 rounded-full"
-          style={{
-            left: `${p.left}%`,
-            top: `${p.top}%`,
-            animationDelay: `${p.delay}s`
-          }}
-        />
-      ))}
+        {/* PARTICLES - Only render after hydration */}
+        {isHydrated && particles.map((p, i) => (
+          <div
+            key={i}
+            className="particle absolute w-2 h-2 bg-red-500/30 rounded-full"
+            style={{
+              left: `${p.left}%`,
+              top: `${p.top}%`,
+              animationDelay: `${p.delay}s`
+            }}
+          />
+        ))}
 
-      <div className="relative max-w-7xl mx-auto">
+        <div className="relative max-w-7xl mx-auto pt-16">
 
-        {/* TITLE */}
-        <div id="events-title" className="text-center mb-12">
-          <h2 className="text-5xl font-black text-red-500">EVENTS</h2>
-        </div>
+          {/* TITLE */}
+          <div id="events-title" className="text-center mb-12">
+            <h2 className="text-5xl font-black text-red-500">EVENTS</h2>
+          </div>
 
-        {/* TOGGLE */}
-        <div className="flex justify-center mb-12 gap-4">
-          <button onClick={() => setActiveCategory("featured")}>Featured</button>
-          <button onClick={() => setActiveCategory("all")}>All Events</button>
-        </div>
-
-        {/* GRID */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-
-          {(activeCategory === "featured" ? featuredEvents : allEvents)
-            .map((event, i) => (
-              <EventCard key={i} event={event} />
-            ))}
-
-        </div>
-
-        {/* VIEW MORE */}
-        {activeCategory === "featured" && (
-          <div className="text-center">
-            <button
-              onClick={() => setActiveCategory("all")}
-              className="px-12 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl"
+          {/* TOGGLE */}
+          <div className="flex justify-center mb-12 gap-4">
+            <button 
+              onClick={() => setActiveCategory("featured")}
+              className={`px-6 py-2 rounded-full transition-all ${
+                activeCategory === "featured" 
+                  ? "bg-red-600 text-white" 
+                  : "bg-gray-900 text-gray-400 hover:text-white"
+              }`}
             >
-              View More Events →
+              Featured
+            </button>
+            <button 
+              onClick={() => setActiveCategory("all")}
+              className={`px-6 py-2 rounded-full transition-all ${
+                activeCategory === "all" 
+                  ? "bg-red-600 text-white" 
+                  : "bg-gray-900 text-gray-400 hover:text-white"
+              }`}
+            >
+              All Events
             </button>
           </div>
-        )}
 
-      </div>
+          {/* GRID */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
 
-    </section>
+            {(activeCategory === "featured" ? featuredEvents : allEvents)
+              .map((event, i) => (
+                <EventCard key={i} event={event} />
+              ))}
+
+          </div>
+
+          {/* VIEW MORE */}
+          {activeCategory === "featured" && (
+            <div className="text-center">
+              <button
+                onClick={() => setActiveCategory("all")}
+                className="px-12 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl"
+              >
+                View More Events →
+              </button>
+            </div>
+          )}
+
+        </div>
+
+      </section>
+    </main>
   )
 }
