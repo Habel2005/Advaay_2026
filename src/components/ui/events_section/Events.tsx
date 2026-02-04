@@ -58,7 +58,7 @@ export default function Events() {
     const currentLottie = lottieRef.current;
     if (currentLottie) {
       const onComplete = () => {
-        window.location.href = "https://www.google.com";
+        window.location.href = "/events";
       };
       // Check if addEventListener is available (it might be a web component or wrapper)
       if (typeof currentLottie.addEventListener === 'function') {
@@ -76,7 +76,7 @@ export default function Events() {
     const currentLottie2 = lottieRef2.current;
     if (currentLottie2) {
       const onComplete = () => {
-        window.location.href = "https://www.google.com";
+        window.location.href = "/events";
       };
       if (typeof currentLottie2.addEventListener === 'function') {
         currentLottie2.addEventListener('complete', onComplete);
@@ -296,7 +296,7 @@ export default function Events() {
   const mgTranslateX1 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   return (
-    <div className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
+    <div id="events" className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
       <div className={styles.stickyWrapper}>
         
         {/* CARD 1 - EXISTING */}
@@ -465,12 +465,12 @@ export default function Events() {
                style={{ opacity: transitionOpacity2 }}
              />
 
-             {/* TITLE: Deca Dacnce */}
+             {/* TITLE: Deca Dance */}
              <motion.div
                className={styles.cardTitle}
                variants={cardTitleVariants}
              >
-               Deca Dacnce
+               Deca Dance
              </motion.div>
 
              {/* OVERLAY & LOTTIE FOR CARD 2 */}
