@@ -1,8 +1,13 @@
 .container {
-  height: 900dvh; /* Increased for 3 cards */
+  height: 350dvh; /* Optimized height for fast scroll */
   position: relative;
-  background-color: #000; /* Assuming dark theme */
+  background-color: #000;
   color: #fff;
+}
+
+/* GLOBAL iOS FIXES */
+.container * {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .stickyWrapper {
@@ -49,6 +54,7 @@
   overflow: hidden;
   transform-style: preserve-3d;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  touch-action: pan-y; /* Ensure scrolling isn't blocked by gestures */
   /* Initial state handled by Framer Motion, but good defaults help */
 }
 
@@ -152,11 +158,15 @@
 }
 
 @media (max-width: 768px) {
+  .card {
+    box-shadow: none; /* PERFORMANCE: Kill shadow on mobile */
+  }
 
   .layerBMg {
     top: 0px;
     left: 0px;
-    width: 100%;
+    width: 101%;
+    left: -1px;
     height: 100%;
     background-size: auto 85%; /* Match layerFg sizing approximately */
     background-position: center bottom;
@@ -169,12 +179,22 @@
   }
 
   .layerMg {
+    width: 101%;
+    left: -1px;
     top: 9px;
   }
  
   .layerFg {
+    width: 101%;
+    left: -1px;
     background-size: auto 85%; /* Reduced height on mobile */
     background-repeat: no-repeat;
+  }
+
+  /* Overlay Gap Fix too */
+  .cardOverlay {
+    width: 101%;
+    left: -1px;
   }
 
   .overlayText {
@@ -228,7 +248,7 @@
   width: 100%;
   text-align: center;
   color: #ffffff;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-iceland), sans-serif;
   font-size: 5rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -245,5 +265,28 @@
   .cardTitle {
     font-size: 2.5rem;
     bottom: 30px;
+  }
+}
+
+.sectionTitle {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 10rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.164); /* Subtle transparent white */
+  z-index: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 4rem;
+    top: 10%;
   }
 }
