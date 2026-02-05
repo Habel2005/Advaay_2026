@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent } from 'framer-motion';
 import styles from './Events.module.css';
-import { DotLottiePlayer, DotLottieCommonPlayer } from '@dotlottie/react-player';
+
 
 export default function Events() {
   const containerRef = useRef<HTMLDivElement>(null);
