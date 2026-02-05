@@ -6,46 +6,107 @@ import styles from './Events.module.css';
 
 
 export default function Events() {
+  // Custom Long Press Hook
+  const useLongPress = (
+    onLongPress: () => void,
+    onPressEnd: () => void,
+    ms = 300,
+    tolerance = 10
+  ) => {
+    const timeout = useRef<NodeJS.Timeout | undefined>(undefined);
+    const startPos = useRef<{ x: number; y: number } | null>(null);
+
+    const start = (e: React.TouchEvent | React.MouseEvent) => {
+      if (e.type === 'touchstart') {
+        const touch = (e as React.TouchEvent).touches[0];
+        startPos.current = { x: touch.clientX, y: touch.clientY };
+      } else {
+        const mouse = (e as React.MouseEvent);
+        startPos.current = { x: mouse.clientX, y: mouse.clientY };
+      }
+
+      timeout.current = setTimeout(() => {
+        onLongPress();
+      }, ms);
+    };
+
+    const move = (e: React.TouchEvent | React.MouseEvent) => {
+      if (!startPos.current || !timeout.current) return;
+
+      let x, y;
+      if (e.type === 'touchmove') {
+        const touch = (e as React.TouchEvent).touches[0];
+        x = touch.clientX;
+        y = touch.clientY;
+      } else {
+        const mouse = (e as React.MouseEvent);
+        x = mouse.clientX;
+        y = mouse.clientY;
+      }
+
+      const dist = Math.sqrt(
+        Math.pow(x - startPos.current.x, 2) + Math.pow(y - startPos.current.y, 2)
+      );
+
+      if (dist > tolerance) {
+        clearTimeout(timeout.current);
+        timeout.current = undefined;
+        startPos.current = null;
+        onPressEnd();
+      }
+    };
+
+    const end = () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+      onPressEnd();
+      startPos.current = null;
+    };
+
+    return {
+      onMouseDown: start,
+      onMouseMove: move,
+      onMouseUp: end,
+      onMouseLeave: end,
+      onTouchStart: start,
+      onTouchMove: move,
+      onTouchEnd: end,
+    };
+  };
+
   const containerRef = useRef<HTMLDivElement>(null);
   
   // 1. SCROLL SETUP
+  // 1. SCROLL SETUP
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start start', 'end end']
+    offset: ['start 1', 'end end']
   });
 
   // Responsive dimensions state
   const [startDimensions, setStartDimensions] = useState({ w: '60px', h: '40px' });
   const [isMobile, setIsMobile] = useState(false);
   
-  // Interaction State (Only allow click-hold when card is roughly full screen)
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [showOverlay2, setShowOverlay2] = useState(false);
-  const [showOverlay3, setShowOverlay3] = useState(false);
+  // PERFORMANCE FIX: Replace State with MotionValues
+  // Define active ranges for logic gating
+  // Card 1: 0.2 -> 0.35 (Exit start) - Active Range
+  // Card 2: 0.5 -> 0.65 - Active Range
+  // Card 3: 0.8 -> 1.0 - Active Range
   
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    // Card 1 now expands 0.2->0.3, stays 0.3->0.35, exits 0.35->...
-    // Show overlay during the stationary full-screen phase.
-    if (latest > 0.29 && latest < 0.35) {
-      setShowOverlay(true);
-    } else {
-      setShowOverlay(false);
-    }
+  const isCard1Active = useTransform(scrollYProgress, v => v > 0.2 && v < 0.35);
+  const isCard2Active = useTransform(scrollYProgress, v => v > 0.5 && v < 0.65);
+  const isCard3Active = useTransform(scrollYProgress, v => v > 0.8);
 
-    // Card 2 enters 0.35->0.55, stays 0.55->0.65, exits 0.65->0.85
-    if (latest > 0.55 && latest < 0.65) {
-      setShowOverlay2(true);
-    } else {
-      setShowOverlay2(false);
-    }
-
-    // Card 3 enters 0.65->0.85, stays 0.85->1.0
-    if (latest > 0.85) {
-      setShowOverlay3(true);
-    } else {
-      setShowOverlay3(false);
-    }
-  });
+  // Derived cursors (MotionValue strings) directly bound to style
+  const cursor1 = useTransform(isCard1Active, active => active ? 'none' : 'auto');
+  const cursor2 = useTransform(isCard2Active, active => active ? 'none' : 'auto');
+  const cursor3 = useTransform(isCard3Active, active => active ? 'none' : 'auto');
+  
+  // Track press state for manual animation control (replaces whileTap)
+  const [isPressed1, setIsPressed1] = useState(false);
+  const [isPressed2, setIsPressed2] = useState(false);
+  const [isPressed3, setIsPressed3] = useState(false);
 
   const lottieRef = useRef<any>(null); // Kept for reference or removal
   const videoRef1 = useRef<HTMLVideoElement>(null);
@@ -153,17 +214,20 @@ export default function Events() {
   // We keep it active mostly when cards are stationary.
   
   // CARD 1: FASHION
-  // Enter: 0 -> 0.2
+  // Enter: 0 -> 0.08
   // Exit: 0.35 -> 0.55
-  const y1 = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.55], ['100vh', '0vh', '0vh', '-100vh']);
-  const scrollRotateY = useTransform(scrollYProgress, [0, 0.15], [90, 0]);
-  const opacity1 = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+  // GATE: Park at 100vh if > 0.6 (Optimization)
+  const rawY1 = useTransform(scrollYProgress, [0, 0.08, 0.35, 0.55], ['100vh', '0vh', '0vh', '-100vh']);
+  const y1 = useTransform(scrollYProgress, v => v < 0.6 ? rawY1.get() : '-100vh'); // Park offscreen top if passed
+
+  const scrollRotateY = useTransform(scrollYProgress, [0.02, 0.10], [90, 0]);
+  const opacity1 = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
   
-  const width1 = useTransform(scrollYProgress, [0.1, 0.25], [startDimensions.w, '100dvw']);
-  const height1 = useTransform(scrollYProgress, [0.1, 0.25], [startDimensions.h, '100dvh']);
-  const borderRadius1 = useTransform(scrollYProgress, [0.1, 0.25], ['6px', '0px']);
+  const width1 = useTransform(scrollYProgress, [0.08, 0.2], [startDimensions.w, '100dvw']);
+  const height1 = useTransform(scrollYProgress, [0.08, 0.2], [startDimensions.h, '100dvh']);
+  const borderRadius1 = useTransform(scrollYProgress, [0.08, 0.2], ['6px', '0px']);
   
-  const fgTranslateY = useTransform(scrollYProgress, [0.1, 0.25], ['200%', '0%']);
+  const fgTranslateY = useTransform(scrollYProgress, [0.08, 0.2], ['200%', '0%']);
   const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   const mgTranslateX2 = useTransform(smoothMouseX, [0, 1], ['25px', '-25px']);
@@ -180,7 +244,10 @@ export default function Events() {
   // CARD 2: DECADANCE
   // Enter: 0.35 -> 0.55 (Sync with C1 Exit)
   // Exit: 0.65 -> 0.85 
-  const y2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], ['100vh', '0vh', '0vh', '-100vh']);
+  // GATE: Park at 100vh if < 0.2 or > 0.9
+  const rawY2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], ['100vh', '0vh', '0vh', '-100vh']);
+  const y2 = useTransform(scrollYProgress, v => (v > 0.2 && v < 0.9) ? rawY2.get() : '100vh');
+
   const scale2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], [0.5, 1, 1, 0.8]); // Enter Scale -> Stay -> Exit Scale
   const borderRadius2 = useTransform(scrollYProgress, [0.35, 0.55], ['20px', '0px']);
   
@@ -194,7 +261,10 @@ export default function Events() {
   // CARD 3: DRIFTX
   // Enter: 0.65 -> 0.85 (Sync with C2 Exit)
   // Stay: 0.85 -> 1.0
-  const y3 = useTransform(scrollYProgress, [0.65, 0.85], ['100vh', '0vh']);
+  // GATE: Park at 100vh if < 0.5
+  const rawY3 = useTransform(scrollYProgress, [0.65, 0.85], ['100vh', '0vh']);
+  const y3 = useTransform(scrollYProgress, v => v > 0.5 ? rawY3.get() : '100vh');
+
   const scale3 = useTransform(scrollYProgress, [0.65, 0.85], [0.5, 1]);
   const borderRadius3 = useTransform(scrollYProgress, [0.65, 0.85], ['20px', '0px']);
   const enterRotateX3 = useTransform(scrollYProgress, [0.65, 0.85], [-10, 0]);
@@ -242,10 +312,10 @@ export default function Events() {
   // Card 3 Parallax (Enter 0.65->0.85)
   const parallaxY3 = useTransform(scrollYProgress, [0.65, 0.85], ['-75vh', '0vh']);
 
-  // Card 1 FG Composite: Popup (0.14->0.3) + Parallax Exit (0.35->0.55)
-  // Original fgTranslateY: [0.14, 0.3] -> ['200%', '0%']
-  // We need to map to: 0.14->200%, 0.3->0%, 0.35->0vh, 0.55->75vh
-  const fgParaY1 = useTransform(scrollYProgress, [0.1, 0.25, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
+  // Card 1 FG Composite: Popup (0.08->0.2) + Parallax Exit (0.35->0.55)
+  // Original fgTranslateY: [0.08, 0.2] -> ['200%', '0%']
+  // We need to map to: 0.08->200%, 0.2->0%, 0.35->0vh, 0.55->75vh
+  const fgParaY1 = useTransform(scrollYProgress, [0.08, 0.2, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
 
   // Red Vignette Transition Opacity
   // Card 1 Exit (0.35 -> 0.55)
@@ -287,23 +357,93 @@ export default function Events() {
   const cursorY = useTransform(smoothMouseY, [0, 1], ['0%', '100%']);
 
   // Card 1 MG Parallax & Scaling
-  // Small (0-0.2) -> Expanded (0.3+) ... now starts at 0.14
-  const mgBgSize = useTransform(scrollYProgress, [0.1, 0.25], ['100%', isMobile ? '150%' : '40%']);
-  const mgBgPos = useTransform(scrollYProgress, [0.1, 0.25], ['center 90%', 'center 100%']);
+  // Small (0-0.2) -> Expanded (0.3+) ... now starts at 0.08
+  const mgBgSize = useTransform(scrollYProgress, [0.08, 0.2], ['100%', isMobile ? '150%' : '40%']);
+  const mgBgPos = useTransform(scrollYProgress, [0.08, 0.2], ['center 90%', 'center 100%']);
   
   // Card 1 MG Parallax (X-axis)
   // "Slightly maybe .2" - interpreted as a subtle shift, e.g., 20px range
   const mgTranslateX1 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
+  // Interaction Handlers using Custom Hook
+  const bindCard1 = useLongPress(
+    () => { // Start
+      if (isCard1Active.get() && videoRef1.current) {
+        setIsPressed1(true);
+        videoRef1.current.currentTime = 0;
+        videoRef1.current.style.opacity = '1';
+        videoRef1.current.play();
+      }
+    },
+    () => { // End/Cancel
+      setIsPressed1(false);
+      if (videoRef1.current) {
+        videoRef1.current.pause();
+        videoRef1.current.style.opacity = '0';
+        // Force flush decoder
+        const src = videoRef1.current.src;
+        videoRef1.current.src = src; 
+      }
+    }
+  );
+
+  const bindCard2 = useLongPress(
+    () => {
+      if (isCard2Active.get() && videoRef2.current) {
+        setIsPressed2(true);
+        videoRef2.current.currentTime = 0;
+        videoRef2.current.style.opacity = '1';
+        videoRef2.current.play();
+      }
+    },
+    () => {
+      setIsPressed2(false);
+      if (videoRef2.current) {
+        videoRef2.current.pause();
+        videoRef2.current.style.opacity = '0';
+        const src = videoRef2.current.src;
+        videoRef2.current.src = src;
+      }
+    }
+  );
+
+  const bindCard3 = useLongPress(
+    () => {
+      if (isCard3Active.get() && videoRef3.current) {
+        setIsPressed3(true);
+        videoRef3.current.currentTime = 0;
+        videoRef3.current.style.opacity = '1';
+        videoRef3.current.play();
+      }
+    },
+    () => {
+      setIsPressed3(false);
+      if (videoRef3.current) {
+        videoRef3.current.pause();
+        videoRef3.current.style.opacity = '0';
+        const src = videoRef3.current.src;
+        videoRef3.current.src = src;
+      }
+    }
+  );
+
+  // Derived Overlay Opacity (MotionValues)
+  const overlayOpacity1 = useTransform(isCard1Active, active => active ? 1 : 0);
+  const overlayOpacity2 = useTransform(isCard2Active, active => active ? 1 : 0);
+  const overlayOpacity3 = useTransform(isCard3Active, active => active ? 1 : 0);
+
   return (
     <div id="events" className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
       <div className={styles.stickyWrapper}>
+
+        <div className={styles.sectionTitle}>EVENTS</div>
         
         {/* CARD 1 - EXISTING */}
         <motion.div 
           className={styles.card}
           initial="rest"
-          whileTap="pressed" // Triggers variants in children
+
+          animate={isPressed1 ? "pressed" : "rest"}
           whileHover="hover" // Optional: we could add hover effects too
           style={{
             y: y1,
@@ -315,27 +455,9 @@ export default function Events() {
             borderRadius: borderRadius1,
             opacity: opacity1,
             zIndex: 10,
-            cursor: showOverlay ? 'none' : 'auto', // Hide default cursor when active
+            cursor: cursor1, 
           }}
-          onTapStart={() => {
-            if (showOverlay && videoRef1.current) {
-               videoRef1.current.currentTime = 0;
-               videoRef1.current.style.opacity = '1';
-               videoRef1.current.play();
-            }
-          }}
-          onTap={() => {
-            if (videoRef1.current) {
-               videoRef1.current.pause();
-               videoRef1.current.style.opacity = '0';
-            }
-          }}
-          onTapCancel={() => {
-             if (videoRef1.current) {
-               videoRef1.current.pause();
-               videoRef1.current.style.opacity = '0';
-            }
-          }}
+          {...bindCard1}
         >
             {/* BACKGROUND IMAGE - AUTO CROPPED BY PARENT DIMENSIONS */}
             {/* Using a simple div with background-size: cover handles the "crop then reveal" logic perfectly 
@@ -381,11 +503,14 @@ export default function Events() {
             {/* OVERLAY & LOTTIE (Appears on Hold) - Persistent Rendering with CSS Toggle */}
               <motion.div 
                 className={styles.cardOverlay} 
-                variants={showOverlay ? overlayVariants : disabledVariants}
+                animate={isPressed1 ? "pressed" : "rest"}
+                variants={overlayVariants}
                 style={{ 
                   pointerEvents: 'none',
                   clipPath: 'inset(0px 0px 0px 0px)', // Clip bottom 116px
                   background: 'transparent',
+                   // Only show if active
+                   opacity: overlayOpacity1 
                 }} 
               >
                  <video
@@ -414,29 +539,11 @@ export default function Events() {
              borderRadius: borderRadius2,
              zIndex: 20, 
              position: 'absolute',
-             cursor: showOverlay2 ? 'none' : 'auto',
+             cursor: cursor2,
           }}
           initial="rest"
-          whileTap="pressed"
-          onTapStart={() => {
-            if (showOverlay2 && videoRef2.current) {
-               videoRef2.current.currentTime = 0;
-               videoRef2.current.style.opacity = '1';
-               videoRef2.current.play();
-            }
-          }}
-          onTap={() => {
-            if (videoRef2.current) {
-               videoRef2.current.pause();
-               videoRef2.current.style.opacity = '0';
-            }
-          }}
-          onTapCancel={() => {
-             if (videoRef2.current) {
-               videoRef2.current.pause();
-               videoRef2.current.style.opacity = '0';
-            }
-          }}
+          animate={isPressed2 ? "pressed" : "rest"}
+          {...bindCard2}
         >
              <motion.div 
                className={styles.layerBg}
@@ -477,11 +584,13 @@ export default function Events() {
              {/* OVERLAY & LOTTIE FOR CARD 2 - Persistent Rendering */}
               <motion.div 
                 className={styles.cardOverlay} 
-                variants={showOverlay2 ? overlayVariants : disabledVariants}
+                animate={isPressed2 ? "pressed" : "rest"}
+                variants={overlayVariants}
                 style={{ 
                   pointerEvents: 'none',
                   clipPath: 'inset(0px 0px 0px 0px)',
                   background: 'transparent',
+                  opacity: overlayOpacity2
                 }} 
               >
                  <video
@@ -509,29 +618,11 @@ export default function Events() {
              borderRadius: borderRadius3,
              zIndex: 30,
              position: 'absolute',
-             cursor: showOverlay3 ? 'none' : 'auto',
+             cursor: cursor3,
           }}
           initial="rest"
-          whileTap="pressed"
-          onTapStart={() => {
-            if (showOverlay3 && videoRef3.current) {
-               videoRef3.current.currentTime = 0;
-               videoRef3.current.style.opacity = '1';
-               videoRef3.current.play();
-            }
-          }}
-          onTap={() => {
-            if (videoRef3.current) {
-               videoRef3.current.pause();
-               videoRef3.current.style.opacity = '0';
-            }
-          }}
-          onTapCancel={() => {
-             if (videoRef3.current) {
-               videoRef3.current.pause();
-               videoRef3.current.style.opacity = '0';
-            }
-          }}
+          animate={isPressed3 ? "pressed" : "rest"}
+          {...bindCard3}
         >
              <motion.div 
                className={styles.layerBg}
@@ -573,11 +664,13 @@ export default function Events() {
              {/* OVERLAY & LOTTIE FOR CARD 3 - Persistent Rendering */}
               <motion.div 
                 className={styles.cardOverlay} 
-                variants={showOverlay3 ? overlayVariants : disabledVariants}
+                animate={isPressed3 ? "pressed" : "rest"}
+                variants={overlayVariants}
                 style={{ 
                   pointerEvents: 'none',
                   clipPath: 'inset(0px 0px 0px 0px)',
                   background: 'transparent',
+                  opacity: overlayOpacity3
                 }} 
               >
                  <video
@@ -593,17 +686,28 @@ export default function Events() {
         </motion.div>
 
         {/* CUSTOM CURSOR (Only when Card 1 or Card 2 is full screen) */}
-        {(showOverlay || showOverlay2 || showOverlay3) && (
-          <motion.div 
+        {/* We use specific motion divs for cursors or just one that checks all? 
+            Since we removed React State, we can't conditionally render. 
+            We render it always, but control Opacity via MotionValue */}
+        <motion.div 
             className={styles.customCursor}
             style={{
               left: cursorX,
               top: cursorY,
+              // Show if ANY card is active and pressed? 
+              // Actually we want "TAP AND HOLD" hint when active.
+              // Logic: Opacity = 1 if (isCard1Active OR isCard2Active OR isCard3Active)
+              opacity: useTransform(
+                  // Cast to any to avoid complex tuple type inference issues with Framer Motion hooks
+                  [isCard1Active, isCard2Active, isCard3Active] as any,
+                  ([a, b, c]: boolean[]) => (a || b || c) ? 1 : 0
+              ),
+              // Also ensure it doesn't block clicks when invisible
+              pointerEvents: 'none'
             }}
           >
             TAP AND HOLD
           </motion.div>
-        )}
 
       </div>
 

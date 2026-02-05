@@ -247,3 +247,26 @@
     bottom: 30px;
   }
 }
+
+.sectionTitle {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 10rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.164); /* Subtle transparent white */
+  z-index: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 4rem;
+    top: 10%;
+  }
+}
