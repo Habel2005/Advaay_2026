@@ -76,7 +76,7 @@ export default function Navbar() {
             height: isMobile ? '28px' : '28px',
             minWidth: isMobile ? '60px' : '80px',
             marginTop: isMobile ? '1.5em' : '0',
-            marginLeft: isMobile ? '2.5em' : '1em'
+            marginLeft: isMobile ? '2.5em' : '1.5em'
           }}>
             <GooeyText
               texts={["ADVAY", "അധ്വയ്", "अधवे"]}
