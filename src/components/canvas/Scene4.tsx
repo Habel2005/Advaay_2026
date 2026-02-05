@@ -16,11 +16,26 @@ const FONTS = {
 
 // 16 IMAGES (Optimized count)
 const ALL_IMAGES = [
-  '/images/gallery/event-1.webp', '/images/gallery/event-2.webp', '/images/gallery/event-3.webp',
-  '/images/gallery/event-4.webp', '/images/gallery/event-5.webp', '/images/gallery/event-6.webp',
-  '/images/gallery/event-7.webp', '/images/gallery/event-8.webp', '/images/gallery/event-9.webp',
-  '/images/gallery/event-10.webp', '/images/gallery/event-11.webp', '/images/gallery/event-12.webp',
-  '/images/gallery/event-13.webp', '/images/gallery/event-14.webp',
+  '/images/gallery/event-1.webp',
+  '/images/gallery/event-2.webp',
+  '/images/gallery/event-3.webp',
+  '/images/gallery/event-4.webp',
+  '/images/gallery/event-5.webp',
+  '/images/gallery/event-6.webp',
+  '/images/gallery/event-7.webp',
+  '/images/gallery/event-8.webp',
+  '/images/gallery/event-9.webp',
+  '/images/gallery/event-10.webp',
+  '/images/gallery/event-11.webp',
+  '/images/gallery/event-12.webp',
+  '/images/gallery/event-13.webp',
+  '/images/gallery/event-14.webp',
+  '/images/gallery/event-15.webp',
+  '/images/gallery/event-16.webp',
+  '/images/gallery/event-17.webp',
+  '/images/gallery/event-18.webp',
+  '/images/gallery/event-19.webp',
+  '/images/gallery/event-20.webp',
 ]
 
 const LEFT_IMAGES = ALL_IMAGES.slice(0, 7)
