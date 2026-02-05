@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react'
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
 import { Events } from '@/components/ui'
-import EventsSection from '@/components/ui/EventsSection'
 import TestScene4Page from './test-scene4/page'
 import FooterContent from '@/components/ui/FooterContent'
 import Scene2, { SmoothScrollProvider } from '@/components/canvas/Scene2'
@@ -50,7 +49,7 @@ export default function HomePage() {
   return (
     <>
       {/* Main Hero Area - Scene renders first */}
-      <main id='main-screen' className='relative w-full h-screen overflow-hidden'>
+      <main id='home' className='relative w-full h-screen overflow-hidden'>
         {/* Scene background layer */}
         {/* <div className='absolute w-full h-full z-0'>
           <Scene canPlayAnimations={canPlayAnimations} />
@@ -67,14 +66,21 @@ export default function HomePage() {
       </main>
 
       {/* Other Scrollable Sections */}
+      <div id = 'about'>
       <SmoothScrollProvider>
         <Scene2 />
       </SmoothScrollProvider>
+      </div>
+      <div id = 'events'>
       <Events />
+      </div>
+      <div id = 'gallery'>
       <TestScene4Page />
-
+      </div>
       {/* The scrolling part of the footer */}
+      <div id = 'contact'>
       <FooterContent />
+      </div>
     </>
   )
 }
