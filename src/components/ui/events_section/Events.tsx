@@ -90,13 +90,13 @@ export default function Events() {
   
   // PERFORMANCE FIX: Replace State with MotionValues
   // Define active ranges for logic gating
-  // Card 1: 0.2 -> 0.35 (Exit start) - Active Range
-  // Card 2: 0.5 -> 0.65 - Active Range
-  // Card 3: 0.8 -> 1.0 - Active Range
+  // Card 1: 0.08 -> 0.25 (Stay) -> 0.42 (Exit end)
+  // Card 2: 0.42 -> 0.52 (Stay) -> 0.67 (Exit end)
+  // Card 3: 0.55 -> 1.0 (Stay)
   
-  const isCard1Active = useTransform(scrollYProgress, v => v > 0.2 && v < 0.35);
-  const isCard2Active = useTransform(scrollYProgress, v => v > 0.5 && v < 0.65);
-  const isCard3Active = useTransform(scrollYProgress, v => v > 0.8);
+  const isCard1Active = useTransform(scrollYProgress, v => v > 0.08 && v < 0.25);
+  const isCard2Active = useTransform(scrollYProgress, v => v > 0.42 && v < 0.52);
+  const isCard3Active = useTransform(scrollYProgress, v => v > 0.55);
 
   // Derived cursors (MotionValue strings) directly bound to style
   const cursor1 = useTransform(isCard1Active, active => active ? 'none' : 'auto');
@@ -235,19 +235,20 @@ export default function Events() {
   
   // CARD 1: FASHION
   // Enter: 0 -> 0.08
-  // Exit: 0.35 -> 0.55
-  // GATE: Park at 100vh if > 0.6 (Optimization)
-  const rawY1 = useTransform(scrollYProgress, [0, 0.08, 0.35, 0.55], ['100vh', '0vh', '0vh', '-100vh']);
-  const y1 = useTransform(scrollYProgress, v => v < 0.6 ? rawY1.get() : '-100vh'); // Park offscreen top if passed
+  // Stay: 0.08 -> 0.25
+  // Exit: 0.25 -> 0.42
+  // GATE: Park at 100vh if > 0.5
+  const rawY1 = useTransform(scrollYProgress, [0, 0.08, 0.25, 0.42], ['100vh', '0vh', '0vh', '-100vh']);
+  const y1 = useTransform(scrollYProgress, v => v < 0.5 ? rawY1.get() : '-100vh'); // Park offscreen top if passed
 
   const scrollRotateY = useTransform(scrollYProgress, [0.02, 0.10], [90, 0]);
   const opacity1 = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
   
-  const width1 = useTransform(scrollYProgress, [0.08, 0.2], [startDimensions.w, '100dvw']);
-  const height1 = useTransform(scrollYProgress, [0.08, 0.2], [startDimensions.h, '100dvh']);
-  const borderRadius1 = useTransform(scrollYProgress, [0.08, 0.2], ['6px', '0px']);
+  const width1 = useTransform(scrollYProgress, [0.08, 0.25], [startDimensions.w, '100dvw']);
+  const height1 = useTransform(scrollYProgress, [0.08, 0.25], [startDimensions.h, '100dvh']);
+  const borderRadius1 = useTransform(scrollYProgress, [0.08, 0.25], ['6px', '0px']);
   
-  const fgTranslateY = useTransform(scrollYProgress, [0.08, 0.2], ['200%', '0%']);
+  const fgTranslateY = useTransform(scrollYProgress, [0.08, 0.25], ['200%', '0%']);
   const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   const mgTranslateX2 = useTransform(smoothMouseX, [0, 1], ['25px', '-25px']);
@@ -257,48 +258,49 @@ export default function Events() {
   // Card 3 FG Parallax (Subtle)
   const fgTranslateX3 = useTransform(smoothMouseX, [0, 1], ['5px', '-5px']);
 
-  const scale1 = useTransform(scrollYProgress, [0.35, 0.55], [1, 0.8]);
-  const exitRotateX1 = useTransform(scrollYProgress, [0.35, 0.55], [0, 10]);
+  const scale1 = useTransform(scrollYProgress, [0.25, 0.42], [1, 0.8]);
+  const exitRotateX1 = useTransform(scrollYProgress, [0.25, 0.42], [0, 10]);
 
 
   // CARD 2: DECADANCE
-  // Enter: 0.35 -> 0.55 (Sync with C1 Exit)
-  // Exit: 0.65 -> 0.85 
-  // GATE: Park at 100vh if < 0.2 or > 0.9
-  const rawY2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], ['100vh', '0vh', '0vh', '-100vh']);
-  const y2 = useTransform(scrollYProgress, v => (v > 0.2 && v < 0.9) ? rawY2.get() : '100vh');
+  // Enter: 0.25 -> 0.42 (Sync with C1 Exit)
+  // Stay: 0.42 -> 0.52
+  // Exit: 0.52 -> 0.67
+  // GATE: Park at 100vh if < 0.2 or > 0.8
+  const rawY2 = useTransform(scrollYProgress, [0.25, 0.42, 0.52, 0.67], ['100vh', '0vh', '0vh', '-100vh']);
+  const y2 = useTransform(scrollYProgress, v => (v > 0.2 && v < 0.8) ? rawY2.get() : '100vh');
 
-  const scale2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], [0.5, 1, 1, 0.8]); // Enter Scale -> Stay -> Exit Scale
-  const borderRadius2 = useTransform(scrollYProgress, [0.35, 0.55], ['20px', '0px']);
+  const scale2 = useTransform(scrollYProgress, [0.25, 0.42, 0.52, 0.67], [0.5, 1, 1, 0.8]); // Enter Scale -> Stay -> Exit Scale
+  const borderRadius2 = useTransform(scrollYProgress, [0.25, 0.42], ['20px', '0px']);
   
-  const enterRotateX2 = useTransform(scrollYProgress, [0.35, 0.55], [-10, 0]);
-  const exitRotateX2 = useTransform(scrollYProgress, [0.65, 0.85], [0, 10]);
+  const enterRotateX2 = useTransform(scrollYProgress, [0.25, 0.42], [-10, 0]);
+  const exitRotateX2 = useTransform(scrollYProgress, [0.52, 0.67], [0, 10]);
   
   // Combine rotations for Card 2
   const rotateX2 = useTransform([enterRotateX2, exitRotateX2], ([enter, exit]: number[]) => enter + exit);
 
 
   // CARD 3: DRIFTX
-  // Enter: 0.65 -> 0.85 (Sync with C2 Exit)
-  // Stay: 0.85 -> 1.0
-  // GATE: Park at 100vh if < 0.5
-  const rawY3 = useTransform(scrollYProgress, [0.65, 0.85], ['100vh', '0vh']);
+  // Enter: 0.55 -> 0.75 (Aggressive overlap)
+  // Stay: 0.75 -> 1.0
+  // GATE: Park at 100vh if < 0.4
+  const rawY3 = useTransform(scrollYProgress, [0.55, 0.75], ['100vh', '0vh']);
   const y3 = useTransform(
     [scrollYProgress, isCard3Active] as any,
-    ([v, active]: any[]) => active || v > 0.5 ? rawY3.get() : '100vh'
+    ([v, active]: any[]) => active || v > 0.4 ? rawY3.get() : '100vh'
   );
 
-  const rawScale3 = useTransform(scrollYProgress, [0.65, 0.85], [0.5, 1]);
+  const rawScale3 = useTransform(scrollYProgress, [0.55, 0.75], [0.5, 1]);
   const scale3 = useTransform(
      [scrollYProgress, isCard3Active] as any,
-     ([v, active]: any[]) => active || v > 0.5 ? rawScale3.get() : 0.5
+     ([v, active]: any[]) => active || v > 0.4 ? rawScale3.get() : 0.5
   );
 
-  const borderRadius3 = useTransform(scrollYProgress, [0.65, 0.85], ['20px', '0px']);
-  const rawEnterRotateX3 = useTransform(scrollYProgress, [0.65, 0.85], [-10, 0]);
+  const borderRadius3 = useTransform(scrollYProgress, [0.55, 0.75], ['20px', '0px']);
+  const rawEnterRotateX3 = useTransform(scrollYProgress, [0.55, 0.75], [-10, 0]);
   const enterRotateX3 = useTransform(
      [scrollYProgress, isCard3Active] as any,
-     ([v, active]: any[]) => active || v > 0.5 ? rawEnterRotateX3.get() : -10
+     ([v, active]: any[]) => active || v > 0.4 ? rawEnterRotateX3.get() : -10
   );
 
   // TILT CALCULATION
@@ -312,7 +314,8 @@ export default function Events() {
   const baseTiltRotateX3 = useTransform(smoothMouseY, [0, 1], [0, 0]);
   
   // Damping: Reduce tilt during transitions (approximate centers of transitions)
-  const tiltStrength = useTransform(scrollYProgress, [0.2, 0.35, 0.55, 0.65, 0.85], [1, 0, 1, 0, 1]);
+  // [0.08, 0.25, 0.42, 0.52, 0.65]
+  const tiltStrength = useTransform(scrollYProgress, [0.08, 0.25, 0.42, 0.52, 0.65], [1, 0, 1, 0, 1]);
   
   const tiltRotateY = useTransform(
     [baseTiltRotateY, tiltStrength, enableTilt] as any, 
@@ -347,29 +350,29 @@ export default function Events() {
   // Actually, we established: Transition UP (0->0.2) => Image Relative DOWN (-75vh -> 0).
   // Transition DOWN (Exit) => Image Relative UP (0 -> 75vh).
   
-  // Card 1 Exit Parallax (0.35 -> 0.55)
-  const parallaxY1_Exit = useTransform(scrollYProgress, [0.35, 0.55], ['0vh', '75vh']);
+  // Card 1 Exit Parallax (0.25 -> 0.42)
+  const parallaxY1_Exit = useTransform(scrollYProgress, [0.25, 0.42], ['0vh', '75vh']);
   
-  // Card 2 Parallax (Enter 0.35->0.55, Exit 0.65->0.85)
-  const parallaxY2 = useTransform(scrollYProgress, [0.35, 0.55, 0.65, 0.85], ['-75vh', '0vh', '0vh', '75vh']);
+  // Card 2 Parallax (Enter 0.25->0.42, Exit 0.52->0.67)
+  const parallaxY2 = useTransform(scrollYProgress, [0.25, 0.42, 0.52, 0.67], ['-75vh', '0vh', '0vh', '75vh']);
   
-  // Card 3 Parallax (Enter 0.65->0.85)
-  const parallaxY3 = useTransform(scrollYProgress, [0.65, 0.85], ['-75vh', '0vh']);
+  // Card 3 Parallax (Enter 0.55->0.75)
+  const parallaxY3 = useTransform(scrollYProgress, [0.55, 0.75], ['-75vh', '0vh']);
 
-  // Card 1 FG Composite: Popup (0.08->0.2) + Parallax Exit (0.35->0.55)
+  // Card 1 FG Composite: Popup (0.08->0.25) + Parallax Exit (0.25->0.42)
   // Original fgTranslateY: [0.08, 0.2] -> ['200%', '0%']
-  // We need to map to: 0.08->200%, 0.2->0%, 0.35->0vh, 0.55->75vh
-  const fgParaY1 = useTransform(scrollYProgress, [0.08, 0.2, 0.35, 0.55], ['200%', '0%', '0vh', '75vh']);
+  // We need to map to: 0.08->200%, 0.25->0%, 0.42->75vh
+  const fgParaY1 = useTransform(scrollYProgress, [0.08, 0.25, 0.42], ['200%', '0%', '75vh']);
 
   // Red Vignette Transition Opacity
-  // Card 1 Exit (0.35 -> 0.55)
-  const transitionOpacity1 = useTransform(scrollYProgress, [0.35, 0.45, 0.55], [0, 1, 0]);
+  // Card 1 Exit (0.25 -> 0.42)
+  const transitionOpacity1 = useTransform(scrollYProgress, [0.25, 0.33, 0.42], [0, 1, 0]);
   
-  // Card 2 Enter (0.35 -> 0.55) & Exit (0.65 -> 0.85)
-  const transitionOpacity2 = useTransform(scrollYProgress, [0.35, 0.45, 0.55, 0.65, 0.75, 0.85], [0, 1, 0, 0, 1, 0]);
+  // Card 2 Enter (0.25 -> 0.42) & Exit (0.52 -> 0.67)
+  const transitionOpacity2 = useTransform(scrollYProgress, [0.25, 0.33, 0.42, 0.52, 0.60, 0.67], [0, 1, 0, 0, 1, 0]);
 
-  // Card 3 Enter (0.65 -> 0.85)
-  const transitionOpacity3 = useTransform(scrollYProgress, [0.65, 0.75, 0.85], [0, 1, 0]);
+  // Card 3 Enter (0.55 -> 0.75)
+  const transitionOpacity3 = useTransform(scrollYProgress, [0.55, 0.65, 0.75], [0, 1, 0]);
 
   // INTERACTION VARIANTS (Click & Hold)
   const overlayVariants = {
@@ -401,9 +404,9 @@ export default function Events() {
   const cursorY = useTransform(smoothMouseY, [0, 1], ['0%', '100%']);
 
   // Card 1 MG Parallax & Scaling
-  // Small (0-0.2) -> Expanded (0.3+) ... now starts at 0.08
-  const mgBgSize = useTransform(scrollYProgress, [0.08, 0.2], ['100%', isMobile ? '150%' : '40%']);
-  const mgBgPos = useTransform(scrollYProgress, [0.08, 0.2], ['center 90%', 'center 100%']);
+  // Small (0-0.25) -> Expanded (0.25+) ... now starts at 0.08
+  const mgBgSize = useTransform(scrollYProgress, [0.08, 0.25], ['100%', isMobile ? '150%' : '40%']);
+  const mgBgPos = useTransform(scrollYProgress, [0.08, 0.25], ['center 90%', 'center 100%']);
   
   // Card 1 MG Parallax (X-axis)
   // "Slightly maybe .2" - interpreted as a subtle shift, e.g., 20px range

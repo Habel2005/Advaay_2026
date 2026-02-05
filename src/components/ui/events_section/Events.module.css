@@ -1,5 +1,5 @@
 .container {
-  height: 650dvh; /* Optimized height */
+  height: 350dvh; /* Optimized height for fast scroll */
   position: relative;
   background-color: #000;
   color: #fff;
@@ -165,7 +165,8 @@
   .layerBMg {
     top: 0px;
     left: 0px;
-    width: 100%;
+    width: 101%;
+    left: -1px;
     height: 100%;
     background-size: auto 85%; /* Match layerFg sizing approximately */
     background-position: center bottom;
@@ -178,12 +179,22 @@
   }
 
   .layerMg {
+    width: 101%;
+    left: -1px;
     top: 9px;
   }
  
   .layerFg {
+    width: 101%;
+    left: -1px;
     background-size: auto 85%; /* Reduced height on mobile */
     background-repeat: no-repeat;
+  }
+
+  /* Overlay Gap Fix too */
+  .cardOverlay {
+    width: 101%;
+    left: -1px;
   }
 
   .overlayText {
