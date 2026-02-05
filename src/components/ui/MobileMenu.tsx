@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
-import { COLORS, MENU_ITEMS } from '@/lib/constants'
+import { COLORS } from '@/lib/constants'
+import { usePathname, useRouter } from 'next/navigation';
 
 // ============================================
 // MOBILE SLIDE-OUT MENU (KPR Verse Style)
@@ -10,13 +11,17 @@ import { COLORS, MENU_ITEMS } from '@/lib/constants'
 interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
+  navItems: { label: string; href: string }[];
+  activeSection: string;
 }
 
-export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export default function MobileMenu({ isOpen, onClose, navItems, activeSection }: MobileMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  
+  const pathname = usePathname();
+  const router = useRouter();
+
   useEffect(() => {
     if (isOpen) {
       // Animate in
@@ -60,6 +65,27 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
       })
     }
   }, [isOpen])
+
+  const handleMenuClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === '/' && pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+      onClose();
+    } else {
+      onClose();
+    }
+  };
+
+  const handleRegisterClick = () => {
+    const eventsSection = document.getElementById('events');
+    if (eventsSection) {
+      eventsSection.scrollIntoView({ behavior: 'smooth' });
+      onClose();
+    }
+  };
   
   return (
     <>
@@ -125,6 +151,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           
           {/* Register Button */}
           <button
+            onClick={handleRegisterClick}
             style={{
               padding: '10px 20px',
               background: 'transparent',
@@ -192,33 +219,35 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </div>
           
           {/* Main Menu Items (Large Typography like KPR) */}
-          {MENU_ITEMS.map((item) => (
+          {navItems.map((item) => {
+            const isActive = activeSection === item.label;
+            return (
             <a
               key={item.label}
               href={item.href}
               className="menu-item"
-              onClick={onClose}
+              onClick={(e) => handleMenuClick(e, item.href)}
               style={{
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: 'clamp(32px, 8vw, 48px)',
                 fontWeight: 700,
                 letterSpacing: '-0.02em',
-                color: item.highlight ? COLORS.red : COLORS.text,
+                color: isActive ? COLORS.red : COLORS.text,
                 textDecoration: 'none',
                 marginBottom: '8px',
                 display: 'block',
                 transition: 'color 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                if (!item.highlight) e.currentTarget.style.color = COLORS.red
+                if (!isActive) e.currentTarget.style.color = COLORS.red
               }}
               onMouseLeave={(e) => {
-                if (!item.highlight) e.currentTarget.style.color = COLORS.text
+                if (!isActive) e.currentTarget.style.color = COLORS.text
               }}
             >
               {item.label}
             </a>
-          ))}
+          )})}
         </div>
         
         {/* Bottom Section (Social Links like KPR) */}

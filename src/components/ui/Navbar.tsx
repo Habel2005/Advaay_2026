@@ -7,11 +7,15 @@ import { COLORS, NAV_ITEMS } from '@/lib/constants';
 import MobileMenu from './MobileMenu';
 import CipherText from './CipherText'; // Import the new component
 import { GooeyText } from './GooeyText';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const navRef = useRef<HTMLElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [activeSection, setActiveSection] = useState('HOME');
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -22,6 +26,31 @@ export default function Navbar() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  useEffect(() => {
+    const sections = NAV_ITEMS.map((item) => document.getElementById(item.label.toLowerCase())).filter(Boolean) as HTMLElement[];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id.toUpperCase());
+          }
+        });
+      },
+      { threshold: 0.2 } // Adjust threshold as needed
+    );
+
+    sections.forEach((section) => {
+      observer.observe(section);
+    });
+
+    return () => {
+      sections.forEach((section) => {
+        observer.unobserve(section);
+      });
+    };
+  }, []);
+
   useGSAP(() => {
     gsap.fromTo(
       navRef.current,
@@ -29,6 +58,20 @@ export default function Navbar() {
       { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 0.2 }
     );
   }, { scope: navRef });
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === '/' && pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const handleRegisterClick = () => {
+    router.push('/events');
+  };
 
   return (
     <>
@@ -91,16 +134,20 @@ export default function Navbar() {
         {/* Center Navigation Links (Desktop Only) */}
         {!isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            {NAV_ITEMS.map((item) => (
+            {NAV_ITEMS.map((item) => {
+                const isActive = activeSection === item.label;
+
+                return (
               <a
                 key={item.label}
                 href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
                 style={{
                   fontFamily: 'system-ui, sans-serif',
                   fontSize: '11px',
                   fontWeight: 500,
                   letterSpacing: '0.15em',
-                  color: item.active ? COLORS.red : COLORS.textMuted,
+                  color: isActive ? COLORS.red : COLORS.textMuted,
                   textDecoration: 'none',
                   transition: 'color 0.2s ease',
                   display: 'flex',
@@ -109,23 +156,24 @@ export default function Navbar() {
                   zIndex: 50,
                 }}
                 onMouseEnter={(e) => {
-                  if (!item.active) e.currentTarget.style.color = COLORS.text;
+                  if (!isActive) e.currentTarget.style.color = COLORS.text;
                 }}
                 onMouseLeave={(e) => {
-                  if (!item.active) e.currentTarget.style.color = COLORS.textMuted;
+                  if (!isActive) e.currentTarget.style.color = COLORS.textMuted;
                 }}
               >
-                {item.active && (
+                {isActive && (
                   <span style={{ width: '4px', height: '4px', background: COLORS.red, borderRadius: '50%' }} />
                 )}
                 <CipherText text={item.label} />
               </a>
-            ))}
+            )})}
           </div>
         )}
 
         {/* Register Button */}
         <button
+          onClick={handleRegisterClick}
           style={{
             padding: isMobile ? '10px 16px' : '12px 24px',
             background: 'transparent',
@@ -152,7 +200,12 @@ export default function Navbar() {
         </button>
       </nav>
 
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+        navItems={NAV_ITEMS} 
+        activeSection={activeSection} 
+      />
     </>
   );
 }
