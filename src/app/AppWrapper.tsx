@@ -1,16 +1,22 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Loader from "@/components/ui/loading/Loader";
 import LogoReveal from "@/components/ui/loading/LogoReveal";
 import FooterReveal from '@/components/ui/FooterReveal';
 import { Scene } from '@/components/canvas';
 
 export default function AppWrapper({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
   // State management for loading sequence
-  const [videoReady, setVideoReady] = useState(false);
-  const [loaderDone, setLoaderDone] = useState(false);
-  const [revealDone, setRevealDone] = useState(false);
+  // If we are not on the home page, we skip the loading sequence explicitly
+  // by marking everything as "done" or "ready" immediately.
+  const [videoReady, setVideoReady] = useState(!isHome);
+  const [loaderDone, setLoaderDone] = useState(!isHome);
+  const [revealDone, setRevealDone] = useState(!isHome);
 
   // Callbacks to update state from child components
   const handleVideoReady = useCallback(() => setVideoReady(true), []);
@@ -22,8 +28,8 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      {/* --- Loading Sequence --- */}
-      {!revealDone && (
+      {/* --- Loading Sequence (Only on Home) --- */}
+      {isHome && !revealDone && (
         <div className="fixed inset-0 z-50 bg-white">
           {/* 1. The Loader. It now fades out to create an overlap. */}
           <div
@@ -53,7 +59,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
           <Scene canPlayAnimations={revealDone} />
         </div>
         {/* THE "CURTAIN" WRAPPER (Your footer settings are preserved) */}
-        <div className="relative z-30  mb-[25vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <div className="relative z-30  mb-[10vh] md:mb-[46vh] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
           {children}
         </div>
 

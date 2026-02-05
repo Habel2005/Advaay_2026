@@ -193,6 +193,7 @@ export default function HeroContent() {
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         paddingTop: '16px',
+        paddingBottom: isMobile ? '40px' : '0', // Lift text on mobile
         flexShrink: 0,
       }}>
         {/* Left - Event details */}
@@ -212,7 +213,7 @@ export default function HeroContent() {
             color: COLORS.textMuted,
             letterSpacing: '0.08em',
           }}>
-            FEB 12-13, 2026
+            FEB 16-17, 2026
           </div>
           <div style={{
             fontFamily: 'system-ui, sans-serif',

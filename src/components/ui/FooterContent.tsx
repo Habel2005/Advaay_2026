@@ -62,10 +62,20 @@ export default function FooterContent() {
 
       {/* COLUMN 4 */}
       <div className="p-6 md:p-8 flex flex-col justify-start group h-auto hover:bg-red-900/10 transition-colors">
-        <div className="space-y-4">
+        <div className="flex items-start gap-3 text-xs text-red-500 font-bold tracking-widest">
+          <div className="w-2 h-2 bg-red-600 mt-[2px]"></div>
+          <CipherText text="CREDITS" />
+        </div>
+        <div className="space-y-4 mt-12">
           <p className="text-[10px] text-neutral-400 leading-relaxed">
-            <a href="https://skfb.ly/68QGs" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">"Arm & Hand sculpting"</a> by <span className="font-bold">alfance</span><br />
+            <a href="https://skfb.ly/68QGs" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-white transition-colors">"Arm & Hand sculpting"</a> by <span className="font-bold">alfance</span><br />
             is licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="hover:text-red-500 transition-colors">CC Attribution</a>.
+          </p>
+          <p className="text-xs text-neutral-400 uppercase tracking-widest leading-relaxed">
+            DEVELOPED BY: <br />
+            <a href="https://www.instagram.com/mulearn.tist" target="_blank" rel="noopener noreferrer" className="text-red-500 font-bold hover:text-white transition-colors">
+              MULEARN TIST
+            </a>
           </p>
           <p className="text-xs text-neutral-400 uppercase tracking-widest leading-relaxed">
             INSPIRED BY: <br />
