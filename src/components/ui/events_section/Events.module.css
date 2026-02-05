@@ -248,7 +248,7 @@
   width: 100%;
   text-align: center;
   color: #ffffff;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-iceland), sans-serif;
   font-size: 5rem;
   font-weight: 800;
   text-transform: uppercase;

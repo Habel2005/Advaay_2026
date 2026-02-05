@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Iceland } from 'next/font/google';
 import './globals.css';
 import AppWrapper from './AppWrapper'; // Import the new client component
 
@@ -12,6 +12,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+});
+
+const iceland = Iceland({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-iceland',
 });
 
 /* ---------------- METADATA (Exported from a Server Component) ---------------- */
@@ -34,7 +40,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${iceland.variable} antialiased bg-black`}>
         {/* The AppWrapper now handles all client-side logic */}
         <AppWrapper>
           {children}

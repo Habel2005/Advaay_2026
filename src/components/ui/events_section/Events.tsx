@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent, useVelocity } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent } from 'framer-motion';
 import styles from './Events.module.css';
 
 
@@ -87,6 +87,7 @@ export default function Events() {
   // Responsive dimensions state
   const [startDimensions, setStartDimensions] = useState({ w: '60px', h: '40px' });
   const [isMobile, setIsMobile] = useState(false);
+  const [isLowEnd, setIsLowEnd] = useState(false); // New low-end detection
   
   // PERFORMANCE FIX: Replace State with MotionValues
   // Define active ranges for logic gating
@@ -96,7 +97,7 @@ export default function Events() {
   
   const isCard1Active = useTransform(scrollYProgress, v => v > 0.08 && v < 0.25);
   const isCard2Active = useTransform(scrollYProgress, v => v > 0.42 && v < 0.52);
-  const isCard3Active = useTransform(scrollYProgress, v => v > 0.55);
+  const isCard3Active = useTransform(scrollYProgress, v => v > 0.75);
 
   // Derived cursors (MotionValue strings) directly bound to style
   const cursor1 = useTransform(isCard1Active, active => active ? 'none' : 'auto');
@@ -170,6 +171,13 @@ export default function Events() {
 
   useEffect(() => {
     const updateDimensions = () => {
+      // Detect Low-End Device (Concurrency <= 4 or Data Saver)
+      const hardwareConcurrency = navigator.hardwareConcurrency || 4;
+      const saveData = (navigator as any).connection?.saveData === true;
+      if (hardwareConcurrency <= 4 || saveData) {
+        setIsLowEnd(true);
+      }
+
       if (window.innerWidth > 768) {
         // Desktop: Thinner and Taller
         setStartDimensions({ w: '20px', h: '60px' });
@@ -222,9 +230,31 @@ export default function Events() {
     mouseY.set(clientY / innerHeight);
   };
 
-  // PERFORMANCE: Disable Tilt on Fast Scroll
-  const scrollVelocity = useVelocity(scrollYProgress);
-  const enableTilt = useTransform(scrollVelocity, (v: number) => Math.abs(v) < 0.05); // Threshold for "fast" scroll
+  // PERFORMANCE: Disable Tilt on Fast Scroll (Delta Check - Lightweight)
+  // Replaced useVelocity with simple delta check to save overhead
+  const lastScroll = useRef(0);
+  const enableTilt = useTransform(scrollYProgress, v => {
+    const delta = Math.abs(v - lastScroll.current);
+    lastScroll.current = v;
+    return delta < 0.002; // Threshold for "fast" scroll
+  });
+
+  // PERFORMANCE: Hard Freeze Inactive Cards
+  // Derived flags: Active AND (Not Low End OR Card Active checking only)
+  // Actually, for tilt/parallax to be frozen, we just need to know if we should calculate it.
+  
+  // Logic: 
+  // 1. If isLowEnd -> Disable Tilt completely.
+  // 2. If !isCardActive -> Force Tilt to 0 (freeze).
+  // 3. If Fast Scroll -> Force Tilt to 0.
+  
+  const enableTiltDerived = useTransform([enableTilt], ([enabled]) => !isLowEnd && enabled);
+
+  // Per-Card Enabled Flags for Transforms
+  // Per-Card Enabled Flags for Transforms
+  const card1Enabled = useTransform([isCard1Active, enableTiltDerived] as any, ([active, tilt]: any[]) => active && tilt);
+  const card2Enabled = useTransform([isCard2Active, enableTiltDerived] as any, ([active, tilt]: any[]) => active && tilt);
+  const card3Enabled = useTransform([isCard3Active, enableTiltDerived] as any, ([active, tilt]: any[]) => active && tilt);
 
   // --- ANIMATION MAPPING (3 CARDS) ---
   // Total Scroll Range: 0 to 1
@@ -322,7 +352,12 @@ export default function Events() {
     ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
   );
   const tiltRotateX = useTransform(
-    [baseTiltRotateX, tiltStrength, enableTilt] as any, 
+    [baseTiltRotateX, tiltStrength, card1Enabled] as any, 
+    ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
+  );
+
+  const tiltRotateY2 = useTransform( 
+    [baseTiltRotateY, tiltStrength, card2Enabled] as any, 
     ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
   );
 
@@ -339,7 +374,7 @@ export default function Events() {
   const finalRotateY1 = useTransform([scrollRotateY, tiltRotateY], ([s, t]: number[]) => s + t);
   const finalRotateX1 = useTransform([tiltRotateX, exitRotateX1], ([t, e]: number[]) => t + e);
   
-  const finalRotateY2 = tiltRotateY; // No scroll rotate for C2
+  const finalRotateY2 = tiltRotateY2; // Card 2 specific tilt
   const finalRotateX2 = useTransform([tiltRotateX, rotateX2], ([t, r]: number[]) => t + r);
   
   const finalRotateY3 = tiltRotateY3;
@@ -402,6 +437,12 @@ export default function Events() {
   // Cursor movements (Defined at top level to avoid hook errors)
   const cursorX = useTransform(smoothMouseX, [0, 1], ['0%', '100%']);
   const cursorY = useTransform(smoothMouseY, [0, 1], ['0%', '100%']);
+  
+  const cursorOpacity = useTransform(
+      // Cast to any to avoid complex tuple type inference issues with Framer Motion hooks
+      [isCard1Active, isCard2Active, isCard3Active] as any,
+      ([a, b, c]: boolean[]) => (a || b || c) ? 1 : 0
+  );
 
   // Card 1 MG Parallax & Scaling
   // Small (0-0.25) -> Expanded (0.25+) ... now starts at 0.08
@@ -732,6 +773,7 @@ export default function Events() {
         {/* We use specific motion divs for cursors or just one that checks all? 
             Since we removed React State, we can't conditionally render. 
             We render it always, but control Opacity via MotionValue */}
+        {!isMobile && (
         <motion.div 
             className={styles.customCursor}
             style={{
@@ -740,17 +782,14 @@ export default function Events() {
               // Show if ANY card is active and pressed? 
               // Actually we want "TAP AND HOLD" hint when active.
               // Logic: Opacity = 1 if (isCard1Active OR isCard2Active OR isCard3Active)
-              opacity: useTransform(
-                  // Cast to any to avoid complex tuple type inference issues with Framer Motion hooks
-                  [isCard1Active, isCard2Active, isCard3Active] as any,
-                  ([a, b, c]: boolean[]) => (a || b || c) ? 1 : 0
-              ),
+              opacity: cursorOpacity,
               // Also ensure it doesn't block clicks when invisible
               pointerEvents: 'none'
             }}
           >
             TAP AND HOLD
           </motion.div>
+        )}
 
       </div>
 
