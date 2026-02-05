@@ -2,10 +2,15 @@
 
 import { COLORS } from '@/lib/constants'
 
-// ============================================
-// KPR VERSE STYLE BOUNDARY FRAME
-// ============================================
 export default function BoundaryFrame() {
+  // CONFIGURATION VARIABLES
+  const OFFSET = '15px';       // Distance from screen edge
+  const BRACKET_SIZE = '32px'; // Length of the corner lines
+  const CROSSHAIR_GAP = '50px'; // Distance of crosshair from the edge
+  
+  const BORDER_STYLE = `1px solid ${COLORS.textMuted}30`;
+  const ACCENT_STYLE = `2px solid ${COLORS.textMuted}`;
+
   return (
     <div
       style={{
@@ -15,87 +20,79 @@ export default function BoundaryFrame() {
         zIndex: 50,
       }}
     >
-      {/* Main Border Frame - All 4 sides */}
+      {/* 1. MAIN BORDER FRAME */}
       <div
         style={{
           position: 'absolute',
-          inset: '20px',
-          border: `1px solid ${COLORS.textMuted}30`,
-          pointerEvents: 'none',
+          inset: OFFSET,
+          border: BORDER_STYLE,
         }}
       />
-      
-      {/* Corner Brackets - Top Left */}
+
+      {/* 2. CORNER BRACKETS */}
+      {/* Top Left */}
       <div style={{
         position: 'absolute',
-        top: '20px',
-        left: '20px',
-        width: '24px',
-        height: '24px',
-        borderTop: `2px solid ${COLORS.textMuted}`,
-        borderLeft: `2px solid ${COLORS.textMuted}`,
+        top: OFFSET,
+        left: OFFSET,
+        width: BRACKET_SIZE,
+        height: BRACKET_SIZE,
+        borderTop: ACCENT_STYLE,
+        borderLeft: ACCENT_STYLE,
       }} />
-      
-      {/* Corner Brackets - Top Right */}
+
+      {/* Top Right */}
       <div style={{
         position: 'absolute',
-        top: '20px',
-        right: '20px',
-        width: '24px',
-        height: '24px',
-        borderTop: `2px solid ${COLORS.textMuted}`,
-        borderRight: `2px solid ${COLORS.textMuted}`,
+        top: OFFSET,
+        right: OFFSET,
+        width: BRACKET_SIZE,
+        height: BRACKET_SIZE,
+        borderTop: ACCENT_STYLE,
+        borderRight: ACCENT_STYLE,
       }} />
-      
-      {/* Corner Brackets - Bottom Left */}
+
+      {/* Bottom Left */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        left: '20px',
-        width: '24px',
-        height: '24px',
-        borderBottom: `2px solid ${COLORS.textMuted}`,
-        borderLeft: `2px solid ${COLORS.textMuted}`,
+        bottom: OFFSET,
+        left: OFFSET,
+        width: BRACKET_SIZE,
+        height: BRACKET_SIZE,
+        borderBottom: ACCENT_STYLE,
+        borderLeft: ACCENT_STYLE,
       }} />
-      
-      {/* Corner Brackets - Bottom Right */}
+
+      {/* Bottom Right */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        right: '20px',
-        width: '24px',
-        height: '24px',
-        borderBottom: `2px solid ${COLORS.textMuted}`,
-        borderRight: `2px solid ${COLORS.textMuted}`,
+        bottom: OFFSET,
+        right: OFFSET,
+        width: BRACKET_SIZE,
+        height: BRACKET_SIZE,
+        borderBottom: ACCENT_STYLE,
+        borderRight: ACCENT_STYLE,
       }} />
-      
-      {/* Crosshair Element - Left Side (KPR Verse style) */}
+
+      {/* 3. CENTER-LEFT CROSSHAIR */}
       <div
         style={{
           position: 'absolute',
-          left: '40px',
+          left: CROSSHAIR_GAP,
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0px',
         }}
       >
-        {/* Vertical line top */}
-        <div style={{
-          width: '1px',
-          height: '20px',
-          background: COLORS.textMuted,
-        }} />
-        {/* Horizontal line */}
+        <div style={{ width: '1px', height: '20px', background: COLORS.textMuted }} />
         <div style={{
           width: '20px',
           height: '1px',
           background: COLORS.textMuted,
           position: 'relative',
         }}>
-          {/* Center dot */}
           <div style={{
             position: 'absolute',
             top: '50%',
@@ -104,15 +101,9 @@ export default function BoundaryFrame() {
             width: '6px',
             height: '6px',
             border: `1px solid ${COLORS.textMuted}`,
-            background: 'transparent',
           }} />
         </div>
-        {/* Vertical line bottom */}
-        <div style={{
-          width: '1px',
-          height: '20px',
-          background: COLORS.textMuted,
-        }} />
+        <div style={{ width: '1px', height: '20px', background: COLORS.textMuted }} />
       </div>
     </div>
   )
