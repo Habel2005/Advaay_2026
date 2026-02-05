@@ -455,40 +455,80 @@ export default function Events() {
   const mgTranslateX1 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   // Interaction Handlers using Custom Hook
+  // UPDATED: Logic Fix - Play/Pause directly instead of relying on mount/unmount
   const bindCard1 = useLongPress(
     () => { // Start
-      if (isCard1Active.get()) {
+      if (isCard1Active.get() && videoRef1.current) {
         setIsPressed1(true);
-        // Video will mount and play automatically via onLoadedMetadata/autoPlay
+        videoRef1.current.play().catch(e => console.error("Playback failed", e));
       }
     },
     () => { // End/Cancel
       setIsPressed1(false);
-      // Unmounting handles cleanup
+      if (videoRef1.current) {
+        videoRef1.current.pause();
+        videoRef1.current.currentTime = 0; // Reset to start
+      }
     }
   );
 
   const bindCard2 = useLongPress(
     () => {
-      if (isCard2Active.get()) {
+      if (isCard2Active.get() && videoRef2.current) {
         setIsPressed2(true);
+        videoRef2.current.play().catch(e => console.error("Playback failed", e));
       }
     },
     () => {
       setIsPressed2(false);
+      if (videoRef2.current) {
+        videoRef2.current.pause();
+        videoRef2.current.currentTime = 0;
+      }
     }
   );
 
   const bindCard3 = useLongPress(
     () => {
-      if (isCard3Active.get()) {
+      if (isCard3Active.get() && videoRef3.current) {
         setIsPressed3(true);
+        videoRef3.current.play().catch(e => console.error("Playback failed", e));
       }
     },
     () => {
       setIsPressed3(false);
+      if (videoRef3.current) {
+        videoRef3.current.pause();
+        videoRef3.current.currentTime = 0;
+      }
     }
   );
+
+  // SINGLE DECODER STRATEGY: Keep videos mounted, just pause/reset
+  // Sync Card 1 Video Logic
+  useMotionValueEvent(isCard1Active, "change", (latest) => {
+    if (latest === 0 && videoRef1.current) {
+      videoRef1.current.pause();
+      videoRef1.current.currentTime = 0;
+    }
+    // No 'else' needed - src is always present, so browser handles readiness
+  });
+
+  // Sync Card 2 Video Logic
+  useMotionValueEvent(isCard2Active, "change", (latest) => {
+    if (latest === 0 && videoRef2.current) {
+      videoRef2.current.pause();
+      videoRef2.current.currentTime = 0;
+    }
+  });
+
+  // Sync Card 3 Video Logic
+  useMotionValueEvent(isCard3Active, "change", (latest) => {
+    if (latest === 0 && videoRef3.current) {
+      videoRef3.current.pause();
+      videoRef3.current.currentTime = 0;
+    }
+  });
 
   // Derived Overlay Opacity (MotionValues)
   const overlayOpacity1 = useTransform(isCard1Active, active => active ? 1 : 0);
@@ -576,23 +616,26 @@ export default function Events() {
                    opacity: overlayOpacity1 
                 }} 
               >
-                 {isPressed1 && (
+                  {/* PRUNED & PRIMED - Always Rendered */}
                    <video
                      ref={videoRef1}
                      className={styles.videoPlayer}
-                     src={isMobile ? "/animations/AvanteGrandeMobile.webm" : "/animations/avantegarde.webm"}
+                     src={isMobile ? "/animations/AvanteGrandeMobile.mp4" : "/animations/avantegarde.webm"}
                      muted
-                     autoPlay
                      playsInline
+                     preload="auto"
+                     /* THIS LINE PREVENTS THE DOWNLOAD MENU */
+                     onContextMenu={(e) => e.preventDefault()}
                      onEnded={() => window.location.href = "https://forms.gle/Coa4JuLtkRSimF9dA"}
-                     style={{ opacity: 0, transition: 'opacity 0.2s' }}
-                     onLoadedMetadata={(e) => {
-                        e.currentTarget.style.opacity = '1';
-                        // Safety play call
-                        e.currentTarget.play().catch(() => {});
+                     style={{ 
+                        // Instead of unmounting, we just hide it
+                        opacity: isPressed1 ? 1 : 0,
+                        transition: 'opacity 0.15s ease-out',
+                        // Performance boost:
+                        willChange: 'transform, opacity',
+                        transform: 'translateZ(0)', 
                      }}
                    />
-                 )}
               </motion.div>
 
         </motion.div>
@@ -664,22 +707,24 @@ export default function Events() {
                   opacity: overlayOpacity2
                 }} 
               >
-                 {isPressed2 && (
+                 {/* PRUNED & PRIMED - Always Rendered */}
                    <video
                      ref={videoRef2}
                      className={styles.videoPlayer}
-                     src={isMobile ? "/animations/DecaDanceMobile.webm" : "/animations/DecaDance.webm"}
+                     src={isMobile ? "/animations/DecaDanceMobile.mp4" : "/animations/DecaDance.webm"}
                      muted
-                     autoPlay
                      playsInline
+                     preload="auto"
+                     /* THIS LINE PREVENTS THE DOWNLOAD MENU */
+                     onContextMenu={(e) => e.preventDefault()}
                      onEnded={() => window.location.href = "https://forms.gle/rjp241cqihhbvL7w9"}
-                     style={{ opacity: 0, transition: 'opacity 0.2s' }}
-                     onLoadedMetadata={(e) => {
-                        e.currentTarget.style.opacity = '1';
-                        e.currentTarget.play().catch(() => {});
+                     style={{ 
+                        opacity: isPressed2 ? 1 : 0,
+                        transition: 'opacity 0.15s ease-out',
+                        willChange: 'transform, opacity',
+                        transform: 'translateZ(0)', 
                      }}
                    />
-                 )}
               </motion.div>
         </motion.div>
 
@@ -751,22 +796,24 @@ export default function Events() {
                   opacity: overlayOpacity3
                 }} 
               >
-                 {isPressed3 && (
-                   <video
-                     ref={videoRef3}
-                     className={styles.videoPlayer}
-                     src={isMobile ? "/animations/MoreEventsMobile.webm" : "/animations/More Events.webm"}
-                     muted
-                     autoPlay
-                     playsInline
-                     onEnded={() => window.location.href = "/events"}
-                     style={{ opacity: 0, transition: 'opacity 0.2s' }}
-                     onLoadedMetadata={(e) => {
-                        e.currentTarget.style.opacity = '1';
-                        e.currentTarget.play().catch(() => {});
-                     }}
-                   />
-                 )}
+                  {/* PRUNED & PRIMED - Always Rendered */}
+                    <video
+                      ref={videoRef3}
+                      className={styles.videoPlayer}
+                      src={isMobile ? "/animations/MoreEventsMobile.mp4" : "/animations/More Events.webm"}
+                      muted
+                      playsInline
+                      preload="auto"
+                      /* THIS LINE PREVENTS THE DOWNLOAD MENU */
+                      onContextMenu={(e) => e.preventDefault()}
+                      onEnded={() => window.location.href = "/events"}
+                      style={{ 
+                        opacity: isPressed3 ? 1 : 0,
+                        transition: 'opacity 0.15s ease-out',
+                        willChange: 'transform, opacity',
+                        transform: 'translateZ(0)', 
+                      }}
+                    />
               </motion.div>
         </motion.div>
 
