@@ -193,7 +193,7 @@ export default function HeroContent() {
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         paddingTop: '16px',
-        paddingBottom: isMobile ? '40px' : '0', // Lift text on mobile
+        paddingBottom: isMobile ? '50px' : '0', // Lift text on mobile
         flexShrink: 0,
       }}>
         {/* Left - Event details */}
