@@ -5,257 +5,169 @@ import { COLORS } from '@/lib/constants'
 import BoundaryFrame from '@/components/ui/BoundaryFrame'
 
 // ============================================
-// CONFIGURATION & CONSTANTS
+// CONFIG & PRELOADING
 // ============================================
-const FONTS = {
-  heading: `'Monument Extended', 'PP Monument Extended', 'Anton', 'Bebas Neue', 'Oswald', system-ui, sans-serif`,
-  body: `'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif`,
-  mono: `'SF Mono', 'Fira Code', 'Consolas', monospace`,
-}
 
-// Fixed array to prevent re-allocations
 const ALL_IMAGES = Array.from({ length: 20 }, (_, i) => `/images/gallery/event-${i + 1}.webp`)
 const LEFT_IMAGES = ALL_IMAGES.slice(0, 10)
 const RIGHT_IMAGES = ALL_IMAGES.slice(10, 20)
 
-const DESKTOP_WIDTH = 200
-const DESKTOP_HEIGHT = 300
-const DESKTOP_SPACING = 160
-const VISIBLE_CARDS_DESKTOP = 6
+// Preload component to be rendered once
+const ImagePreloader = React.memo(() => (
+  <div style={{ display: 'none' }} aria-hidden="true">
+    {ALL_IMAGES.map(src => <link key={src} rel="preload" href={src} as="image" />)}
+  </div>
+))
 
-const MOBILE_CARD_W = 220
-const MOBILE_CARD_H = 320
-const MOBILE_GAP = 55
-const MOBILE_CARDS_PER_SIDE = 3
-
-const PAUSE_DURATION = 1200
-const SHIFT_DURATION = 400
-
-const CARD_OVERLAYS = [
-  'rgba(229, 9, 20, 0.12)', 'rgba(178, 7, 16, 0.15)', 'rgba(113, 121, 126, 0.12)',
-  'rgba(229, 9, 20, 0.08)', 'rgba(13, 13, 13, 0.2)', 'rgba(229, 228, 226, 0.08)',
-]
-
-// ============================================
-// OPTIMIZED HOOKS
-// ============================================
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const mql = window.matchMedia('(max-width: 767px)')
-    const onChange = () => setIsMobile(mql.matches)
-    setIsMobile(mql.matches)
-    mql.addEventListener('change', onChange)
-    return () => mql.removeEventListener('change', onChange)
-  }, [])
-  return isMobile
+const FONTS = {
+  heading: `'Monument Extended', system-ui, sans-serif`,
+  body: `'Inter', system-ui, sans-serif`,
+  mono: `'SF Mono', monospace`,
 }
 
-// ============================================
-// SUB-COMPONENTS
-// ============================================
-
-const CardImageContent = React.memo(({ imageUrl, overlayColor, isCenter, isMobile }: any) => {
-  return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', transformStyle: 'flat' }}>
-      {/* Shadow Layer - Hardware Accelerated */}
-      <div style={{
-        position: 'absolute',
-        inset: isMobile ? '8px' : '0',
-        borderRadius: '12px',
-        background: '#000',
-        boxShadow: isCenter 
-          ? `0 20px 40px rgba(0,0,0,0.6), 0 0 20px ${COLORS.red}15` 
-          : '0 10px 20px rgba(0,0,0,0.4)',
-        transform: 'translateZ(-1px)',
-      }} />
-
-      {/* Image Layer */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        borderRadius: '12px',
-        overflow: 'hidden',
-        background: '#111',
-        border: `1px solid ${isCenter ? COLORS.red + '30' : 'rgba(255,255,255,0.1)'}`,
-        backfaceVisibility: 'hidden',
-      }}>
-        <img
-          src={imageUrl}
-          alt=""
-          loading="eager"
-          decoding="async"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
-        />
-        {!isMobile && overlayColor && (
-          <div style={{ position: 'absolute', inset: 0, background: overlayColor, mixBlendMode: 'multiply' }} />
-        )}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.6))' }} />
-      </div>
-    </div>
-  )
-})
-CardImageContent.displayName = 'CardImageContent'
+// Shared Constants
+const SHIFT_DURATION = 400
+const PAUSE_DURATION = 1200
+const VISIBLE_CARDS = 6
 
 // ============================================
-// MOBILE CAROUSEL (MAX OPTIMIZED)
+// ATOMIC COMPONENTS
 // ============================================
 
-function MobileCarousel() {
-  const [stack, setStack] = useState<any[]>([])
-  const [phase, setPhase] = useState({ id: -1, type: 'idle', fromLeft: true })
+const CardContent = React.memo(({ src, isCenter, isMobile }: any) => (
+  <div style={{
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    background: '#1a1a1a',
+    boxShadow: isCenter ? `0 20px 40px rgba(0,0,0,0.4), 0 0 20px ${COLORS.red}15` : '0 10px 20px rgba(0,0,0,0.3)',
+    border: `1px solid ${isCenter ? COLORS.red + '30' : 'rgba(255,255,255,0.1)'}`,
+    isolation: 'isolate' // Creates new stacking context for GPU
+  }}>
+    <img
+      src={src}
+      alt=""
+      loading="eager"
+      decoding="async"
+      style={{ width: '100%', height: '100%', objectFit: 'cover', willChange: 'transform' }}
+    />
+    <div style={{ 
+      position: 'absolute', 
+      inset: 0, 
+      background: 'linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.6))',
+      pointerEvents: 'none' 
+    }} />
+  </div>
+))
+
+// ============================================
+// MOBILE & DESKTOP LOGIC (UNIFIED)
+// ============================================
+
+export default function Scene4() {
+  const [isMobile, setIsMobile] = useState(false)
+  const [leftStack, setLeftStack] = useState<any[]>([])
+  const [rightStack, setRightStack] = useState<any[]>([])
+  const [isShifting, setIsShifting] = useState(false)
   
-  const idCounter = useRef(100)
-  const imgCounter = useRef(0)
+  const idCounter = useRef(0)
+  const imgIdx = useRef({ left: 0, right: 0 })
 
-  // Initial Seed
+  // Handle Resize
   useEffect(() => {
-    const initial = Array.from({ length: MOBILE_CARDS_PER_SIDE * 2 + 1 }, (_, i) => ({
-      id: idCounter.current++,
-      img: imgCounter.current++ % ALL_IMAGES.length,
-      pos: i - MOBILE_CARDS_PER_SIDE
-    }))
-    setStack(initial)
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   const nextStep = useCallback(() => {
-    const fromLeft = Math.random() > 0.5 // Randomize direction for organic feel
-    const newId = idCounter.current++
-    const newImg = imgCounter.current++ % ALL_IMAGES.length
-    const entryPos = fromLeft ? -5 : 5
+    setIsShifting(true)
+    const nidL = idCounter.current++
+    const nidR = idCounter.current++
+    
+    const newL = { id: nidL, img: LEFT_IMAGES[imgIdx.current.left++ % LEFT_IMAGES.length], pos: 0 }
+    const newR = { id: nidR, img: RIGHT_IMAGES[imgIdx.current.right++ % RIGHT_IMAGES.length], pos: 0 }
 
-    // 1. Prepare entering card
-    setPhase({ id: newId, type: 'enter', fromLeft })
-    setStack(prev => [...prev, { id: newId, img: newImg, pos: entryPos }])
-
-    // 2. Animate to center
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        setPhase(p => ({ ...p, type: 'move' }))
-        setStack(prev => prev
-          .map(c => ({
-            ...c,
-            pos: c.id === newId ? 0 : c.pos + (fromLeft ? 1 : -1)
-          }))
-          .filter(c => Math.abs(c.pos) <= MOBILE_CARDS_PER_SIDE + 1)
-        )
-      }, 50)
-    })
+    setLeftStack(prev => [newL, ...prev.map(c => ({ ...c, pos: c.pos + 1 })).slice(0, VISIBLE_CARDS)])
+    setRightStack(prev => [newR, ...prev.map(c => ({ ...c, pos: c.pos + 1 })).slice(0, VISIBLE_CARDS)])
+    
+    setTimeout(() => setIsShifting(false), SHIFT_DURATION)
   }, [])
 
   useEffect(() => {
+    nextStep()
     const timer = setInterval(nextStep, PAUSE_DURATION + SHIFT_DURATION)
     return () => clearInterval(timer)
   }, [nextStep])
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: 350, perspective: '1000px', contain: 'layout style' }}>
-      {stack.map(item => {
-        const isNew = item.id === phase.id
-        const isCenter = item.pos === 0
-        
-        return (
-          <div
-            key={item.id}
-            style={{
-              position: 'absolute',
-              left: '50%', top: '50%',
-              width: MOBILE_CARD_W, height: MOBILE_CARD_H,
-              marginLeft: -MOBILE_CARD_W / 2, marginTop: -MOBILE_CARD_H / 2,
-              zIndex: 100 - Math.abs(item.pos),
-              opacity: Math.abs(item.pos) > MOBILE_CARDS_PER_SIDE ? 0 : 1,
-              transform: `translate3d(${item.pos * MOBILE_GAP}px, 0, 0) scale(${1 - Math.abs(item.pos) * 0.08}) rotate(${item.pos * 2}deg)`,
-              transition: phase.type === 'move' ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.23, 1, 0.32, 1), opacity ${SHIFT_DURATION}ms linear` : 'none',
-              willChange: 'transform, opacity',
-              contain: 'strict'
-            }}
-          >
-            <CardImageContent imageUrl={ALL_IMAGES[item.img]} isCenter={isCenter} isMobile />
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-// ============================================
-// MAIN SCENE
-// ============================================
-
-export default function Scene4({ className = '' }: { className?: string }) {
-  const isMobile = useIsMobile()
-
-  // Simplified logic for desktop to keep response concise but high performance
-  // uses the same principles as the mobile optimization above.
-  
-  return (
-    <section id="gallery" className={className} style={{ 
-      position: 'relative', 
-      width: '100%', 
-      height: '100vh', 
-      background: COLORS.bg,
-      overflow: 'hidden',
-      color: COLORS.text
+    <div id="gallery" style={{ 
+      position: 'relative', width: '100%', height: '100vh', 
+      background: COLORS.bg, overflow: 'hidden', display: 'flex', flexDirection: 'column' 
     }}>
-      <style jsx global>{`
-        @keyframes drift {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-      
+      <ImagePreloader />
       <BoundaryFrame />
       
-      {/* Background Glow - Heavy GPU Optimization */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: `radial-gradient(circle at 50% 50%, ${COLORS.red}0a 0%, transparent 70%)`,
-        pointerEvents: 'none',
-        zIndex: 0
-      }} />
+      {/* Header Section */}
+      <div style={{ padding: isMobile ? '90px 24px' : '90px 120px', zIndex: 10 }}>
+        <h2 style={{ 
+          fontFamily: FONTS.heading, 
+          fontSize: isMobile ? '32px' : 'clamp(40px, 5vw, 64px)', 
+          lineHeight: 0.9, color: COLORS.text, margin: 0 
+        }}>
+          MEMORIES<br />OF <span style={{ color: COLORS.red }}>ADVAY</span>.
+        </h2>
+      </div>
 
+      {/* Carousel Container */}
       <div style={{ 
-        position: 'relative', 
-        zIndex: 2, 
-        padding: isMobile ? '80px 24px' : '100px 100px',
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        justifyContent: 'space-between'
+        position: 'relative', flex: 1, perspective: '1200px', 
+        display: 'flex', alignItems: 'center', justifyContent: 'center' 
       }}>
-        <div>
-          <h2 style={{ 
-            fontFamily: FONTS.heading, 
-            fontSize: isMobile ? '40px' : '64px', 
-            lineHeight: 0.9, 
-            margin: 0 
-          }}>
-            MEMORIES<br />OF <span style={{ color: COLORS.red }}>ADVAY</span>.
-          </h2>
-        </div>
+        {leftStack.concat(rightStack).map((card, i) => {
+          const isLeft = i < leftStack.length
+          const dir = isLeft ? -1 : 1
+          const spacing = isMobile ? 60 : 160
+          const x = dir * (110 + card.pos * spacing)
+          const scale = 1 - (card.pos * 0.1)
+          const opacity = 1 - (card.pos * 0.2)
+
+          return (
+            <div key={card.id} style={{
+              position: 'absolute',
+              width: isMobile ? 200 : 220,
+              height: isMobile ? 280 : 320,
+              transform: `translate3d(${x}px, 0, ${-card.pos * 50}px) scale(${scale})`,
+              opacity: opacity > 0 ? opacity : 0,
+              zIndex: 100 - card.pos,
+              transition: isShifting ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.2, 0, 0.2, 1), opacity ${SHIFT_DURATION}ms` : 'none',
+              willChange: 'transform, opacity'
+            }}>
+              <CardContent src={card.img} isCenter={card.pos === 0} isMobile={isMobile} />
+            </div>
+          )
+        })}
         
-        <div style={{ maxWidth: '400px', marginTop: isMobile ? '20px' : '0' }}>
-          <p style={{ fontFamily: FONTS.body, fontSize: '14px', opacity: 0.6, lineHeight: 1.6 }}>
-            Every moment captured, every memory preserved. Relive the energy, creativity, and celebration that defines the spirit of our community.
-          </p>
+        {/* Center Accent Line */}
+        <div style={{ 
+          width: '2px', height: '40%', 
+          background: `linear-gradient(to bottom, transparent, ${COLORS.red}, transparent)`, 
+          opacity: 0.3 
+        }} />
+      </div>
+
+      {/* Footer Info */}
+      <div style={{ padding: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div style={{ maxWidth: '300px', opacity: 0.6, fontSize: '12px', fontFamily: FONTS.body }}>
+          <p>Every moment captured. Every memory preserved.</p>
+        </div>
+        <div style={{ fontFamily: FONTS.mono, fontSize: '12px', color: COLORS.red }}>
+          SCENE_004 // 20_MEMORIES
         </div>
       </div>
-
-      <div style={{ 
-        position: 'absolute', 
-        top: '55%', 
-        left: 0, 
-        right: 0, 
-        transform: 'translateY(-50%)',
-        zIndex: 1 
-      }}>
-        {isMobile ? <MobileCarousel /> : <MobileCarousel /> /* In a production app, swapping with a DesktopCarousel variant is ideal */}
-      </div>
-
-      {/* Data Decors */}
-      <div style={{ position: 'absolute', bottom: '30px', left: '40px', fontFamily: FONTS.mono, fontSize: '10px', opacity: 0.3 }}>
-        LOG_TYPE: GALLERY_STREAM // STATUS: ACTIVE
-      </div>
-    </section>
+    </div>
   )
 }
