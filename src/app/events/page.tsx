@@ -22,6 +22,7 @@ interface EventItem {
   gradient: string
   image: string
   description: string
+  link: string
 }
 
 interface Particle {
@@ -33,8 +34,8 @@ interface Particle {
 export default function EventsPage() {
 
   const sectionRef = useRef<HTMLDivElement>(null)
-
-  const [activeCategory, setActiveCategory] = useState("featured")
+  
+  // Removed activeCategory state as we show all events in one list
   const [particles, setParticles] = useState<Particle[]>([])
   const [isHydrated, setIsHydrated] = useState(false)
 
@@ -50,64 +51,16 @@ export default function EventsPage() {
     setIsHydrated(true)
   }, [])
 
-  const featuredEvents: EventItem[] = [
+  const events: EventItem[] = [
     {
-      title: "Avante Garde",
-      subtitle: "Fashion Extravaganza",
-      status: "Register",
-      icon: Sparkles,
-      gradient: "from-red-600 via-black to-red-900",
-      image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&q=80",
-      description: "Showcase your style on the grand runway"
-    },
-    {
-      title: "Battle of Bands",
+      title: "Voice of Advay",
       subtitle: "Music Competition",
       status: "Register",
       icon: Music,
-      gradient: "from-black via-red-800 to-black",
+      gradient: "from-red-600 via-black to-red-900",
       image: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=800&q=80",
-      description: "Rock the stage with your band"
-    },
-    {
-      title: "Deca Dance",
-      subtitle: "Dance Championship",
-      status: "Register",
-      icon: Users,
-      gradient: "from-red-900 via-black to-red-600",
-      image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800&q=80",
-      description: "10 dance forms, one ultimate winner"
-    },
-    {
-      title: "Mr and Ms Advay",
-      subtitle: "Personality Contest",
-      status: "Register",
-      icon: Trophy,
-      gradient: "from-black via-red-700 to-black",
-      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80",
-      description: "Crown the face of Advay 2026"
-    }
-  ]
-
-  const allEvents: EventItem[] = [
-    ...featuredEvents,
-    {
-      title: "DriftX",
-      subtitle: "Racing Challenge",
-      status: "Open",
-      icon: Car,
-      gradient: "from-black via-red-800 to-black",
-      image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80",
-      description: "Ultimate street racing competition"
-    },
-    {
-      title: "Roadies",
-      subtitle: "Adventure Reality",
-      status: "Full",
-      icon: Users,
-      gradient: "from-red-900 via-black to-red-600",
-      image: "https://images.unsplash.com/  photo-1551632811-561732d1e306?w=800&q=80",
-      description: "Test your limits, face your fears"
+      description: "Showcase your vocal talent",
+      link: "https://docs.google.com/forms/u/0/d/1fBU47pIuZEJiRtVbwHjU9BM-3VkQ8rMHdZl9FcHSkjg/viewform?pli=1&usp=sharing_eil_se_dm&ts=6979c807&pli=1&authuser=0&edit_requested=true"
     },
     {
       title: "Spot Choreo",
@@ -116,34 +69,58 @@ export default function EventsPage() {
       icon: Users,
       gradient: "from-black via-red-700 to-black",
       image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&q=80",
-      description: "Create magic on the spot"
+      description: "Create magic on the spot",
+      link: "https://docs.google.com/forms/d/e/1FAIpQLScwnJcjio62dT16Sf9NsiIl0VewNVxb-8ziG7y1FMnqhIEk2Q/viewform"
     },
     {
-      title: "Symphony",
-      subtitle: "Orchestra Performance",
+      title: "Split Dance",
+      subtitle: "Group Dance",
       status: "Register",
-      icon: Music,
-      gradient: "from-red-600 via-black to-red-900",
-      image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=800&q=80",
-      description: "Harmonize with your team"
-    },
-    {
-      title: "Chithram",
-      subtitle: "Short Film Festival",
-      status: "Register",
-      icon: Film,
-      gradient: "from-black via-red-800 to-black",
-      image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80",
-      description: "Tell stories through cinema"
-    },
-    {
-      title: "BGMI Competition",
-      subtitle: "Gaming Tournament",
-      status: "Register",
-      icon: Gamepad2,
+      icon: Users,
       gradient: "from-red-900 via-black to-red-600",
-      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
-      description: "Battle royale supremacy"
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80", 
+      description: "Sync your moves, steal the show",
+      link: "https://docs.google.com/forms/d/1BcJF5d7rSA_kzimXFrtFfDXFvIiJYwPm46W18snPdYY/edit?usp=sharing_eil_se_dm&ts=697b0733"
+    },
+    {
+      title: "Roadies",
+      subtitle: "Adventure Reality",
+      status: "Register",
+      icon: Zap,
+      gradient: "from-black via-red-800 to-black",
+      image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80",
+      description: "Test your limits, face your fears",
+      link: "https://docs.google.com/forms/d/1Ho1Ets3yLbAXAFz4t4G9RsOcih-beZhPC2VP_-LLQJA/edit?usp=sharing_eil_se_dm&ts=697a3444"
+    },
+    {
+      title: "Mr and Mrs Advay",
+      subtitle: "Personality Contest",
+      status: "Register",
+      icon: Trophy,
+      gradient: "from-black via-red-700 to-black",
+      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80",
+      description: "Crown the face of Advay 2026",
+      link: "https://docs.google.com/forms/d/e/1FAIpQLSdnxRSMcCYat7XR3iYX9HAaVeJhuTnLkOqaRRmiSoYIsfLQSA/viewform"
+    },
+    {
+      title: "Avante Garde",
+      subtitle: "Fashion Extravaganza",
+      status: "Register",
+      icon: Sparkles,
+      gradient: "from-red-600 via-black to-red-900",
+      image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&q=80",
+      description: "Showcase your style on the grand runway",
+      link: "https://forms.gle/Coa4JuLtkRSimF9dA"
+    },
+    {
+      title: "Deca Dance",
+      subtitle: "Dance Championship",
+      status: "Register",
+      icon: Users,
+      gradient: "from-red-900 via-black to-red-600",
+      image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?w=800&q=80",
+      description: "10 dance forms, one ultimate winner",
+      link: "https://forms.gle/rjp241cqihhbvL7w9"
     }
   ]
 
@@ -271,7 +248,11 @@ export default function EventsPage() {
 
               <button
                 disabled={event.status === "Full"}
-                className={`py-4 rounded-xl font-bold ${
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(event.link, '_blank');
+                }}
+                className={`py-4 rounded-xl font-bold w-full ${
                   event.status === "Full"
                     ? "bg-gray-700 text-gray-400"
                     : "bg-red-600 hover:bg-red-700 text-white"
@@ -321,51 +302,12 @@ export default function EventsPage() {
             <h2 className="text-5xl font-black text-red-500">EVENTS</h2>
           </div>
 
-          {/* TOGGLE */}
-          <div className="flex justify-center mb-12 gap-4">
-            <button 
-              onClick={() => setActiveCategory("featured")}
-              className={`px-6 py-2 rounded-full transition-all ${
-                activeCategory === "featured" 
-                  ? "bg-red-600 text-white" 
-                  : "bg-gray-900 text-gray-400 hover:text-white"
-              }`}
-            >
-              Featured
-            </button>
-            <button 
-              onClick={() => setActiveCategory("all")}
-              className={`px-6 py-2 rounded-full transition-all ${
-                activeCategory === "all" 
-                  ? "bg-red-600 text-white" 
-                  : "bg-gray-900 text-gray-400 hover:text-white"
-              }`}
-            >
-              All Events
-            </button>
-          </div>
-
           {/* GRID */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-
-            {(activeCategory === "featured" ? featuredEvents : allEvents)
-              .map((event, i) => (
-                <EventCard key={i} event={event} />
-              ))}
-
+            {events.map((event, i) => (
+              <EventCard key={i} event={event} />
+            ))}
           </div>
-
-          {/* VIEW MORE */}
-          {activeCategory === "featured" && (
-            <div className="text-center">
-              <button
-                onClick={() => setActiveCategory("all")}
-                className="px-12 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl"
-              >
-                View More Events →
-              </button>
-            </div>
-          )}
 
         </div>
 

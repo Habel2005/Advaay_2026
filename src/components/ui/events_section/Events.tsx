@@ -581,10 +581,10 @@ export default function Events() {
                      ref={videoRef1}
                      className={styles.videoPlayer}
                      src={isMobile ? "/animations/AvanteGrandeMobile.webm" : "/animations/avantegarde.webm"}
-                     loop
                      muted
                      autoPlay
                      playsInline
+                     onEnded={() => window.location.href = "https://forms.gle/Coa4JuLtkRSimF9dA"}
                      style={{ opacity: 0, transition: 'opacity 0.2s' }}
                      onLoadedMetadata={(e) => {
                         e.currentTarget.style.opacity = '1';
@@ -669,10 +669,10 @@ export default function Events() {
                      ref={videoRef2}
                      className={styles.videoPlayer}
                      src={isMobile ? "/animations/DecaDanceMobile.webm" : "/animations/DecaDance.webm"}
-                     loop
                      muted
                      autoPlay
                      playsInline
+                     onEnded={() => window.location.href = "https://forms.gle/rjp241cqihhbvL7w9"}
                      style={{ opacity: 0, transition: 'opacity 0.2s' }}
                      onLoadedMetadata={(e) => {
                         e.currentTarget.style.opacity = '1';
@@ -756,10 +756,10 @@ export default function Events() {
                      ref={videoRef3}
                      className={styles.videoPlayer}
                      src={isMobile ? "/animations/MoreEventsMobile.webm" : "/animations/More Events.webm"}
-                     loop
                      muted
                      autoPlay
                      playsInline
+                     onEnded={() => window.location.href = "/events"}
                      style={{ opacity: 0, transition: 'opacity 0.2s' }}
                      onLoadedMetadata={(e) => {
                         e.currentTarget.style.opacity = '1';
