@@ -1,8 +1,13 @@
 .container {
-  height: 900dvh; /* Increased for 3 cards */
+  height: 650dvh; /* Optimized height */
   position: relative;
-  background-color: #000; /* Assuming dark theme */
+  background-color: #000;
   color: #fff;
+}
+
+/* GLOBAL iOS FIXES */
+.container * {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .stickyWrapper {
@@ -49,6 +54,7 @@
   overflow: hidden;
   transform-style: preserve-3d;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  touch-action: pan-y; /* Ensure scrolling isn't blocked by gestures */
   /* Initial state handled by Framer Motion, but good defaults help */
 }
 
@@ -152,6 +158,9 @@
 }
 
 @media (max-width: 768px) {
+  .card {
+    box-shadow: none; /* PERFORMANCE: Kill shadow on mobile */
+  }
 
   .layerBMg {
     top: 0px;

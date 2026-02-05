@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent, useVelocity } from 'framer-motion';
 import styles from './Events.module.css';
 
 
@@ -187,8 +187,24 @@ export default function Events() {
     // import('dotlottie-player'); // Removed dynamic import
 
     window.addEventListener('resize', updateDimensions);
+    window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
+
+  // PERFORMANCE: Clamp DPR on mobile to reduce GPU load
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isMobile) {
+      const originalDpr = window.devicePixelRatio;
+      if (originalDpr > 2) {
+        // Force lower res rendering on high density mobile screens
+        const style = document.createElement('style');
+        style.innerHTML = `
+          canvas, img, video { image-rendering: auto; }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+  }, [isMobile]);
 
   // 2. MOUSE & TILT SETUP (Moved up to be available for transforms)
   const mouseX = useMotionValue(0.5); // 0..1 (Center)
@@ -205,6 +221,10 @@ export default function Events() {
     mouseX.set(clientX / innerWidth);
     mouseY.set(clientY / innerHeight);
   };
+
+  // PERFORMANCE: Disable Tilt on Fast Scroll
+  const scrollVelocity = useVelocity(scrollYProgress);
+  const enableTilt = useTransform(scrollVelocity, (v: number) => Math.abs(v) < 0.05); // Threshold for "fast" scroll
 
   // --- ANIMATION MAPPING (3 CARDS) ---
   // Total Scroll Range: 0 to 1
@@ -263,11 +283,23 @@ export default function Events() {
   // Stay: 0.85 -> 1.0
   // GATE: Park at 100vh if < 0.5
   const rawY3 = useTransform(scrollYProgress, [0.65, 0.85], ['100vh', '0vh']);
-  const y3 = useTransform(scrollYProgress, v => v > 0.5 ? rawY3.get() : '100vh');
+  const y3 = useTransform(
+    [scrollYProgress, isCard3Active] as any,
+    ([v, active]: any[]) => active || v > 0.5 ? rawY3.get() : '100vh'
+  );
 
-  const scale3 = useTransform(scrollYProgress, [0.65, 0.85], [0.5, 1]);
+  const rawScale3 = useTransform(scrollYProgress, [0.65, 0.85], [0.5, 1]);
+  const scale3 = useTransform(
+     [scrollYProgress, isCard3Active] as any,
+     ([v, active]: any[]) => active || v > 0.5 ? rawScale3.get() : 0.5
+  );
+
   const borderRadius3 = useTransform(scrollYProgress, [0.65, 0.85], ['20px', '0px']);
-  const enterRotateX3 = useTransform(scrollYProgress, [0.65, 0.85], [-10, 0]);
+  const rawEnterRotateX3 = useTransform(scrollYProgress, [0.65, 0.85], [-10, 0]);
+  const enterRotateX3 = useTransform(
+     [scrollYProgress, isCard3Active] as any,
+     ([v, active]: any[]) => active || v > 0.5 ? rawEnterRotateX3.get() : -10
+  );
 
   // TILT CALCULATION
   // Reduced global tilt (was +/- 5, now +/- 2)
@@ -282,11 +314,23 @@ export default function Events() {
   // Damping: Reduce tilt during transitions (approximate centers of transitions)
   const tiltStrength = useTransform(scrollYProgress, [0.2, 0.35, 0.55, 0.65, 0.85], [1, 0, 1, 0, 1]);
   
-  const tiltRotateY = useTransform([baseTiltRotateY, tiltStrength], ([rot, strength]: number[]) => rot * strength);
-  const tiltRotateX = useTransform([baseTiltRotateX, tiltStrength], ([rot, strength]: number[]) => rot * strength);
+  const tiltRotateY = useTransform(
+    [baseTiltRotateY, tiltStrength, enableTilt] as any, 
+    ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
+  );
+  const tiltRotateX = useTransform(
+    [baseTiltRotateX, tiltStrength, enableTilt] as any, 
+    ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
+  );
 
-  const tiltRotateY3 = useTransform([baseTiltRotateY3, tiltStrength], ([rot, strength]: number[]) => rot * strength);
-  const tiltRotateX3 = useTransform([baseTiltRotateX3, tiltStrength], ([rot, strength]: number[]) => rot * strength);
+  const tiltRotateY3 = useTransform(
+    [baseTiltRotateY3, tiltStrength, enableTilt] as any, 
+    ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
+  );
+  const tiltRotateX3 = useTransform(
+    [baseTiltRotateX3, tiltStrength, enableTilt] as any, 
+    ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
+  );
 
   // Final Rotations
   const finalRotateY1 = useTransform([scrollRotateY, tiltRotateY], ([s, t]: number[]) => s + t);
@@ -368,62 +412,36 @@ export default function Events() {
   // Interaction Handlers using Custom Hook
   const bindCard1 = useLongPress(
     () => { // Start
-      if (isCard1Active.get() && videoRef1.current) {
+      if (isCard1Active.get()) {
         setIsPressed1(true);
-        videoRef1.current.currentTime = 0;
-        videoRef1.current.style.opacity = '1';
-        videoRef1.current.play();
+        // Video will mount and play automatically via onLoadedMetadata/autoPlay
       }
     },
     () => { // End/Cancel
       setIsPressed1(false);
-      if (videoRef1.current) {
-        videoRef1.current.pause();
-        videoRef1.current.style.opacity = '0';
-        // Force flush decoder
-        const src = videoRef1.current.src;
-        videoRef1.current.src = src; 
-      }
+      // Unmounting handles cleanup
     }
   );
 
   const bindCard2 = useLongPress(
     () => {
-      if (isCard2Active.get() && videoRef2.current) {
+      if (isCard2Active.get()) {
         setIsPressed2(true);
-        videoRef2.current.currentTime = 0;
-        videoRef2.current.style.opacity = '1';
-        videoRef2.current.play();
       }
     },
     () => {
       setIsPressed2(false);
-      if (videoRef2.current) {
-        videoRef2.current.pause();
-        videoRef2.current.style.opacity = '0';
-        const src = videoRef2.current.src;
-        videoRef2.current.src = src;
-      }
     }
   );
 
   const bindCard3 = useLongPress(
     () => {
-      if (isCard3Active.get() && videoRef3.current) {
+      if (isCard3Active.get()) {
         setIsPressed3(true);
-        videoRef3.current.currentTime = 0;
-        videoRef3.current.style.opacity = '1';
-        videoRef3.current.play();
       }
     },
     () => {
       setIsPressed3(false);
-      if (videoRef3.current) {
-        videoRef3.current.pause();
-        videoRef3.current.style.opacity = '0';
-        const src = videoRef3.current.src;
-        videoRef3.current.src = src;
-      }
     }
   );
 
@@ -513,15 +531,23 @@ export default function Events() {
                    opacity: overlayOpacity1 
                 }} 
               >
-                 <video
-                    ref={videoRef1}
-                    className={styles.videoPlayer}
-                    src={isMobile ? "/animations/AvanteGrandeMobile.webm" : "/animations/avantegarde.webm"}
-                    loop
-                    muted
-                    playsInline
-                    style={{ opacity: 0, transition: 'opacity 0.2s' }}
-                  />
+                 {isPressed1 && (
+                   <video
+                     ref={videoRef1}
+                     className={styles.videoPlayer}
+                     src={isMobile ? "/animations/AvanteGrandeMobile.webm" : "/animations/avantegarde.webm"}
+                     loop
+                     muted
+                     autoPlay
+                     playsInline
+                     style={{ opacity: 0, transition: 'opacity 0.2s' }}
+                     onLoadedMetadata={(e) => {
+                        e.currentTarget.style.opacity = '1';
+                        // Safety play call
+                        e.currentTarget.play().catch(() => {});
+                     }}
+                   />
+                 )}
               </motion.div>
 
         </motion.div>
@@ -593,15 +619,22 @@ export default function Events() {
                   opacity: overlayOpacity2
                 }} 
               >
-                 <video
-                    ref={videoRef2}
-                    className={styles.videoPlayer}
-                    src={isMobile ? "/animations/DecaDanceMobile.webm" : "/animations/DecaDance.webm"}
-                    loop
-                    muted
-                    playsInline
-                    style={{ opacity: 0, transition: 'opacity 0.2s' }}
-                  />
+                 {isPressed2 && (
+                   <video
+                     ref={videoRef2}
+                     className={styles.videoPlayer}
+                     src={isMobile ? "/animations/DecaDanceMobile.webm" : "/animations/DecaDance.webm"}
+                     loop
+                     muted
+                     autoPlay
+                     playsInline
+                     style={{ opacity: 0, transition: 'opacity 0.2s' }}
+                     onLoadedMetadata={(e) => {
+                        e.currentTarget.style.opacity = '1';
+                        e.currentTarget.play().catch(() => {});
+                     }}
+                   />
+                 )}
               </motion.div>
         </motion.div>
 
@@ -673,15 +706,22 @@ export default function Events() {
                   opacity: overlayOpacity3
                 }} 
               >
-                 <video
-                    ref={videoRef3}
-                    className={styles.videoPlayer}
-                    src={isMobile ? "/animations/MoreEventsMobile.webm" : "/animations/More Events.webm"}
-                    loop
-                    muted
-                    playsInline
-                    style={{ opacity: 0, transition: 'opacity 0.2s' }}
-                  />
+                 {isPressed3 && (
+                   <video
+                     ref={videoRef3}
+                     className={styles.videoPlayer}
+                     src={isMobile ? "/animations/MoreEventsMobile.webm" : "/animations/More Events.webm"}
+                     loop
+                     muted
+                     autoPlay
+                     playsInline
+                     style={{ opacity: 0, transition: 'opacity 0.2s' }}
+                     onLoadedMetadata={(e) => {
+                        e.currentTarget.style.opacity = '1';
+                        e.currentTarget.play().catch(() => {});
+                     }}
+                   />
+                 )}
               </motion.div>
         </motion.div>
 
