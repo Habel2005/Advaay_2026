@@ -3,8 +3,9 @@
 import { Suspense } from 'react'; // Removed unused 'use' and 'useState'
 import { Canvas } from '@react-three/fiber';
 import { Environment, OrbitControls } from '@react-three/drei';
-import { Hands, ResponsiveFog } from './models/Hands';
+import { Hands } from './models/Hands';
 import {Logo} from './models/Logo';
+import { CosmicMist } from './Cosmicbg';
 
 interface SceneProps {
   canPlayAnimations?: boolean;
@@ -17,11 +18,11 @@ export default function Scene({ canPlayAnimations = false }: SceneProps) {
       shadows 
       gl={{ antialias: true, powerPreference: "high-performance" }}
     >
-      <ResponsiveFog />
+      {/* <ResponsiveFog /> */}
       
       <Suspense fallback={null}>
         <Environment preset="lobby" />
-        {/* Pass the prop directly here */}
+        <CosmicMist />
         <Logo canPlay={canPlayAnimations}/>
         <Hands canPlay={canPlayAnimations} />
         <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />

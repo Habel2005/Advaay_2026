@@ -55,7 +55,7 @@ export default function Loader({ onFinished, canFinish }: { onFinished: () => vo
     }
   }, [canFinish]);
 
-  const cornerLabel = "absolute text-[9px] text-black/40 tracking-[0.2em] uppercase animate-in fade-in duration-500";
+  const cornerLabel = "absolute text-[10px] sm:text-[12px] text-black/40 tracking-[0.2em] uppercase animate-in fade-in duration-500";
 
   return (
     <div className="fixed inset-0 z-[9999] bg-white text-black font-mono select-none cursor-wait flex items-center justify-center overflow-hidden">
@@ -96,7 +96,7 @@ export default function Loader({ onFinished, canFinish }: { onFinished: () => vo
       <motion.div animate={controls.text}>
         <div className={`${cornerLabel} top-4 sm:top-8 left-4 sm:left-8`}>Advay.2026</div>
         <div className={`${cornerLabel} top-4 sm:top-8 right-4 sm:right-8`}>v2.5.1_STABLE</div>
-        <div className={`${cornerLabel} bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2`}>Developed by MuLearn TIST</div>
+        <div className={`${cornerLabel} bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2`}>A MuLearn TIST Production</div>
       </motion.div>
     </div>
   );
