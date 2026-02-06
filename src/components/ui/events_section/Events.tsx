@@ -599,7 +599,7 @@ export default function Events() {
               className={styles.cardTitle}
               variants={cardTitleVariants}
             >
-              Avante Garde
+              Avant Garde
             </motion.div>
 
             {/* OVERLAY & LOTTIE (Appears on Hold) - Conditional Rendering */}
