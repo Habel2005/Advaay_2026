@@ -237,6 +237,7 @@ export default function HeroContent() {
             fontSize: '10px',
             color: COLORS.textMuted,
             letterSpacing: '0.15em',
+            paddingBottom: '5px',
           }}
         >
           SCROLL

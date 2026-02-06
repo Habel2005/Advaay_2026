@@ -232,6 +232,16 @@
   position: absolute; /* Ensure it covers the overlay */
   top: 0;
   left: 0;
+  
+  /* Disables the callout menu on iOS */
+  -webkit-touch-callout: none;
+  
+  /* Prevents user selection of the element */
+  -webkit-user-select: none;
+  user-select: none;
+
+  /* Ensures the video doesn't capture the long-press logic */
+  pointer-events: none; 
 }
 
 @media (max-width: 768px) {
@@ -270,13 +280,13 @@
 
 .sectionTitle {
   position: absolute;
-  top: 5%;
+  top: -5%;
   left: 50%;
   transform: translateX(-50%);
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 10rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 12rem;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.164); /* Subtle transparent white */
+  color: rgba(228, 8, 8, 0.979); /* Subtle transparent white */
   z-index: 0;
   pointer-events: none;
   text-transform: uppercase;
