@@ -60,13 +60,22 @@ export default function Navbar() {
   }, { scope: navRef });
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href === '/' && pathname === '/') {
+    if (href.startsWith('/#') && pathname === '/') {
+      e.preventDefault();
+      const targetId = href.substring(2);
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        elem.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else if (href === '/' && pathname === '/') {
       e.preventDefault();
       window.scrollTo({
         top: 0,
         behavior: 'smooth',
       });
     }
+    // For other cases, like being on a different page, we let the default browser
+    // behavior handle the navigation. The <a> tag's href will work as expected.
   };
 
   const handleRegisterClick = () => {
