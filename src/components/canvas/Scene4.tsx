@@ -1,172 +1,603 @@
 'use client'
 
-import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react'
-import { COLORS } from '@/lib/constants'
+import React, { useRef, useState, useEffect, useLayoutEffect, useMemo } from 'react'
+import gsap from 'gsap'
+import Lenis from 'lenis'
 import BoundaryFrame from '@/components/ui/BoundaryFrame'
+import { COLORS } from '@/lib/constants'
 
 // ============================================
-// CONFIG & PRELOADING
+// 1. GLOBAL CONSTANTS (Top Level - Do Not Remove)
 // ============================================
 
-const ALL_IMAGES = Array.from({ length: 20 }, (_, i) => `/images/gallery/event-${i + 1}.webp`)
+const FONTS = {
+  heading: `'Monument Extended', 'PP Monument Extended', 'Anton', 'Bebas Neue', 'Oswald', system-ui, sans-serif`,
+  body: `'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif`,
+  mono: `'SF Mono', 'Fira Code', 'Consolas', monospace`,
+}
+
+const ALL_IMAGES = [
+  '/images/gallery/event-1.webp',
+  '/images/gallery/event-2.webp',
+  '/images/gallery/event-3.webp',
+  '/images/gallery/event-4.webp',
+  '/images/gallery/event-5.webp',
+  '/images/gallery/event-6.webp',
+  '/images/gallery/event-7.webp',
+  '/images/gallery/event-8.webp',
+  '/images/gallery/event-9.webp',
+  '/images/gallery/event-10.webp',
+  '/images/gallery/event-11.webp',
+  '/images/gallery/event-12.webp',
+  '/images/gallery/event-13.webp',
+  '/images/gallery/event-14.webp',
+  '/images/gallery/event-15.webp',
+  '/images/gallery/event-16.webp',
+  '/images/gallery/event-17.webp',
+  '/images/gallery/event-18.webp',
+  '/images/gallery/event-19.webp',
+  '/images/gallery/event-20.webp',
+]
+
 const LEFT_IMAGES = ALL_IMAGES.slice(0, 10)
 const RIGHT_IMAGES = ALL_IMAGES.slice(10, 20)
 
-// Preload component to be rendered once
-const ImagePreloader = React.memo(() => (
-  <div style={{ display: 'none' }} aria-hidden="true">
-    {ALL_IMAGES.map(src => <link key={src} rel="preload" href={src} as="image" />)}
-  </div>
-))
+// Dimensions
+const DESKTOP_WIDTH = 200
+const DESKTOP_HEIGHT = 300
+const DESKTOP_SPACING = 160
+const VISIBLE_CARDS_DESKTOP = 6
 
-const FONTS = {
-  heading: `'Monument Extended', system-ui, sans-serif`,
-  body: `'Inter', system-ui, sans-serif`,
-  mono: `'SF Mono', monospace`,
-}
+const MOBILE_CARD_W = 220
+const MOBILE_CARD_H = 320
 
-// Shared Constants
-const SHIFT_DURATION = 400
-const PAUSE_DURATION = 1200
-const VISIBLE_CARDS = 6
+// Animation Timing (Seconds)
+// These must be defined here to be visible to all components below
+const PAUSE_DURATION = 1.0 
+const MOBILE_FLY_DURATION = 0.6 
+const SHIFT_DURATION = 0.5 
 
-// ============================================
-// ATOMIC COMPONENTS
-// ============================================
-
-const CardContent = React.memo(({ src, isCenter, isMobile }: any) => (
-  <div style={{
-    position: 'relative',
-    width: '100%',
-    height: '100%',
-    borderRadius: '12px',
-    overflow: 'hidden',
-    background: '#1a1a1a',
-    boxShadow: isCenter ? `0 20px 40px rgba(0,0,0,0.4), 0 0 20px ${COLORS.red}15` : '0 10px 20px rgba(0,0,0,0.3)',
-    border: `1px solid ${isCenter ? COLORS.red + '30' : 'rgba(255,255,255,0.1)'}`,
-    isolation: 'isolate' // Creates new stacking context for GPU
-  }}>
-    <img
-      src={src}
-      alt=""
-      loading="eager"
-      decoding="async"
-      style={{ width: '100%', height: '100%', objectFit: 'cover', willChange: 'transform' }}
-    />
-    <div style={{ 
-      position: 'absolute', 
-      inset: 0, 
-      background: 'linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.6))',
-      pointerEvents: 'none' 
-    }} />
-  </div>
-))
+const CARD_OVERLAYS = [
+  'rgba(229, 9, 20, 0.12)', 'rgba(178, 7, 16, 0.15)', 'rgba(113, 121, 126, 0.12)',
+  'rgba(229, 9, 20, 0.08)', 'rgba(13, 13, 13, 0.2)', 'rgba(229, 228, 226, 0.08)',
+]
 
 // ============================================
-// MOBILE & DESKTOP LOGIC (UNIFIED)
+// 2. OPTIMIZATION HOOKS
 // ============================================
 
-export default function Scene4() {
+function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
-  const [leftStack, setLeftStack] = useState<any[]>([])
-  const [rightStack, setRightStack] = useState<any[]>([])
-  const [isShifting, setIsShifting] = useState(false)
   
-  const idCounter = useRef(0)
-  const imgIdx = useRef({ left: 0, right: 0 })
-
-  // Handle Resize
-  useEffect(() => {
+  useLayoutEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
+    let timeoutId: NodeJS.Timeout
+    const handleResize = () => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(check, 100)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      clearTimeout(timeoutId)
+    }
   }, [])
+  
+  return isMobile
+}
 
-  const nextStep = useCallback(() => {
-    setIsShifting(true)
-    const nidL = idCounter.current++
-    const nidR = idCounter.current++
-    
-    const newL = { id: nidL, img: LEFT_IMAGES[imgIdx.current.left++ % LEFT_IMAGES.length], pos: 0 }
-    const newR = { id: nidR, img: RIGHT_IMAGES[imgIdx.current.right++ % RIGHT_IMAGES.length], pos: 0 }
-
-    setLeftStack(prev => [newL, ...prev.map(c => ({ ...c, pos: c.pos + 1 })).slice(0, VISIBLE_CARDS)])
-    setRightStack(prev => [newR, ...prev.map(c => ({ ...c, pos: c.pos + 1 })).slice(0, VISIBLE_CARDS)])
-    
-    setTimeout(() => setIsShifting(false), SHIFT_DURATION)
-  }, [])
-
+function useImagePreloader(images: string[]) {
   useEffect(() => {
-    nextStep()
-    const timer = setInterval(nextStep, PAUSE_DURATION + SHIFT_DURATION)
-    return () => clearInterval(timer)
-  }, [nextStep])
+    images.forEach((src) => {
+      const img = new Image()
+      img.src = src
+      if (img.decode) img.decode().catch(() => {}) 
+    })
+  }, [images])
+}
+
+// ============================================
+// 3. CARD COMPONENT
+// ============================================
+
+const CardImageContent = React.memo(({ imageUrl, overlayColor, isMobile = false }: { imageUrl?: string, overlayColor?: string, isMobile?: boolean }) => {
+  const safeSrc = imageUrl && imageUrl.length > 0 ? imageUrl : ALL_IMAGES[0]
 
   return (
-    <div id="gallery" style={{ 
-      position: 'relative', width: '100%', height: '100vh', 
-      background: COLORS.bg, overflow: 'hidden', display: 'flex', flexDirection: 'column' 
-    }}>
-      <ImagePreloader />
-      <BoundaryFrame />
-      
-      {/* Header Section */}
-      <div style={{ padding: isMobile ? '90px 24px' : '90px 120px', zIndex: 10 }}>
-        <h2 style={{ 
-          fontFamily: FONTS.heading, 
-          fontSize: isMobile ? '32px' : 'clamp(40px, 5vw, 64px)', 
-          lineHeight: 0.9, color: COLORS.text, margin: 0 
-        }}>
-          MEMORIES<br />OF <span style={{ color: COLORS.red }}>ADVAY</span>.
-        </h2>
-      </div>
-
-      {/* Carousel Container */}
-      <div style={{ 
-        position: 'relative', flex: 1, perspective: '1200px', 
-        display: 'flex', alignItems: 'center', justifyContent: 'center' 
+    <div style={{ width: '100%', height: '100%', position: 'relative', transformStyle: 'preserve-3d' }}>
+      <div className="card-shadow" style={{
+        position: 'absolute',
+        inset: isMobile ? '6px' : '0',
+        borderRadius: '12px',
+        backgroundColor: '#000',
+        boxShadow: isMobile ? `0 8px 24px rgba(0,0,0,0.5)` : '0 8px 16px rgba(0,0,0,0.4)',
+        opacity: 1,
+        transform: 'translateZ(-1px)',
+        transition: 'box-shadow 0.4s ease'
+      }} />
+      <div className="card-image" style={{
+        position: 'absolute',
+        inset: 0,
+        borderRadius: '12px',
+        overflow: 'hidden',
+        backgroundColor: '#1a1a1a',
+        border: '1px solid rgba(255,255,255,0.1)',
+        transform: 'translateZ(0)',
       }}>
-        {leftStack.concat(rightStack).map((card, i) => {
-          const isLeft = i < leftStack.length
-          const dir = isLeft ? -1 : 1
-          const spacing = isMobile ? 60 : 160
-          const x = dir * (110 + card.pos * spacing)
-          const scale = 1 - (card.pos * 0.1)
-          const opacity = 1 - (card.pos * 0.2)
+        <img
+          src={safeSrc}
+          alt=""
+          loading="eager"
+          className="content-img"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }}
+        />
+        {!isMobile && overlayColor && <div style={{ position: 'absolute', inset: 0, background: overlayColor, mixBlendMode: 'multiply', pointerEvents: 'none' }} />}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4) 100%)', pointerEvents: 'none' }} />
+      </div>
+    </div>
+  )
+})
+CardImageContent.displayName = 'CardImageContent'
 
-          return (
-            <div key={card.id} style={{
-              position: 'absolute',
-              width: isMobile ? 200 : 220,
-              height: isMobile ? 280 : 320,
-              transform: `translate3d(${x}px, 0, ${-card.pos * 50}px) scale(${scale})`,
-              opacity: opacity > 0 ? opacity : 0,
-              zIndex: 100 - card.pos,
-              transition: isShifting ? `transform ${SHIFT_DURATION}ms cubic-bezier(0.2, 0, 0.2, 1), opacity ${SHIFT_DURATION}ms` : 'none',
-              willChange: 'transform, opacity'
-            }}>
-              <CardContent src={card.img} isCenter={card.pos === 0} isMobile={isMobile} />
-            </div>
-          )
-        })}
+
+// ============================================
+// 4. MOBILE CAROUSEL (Fixed Dealer Animation)
+// ============================================
+
+const MobileCarouselGSAP = () => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  
+  // Pool & Refs
+  const POOL_SIZE = 20
+  const poolRef = useRef<HTMLDivElement[]>([])
+  const leftStackRef = useRef<HTMLDivElement>(null)
+  const rightStackRef = useRef<HTMLDivElement>(null)
+  
+  const stateRef = useRef({
+    centerPileIndices: [] as number[], 
+    globalImageIndex: 0,
+    comingFromLeft: true,
+    zIndexCounter: 200
+  })
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
         
-        {/* Center Accent Line */}
-        <div style={{ 
-          width: '2px', height: '40%', 
-          background: `linear-gradient(to bottom, transparent, ${COLORS.red}, transparent)`, 
-          opacity: 0.3 
-        }} />
+        // --- SETUP ---
+        if(leftStackRef.current) {
+            const img = leftStackRef.current.querySelector('.content-img') as HTMLImageElement
+            if(img) img.src = ALL_IMAGES[2]
+        }
+        if(rightStackRef.current) {
+            const img = rightStackRef.current.querySelector('.content-img') as HTMLImageElement
+            if(img) img.src = ALL_IMAGES[3]
+        }
+
+        // Initialize Center Pile
+        poolRef.current.forEach(el => gsap.set(el, { display: 'none' }))
+        
+        const firstEl = poolRef.current[0]
+        const firstImg = firstEl.querySelector('.content-img') as HTMLImageElement
+        if(firstImg) firstImg.src = ALL_IMAGES[0]
+        
+        gsap.set(firstEl, { 
+            display: 'block', x: 0, rotation: 0, scale: 1, zIndex: 100 
+        })
+        
+        stateRef.current.centerPileIndices.push(0)
+        stateRef.current.globalImageIndex = 4
+        stateRef.current.zIndexCounter = 101
+
+        // --- ANIMATION LOOP ---
+        const dealCard = () => {
+            const { centerPileIndices, globalImageIndex, comingFromLeft, zIndexCounter } = stateRef.current
+            
+            // 1. Find Free Node
+            let nodeToUseIdx = -1
+            for(let i=0; i<POOL_SIZE; i++) {
+                if(!centerPileIndices.includes(i)) {
+                    nodeToUseIdx = i
+                    break
+                }
+            }
+            
+            // Recycle if full
+            if (nodeToUseIdx === -1 || centerPileIndices.length > 8) {
+                const bottomIdx = centerPileIndices.shift() 
+                if (bottomIdx !== undefined) {
+                    gsap.set(poolRef.current[bottomIdx], { display: 'none' })
+                    if (nodeToUseIdx === -1) nodeToUseIdx = bottomIdx
+                }
+            }
+
+            if (nodeToUseIdx !== -1) {
+                const el = poolRef.current[nodeToUseIdx]
+                const activeSourceRef = comingFromLeft ? leftStackRef : rightStackRef
+                const nextSourceImgUrl = ALL_IMAGES[globalImageIndex % ALL_IMAGES.length]
+                
+                const currentSourceImg = activeSourceRef.current?.querySelector('.content-img') as HTMLImageElement
+                const flyImgUrl = currentSourceImg?.src || ALL_IMAGES[0]
+
+                // 2. Setup Moving Card
+                const imgEl = el.querySelector('.content-img') as HTMLImageElement
+                if(imgEl) imgEl.src = flyImgUrl
+                
+                const startX = comingFromLeft ? -170 : 170
+                const startRot = comingFromLeft ? -6 : 6
+                
+                gsap.set(el, {
+                    display: 'block',
+                    x: startX,
+                    rotation: startRot,
+                    scale: 0.9,
+                    zIndex: zIndexCounter,
+                    opacity: 1
+                })
+                
+                // 3. Update Static Source
+                if (activeSourceRef.current) {
+                    const sourceImg = activeSourceRef.current.querySelector('.content-img') as HTMLImageElement
+                    if(sourceImg) sourceImg.src = nextSourceImgUrl
+                    
+                    gsap.fromTo(activeSourceRef.current,
+                        { scale: 0.85 },
+                        { scale: 0.9, duration: 0.2, ease: "power2.out", overwrite: true }
+                    )
+                }
+
+                // 4. Animate
+                gsap.to(el, {
+                    x: 0,
+                    rotation: (Math.random() * 4) - 2,
+                    scale: 1,
+                    duration: MOBILE_FLY_DURATION,
+                    ease: "back.out(1.0)"
+                })
+
+                // Update State
+                centerPileIndices.push(nodeToUseIdx)
+                stateRef.current.globalImageIndex++
+                stateRef.current.comingFromLeft = !comingFromLeft
+                stateRef.current.zIndexCounter++
+            }
+
+            gsap.delayedCall(PAUSE_DURATION, dealCard)
+        }
+
+        gsap.delayedCall(0.5, dealCard)
+
+    }, containerRef)
+    return () => ctx.revert()
+  }, [])
+
+  const backingStackStyle = (isLeft: boolean): React.CSSProperties => ({
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      width: MOBILE_CARD_W,
+      height: MOBILE_CARD_H,
+      marginLeft: -MOBILE_CARD_W / 2,
+      marginTop: -MOBILE_CARD_H / 2,
+      transform: `translateX(${isLeft ? '-170px' : '170px'}) rotate(${isLeft ? '-6deg' : '6deg'}) scale(0.9)`,
+      zIndex: 10,
+      pointerEvents: 'none',
+      opacity: 0.6 
+  })
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', height: 350, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'pan-y' }}>
+      
+      {/* STATIC STACKS */}
+      <div ref={leftStackRef} style={backingStackStyle(true)}>
+         <CardImageContent imageUrl={ALL_IMAGES[2]} isMobile={true} />
+      </div>
+      <div ref={rightStackRef} style={backingStackStyle(false)}>
+         <CardImageContent imageUrl={ALL_IMAGES[3]} isMobile={true} />
       </div>
 
-      {/* Footer Info */}
-      <div style={{ padding: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div style={{ maxWidth: '300px', opacity: 0.6, fontSize: '12px', fontFamily: FONTS.body }}>
-          <p>Every moment captured. Every memory preserved.</p>
+      {/* CENTER PILE */}
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div 
+          key={i}
+          ref={el => { if (el) poolRef.current[i] = el }}
+          style={{
+            position: 'absolute',
+            width: MOBILE_CARD_W,
+            height: MOBILE_CARD_H,
+            willChange: 'transform',
+            display: 'none', 
+            transform: 'translateZ(0)'
+          }}
+        >
+          <CardImageContent imageUrl={ALL_IMAGES[0]} isMobile={true} />
         </div>
-        <div style={{ fontFamily: FONTS.mono, fontSize: '12px', color: COLORS.red }}>
-          SCENE_004 // 20_MEMORIES
+      ))}
+    </div>
+  )
+}
+
+// ============================================
+// 5. DESKTOP CAROUSEL (Fixed Transition)
+// ============================================
+
+const DesktopGalleryCard = React.memo(({
+  imageUrl,
+  imageIndex,
+  position,
+  side,
+  maxPosition,
+  isShifting,
+}: {
+  imageUrl: string
+  imageIndex: number
+  position: number
+  side: 'left' | 'right'
+  maxPosition: number
+  isShifting: boolean
+}) => {
+  const direction = side === 'left' ? -1 : 1
+  const centerCardOffset = (DESKTOP_WIDTH / 2) + 10
+
+  let moveOffset: number
+  if (position === 0) {
+    moveOffset = direction * centerCardOffset
+  } else {
+    moveOffset = direction * (centerCardOffset + (position * DESKTOP_SPACING))
+  }
+
+  const normalizedPos = Math.max(0, Math.min(position / maxPosition, 1))
+  const scale = 1.1 - (normalizedPos * 0.25)
+  const zIndex = position === 0 ? 120 : Math.round(100 - position * 10)
+  const translateZ = 50 - normalizedPos * 100
+  const isCenter = position < 1.5
+  const overlayColor = CARD_OVERLAYS[imageIndex % CARD_OVERLAYS.length]
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        width: `${DESKTOP_WIDTH}px`,
+        height: `${DESKTOP_HEIGHT}px`,
+        marginLeft: `${-DESKTOP_WIDTH / 2}px`,
+        marginTop: `${-DESKTOP_HEIGHT / 2}px`,
+        transform: `translateX(${moveOffset}px) translateZ(${translateZ}px) scale(${scale})`,
+        zIndex,
+        transformStyle: 'preserve-3d',
+        // FIX: Ensure correct ms units for CSS
+        transition: isShifting
+          ? `transform ${SHIFT_DURATION * 1000}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`
+          : 'none',
+        willChange: 'transform',
+      }}
+    >
+      <CardImageContent 
+        imageUrl={imageUrl} 
+        overlayColor={overlayColor} 
+        isMobile={false} 
+      />
+    </div>
+  )
+})
+DesktopGalleryCard.displayName = 'DesktopGalleryCard'
+
+const DesktopCarouselGSAP = () => {
+    const containerRef = useRef<HTMLDivElement>(null)
+    const leftCardsRef = useRef<HTMLDivElement[]>([])
+    const rightCardsRef = useRef<HTMLDivElement[]>([])
+    
+    const stateRef = useRef({
+        leftIdx: 0,
+        rightIdx: 0,
+        leftPositions: new Array(LEFT_IMAGES.length).fill(100),
+        rightPositions: new Array(RIGHT_IMAGES.length).fill(100)
+    })
+
+    useLayoutEffect(() => {
+        const ctx = gsap.context(() => {
+            const getStyle = (pos: number, side: 'left' | 'right') => {
+                const direction = side === 'left' ? -1 : 1
+                const centerCardOffset = (DESKTOP_WIDTH / 2) + 10
+                let moveOffset = pos === 0 ? direction * centerCardOffset : direction * (centerCardOffset + (pos * DESKTOP_SPACING))
+                const normalizedPos = Math.max(0, Math.min(pos / VISIBLE_CARDS_DESKTOP, 1))
+                return {
+                    x: moveOffset,
+                    z: 50 - normalizedPos * 100,
+                    scale: 1.1 - (normalizedPos * 0.25),
+                    zIndex: pos === 0 ? 120 : Math.round(100 - pos * 10),
+                    opacity: pos > VISIBLE_CARDS_DESKTOP ? 0 : 1,
+                    visibility: pos > VISIBLE_CARDS_DESKTOP ? 'hidden' : 'visible'
+                }
+            }
+
+            const animateSide = (side: 'left' | 'right', nodes: HTMLDivElement[], positions: number[], currentIdxTracker: 'leftIdx' | 'rightIdx') => {
+                const nextIdx = stateRef.current[currentIdxTracker] % nodes.length
+                const nextNode = nodes[nextIdx]
+                
+                gsap.killTweensOf(nextNode)
+                const startStyle = getStyle(0, side)
+                gsap.set(nextNode, { ...startStyle, scale: 0.8, opacity: 0, visibility: 'visible' })
+                positions[nextIdx] = 0
+
+                nodes.forEach((node, idx) => {
+                    if (idx === nextIdx) {
+                         gsap.to(node, { scale: startStyle.scale, opacity: 1, duration: SHIFT_DURATION, ease: "back.out(1.2)" })
+                         const borderEl = node.querySelector('.card-image')
+                         const shadowEl = node.querySelector('.card-shadow')
+                         if(borderEl) gsap.to(borderEl, { borderColor: `${COLORS.red}25`, duration: SHIFT_DURATION })
+                         if(shadowEl) gsap.to(shadowEl, { boxShadow: `0 25px 50px rgba(0,0,0,0.5), 0 0 40px ${COLORS.red}20`, duration: SHIFT_DURATION })
+                    } else if (positions[idx] !== 100) {
+                        positions[idx] += 1
+                        if (positions[idx] > VISIBLE_CARDS_DESKTOP) {
+                            positions[idx] = 100
+                            gsap.to(node, { 
+                                opacity: 0, 
+                                duration: 0.2, 
+                                onComplete: () => { gsap.set(node, { visibility: 'hidden' }) }
+                            })
+                        } else {
+                            const target = getStyle(positions[idx], side)
+                            gsap.to(node, { x: target.x, z: target.z, scale: target.scale, zIndex: target.zIndex, opacity: target.opacity, duration: SHIFT_DURATION, ease: "power2.out" })
+                            const borderEl = node.querySelector('.card-image')
+                            const shadowEl = node.querySelector('.card-shadow')
+                            if(borderEl) gsap.to(borderEl, { borderColor: 'rgba(255,255,255,0.1)', duration: SHIFT_DURATION })
+                            if(shadowEl) gsap.to(shadowEl, { boxShadow: '0 8px 16px rgba(0,0,0,0.4)', duration: SHIFT_DURATION })
+                        }
+                    }
+                })
+                stateRef.current[currentIdxTracker]++
+            }
+
+            const loop = () => {
+                animateSide('left', leftCardsRef.current, stateRef.current.leftPositions, 'leftIdx')
+                animateSide('right', rightCardsRef.current, stateRef.current.rightPositions, 'rightIdx')
+                // FIXED: PAUSE_DURATION is now defined
+                gsap.delayedCall(PAUSE_DURATION + (SHIFT_DURATION * 0.5), loop)
+            }
+            loop()
+        }, containerRef)
+        return () => ctx.revert()
+    }, [])
+
+    const cardStyle: React.CSSProperties = {
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        width: DESKTOP_WIDTH,
+        height: DESKTOP_HEIGHT,
+        marginLeft: -DESKTOP_WIDTH / 2,
+        marginTop: -DESKTOP_HEIGHT / 2,
+        transformStyle: 'preserve-3d',
+        willChange: 'transform',
+        visibility: 'hidden'
+    }
+
+    return (
+        <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '420px', perspective: '1200px', perspectiveOrigin: '50% 50%', overflow: 'hidden' }}>
+             <div style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d' }}>
+                {LEFT_IMAGES.map((src, i) => (
+                    <div key={`l-${i}`} ref={el => { if(el) leftCardsRef.current[i] = el }} style={cardStyle}>
+                        <CardImageContent imageUrl={src} overlayColor={CARD_OVERLAYS[i % CARD_OVERLAYS.length]} />
+                    </div>
+                ))}
+                {RIGHT_IMAGES.map((src, i) => (
+                    <div key={`r-${i}`} ref={el => { if(el) rightCardsRef.current[i] = el }} style={cardStyle}>
+                        <CardImageContent imageUrl={src} overlayColor={CARD_OVERLAYS[(i + 2) % CARD_OVERLAYS.length]} />
+                    </div>
+                ))}
+             </div>
+             <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '4px', height: '100%', background: `linear-gradient(180deg, transparent 5%, ${COLORS.red}40 20%, ${COLORS.red}60 50%, ${COLORS.red}40 80%, transparent 95%)`, boxShadow: `0 0 20px ${COLORS.red}30`, zIndex: 50 }} />
+             <div style={{ position: 'absolute', left: '50%', top: '15px', transform: 'translateX(-50%)', color: COLORS.textMuted, fontSize: '12px', opacity: 0.5, animation: 'bounceUp 1.5s ease-in-out infinite' }}>▲</div>
+             <div style={{ position: 'absolute', left: '50%', bottom: '15px', transform: 'translateX(-50%)', color: COLORS.textMuted, fontSize: '12px', opacity: 0.5, animation: 'bounceDown 1.5s ease-in-out infinite' }}>▼</div>
         </div>
+    )
+}
+
+// ============================================
+// 6. MAIN EXPORT
+// ============================================
+
+export default function Scene4({ className = '' }: { className?: string }) {
+  const isMobile = useIsMobile()
+  useImagePreloader(ALL_IMAGES)
+
+  // OPTIMIZATION: Lenis Scroll (Desktop Only)
+  useEffect(() => {
+    if (isMobile) return 
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      touchMultiplier: 2,
+    })
+    function raf(time: number) {
+      lenis.raf(time)
+      requestAnimationFrame(raf)
+    }
+    requestAnimationFrame(raf)
+    return () => lenis.destroy()
+  }, [isMobile])
+
+  const bgGradient = useMemo(() => isMobile 
+    ? `radial-gradient(ellipse at 50% 50%, ${COLORS.red}08 0%, transparent 60%), ${COLORS.bg}`
+    : `radial-gradient(ellipse at 30% 20%, ${COLORS.red}08 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, ${COLORS.redDark}05 0%, transparent 50%), ${COLORS.bg}`
+  , [isMobile])
+
+  if (isMobile) {
+    return (
+      <div id="gallery" className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '700px', background: COLORS.bg, overflow: 'hidden' }}>
+        <style jsx>{`@import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500&display=swap');`}</style>
+        <div style={{ position: 'absolute', inset: 0, background: bgGradient, pointerEvents: 'none' }} />
+        <BoundaryFrame />
+
+        <div style={{ position: 'absolute', top: '90px', left: '24px', right: '24px', zIndex: 1 }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: '11px', color: COLORS.textMuted, letterSpacing: '0.05em', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+             <span style={{ color: COLORS.red, fontSize: '8px' }}>●</span>
+             <span>004</span>
+          </div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: '32px', fontWeight: 900, lineHeight: 0.95, color: COLORS.text, letterSpacing: '-0.02em', margin: 0, textTransform: 'uppercase' }}>
+            MEMORIES<br />OF <span style={{ color: COLORS.red }}>ADVAY</span>.
+          </h2>
+        </div>
+
+        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, transform: 'translateY(-50%)' }}>
+          <MobileCarouselGSAP />
+        </div>
+
+        <div style={{ position: 'absolute', bottom: '40px', left: '24px', right: '24px', zIndex: 1 }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: '9px', letterSpacing: '0.15em', color: COLORS.textMuted, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase' }}>
+            <span style={{ color: COLORS.red, fontSize: '5px' }}>■</span> GALLERY COLLECTION
+          </div>
+          <p style={{ fontFamily: FONTS.body, fontSize: '12px', lineHeight: 1.6, color: COLORS.textMuted, margin: 0 }}>
+            Every moment captured, every memory preserved. Relive the energy, creativity, and celebration that defines ADVAY.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div id="gallery" className={className} style={{ position: 'relative', width: '100%', height: '100vh', minHeight: '650px', maxHeight: '900px', background: COLORS.bg, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Inter:wght@400;500&display=swap');
+        @keyframes bounceUp { 0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; } 50% { transform: translateX(-50%) translateY(-6px); opacity: 0.8; } }
+        @keyframes bounceDown { 0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; } 50% { transform: translateX(-50%) translateY(6px); opacity: 0.8; } }
+      `}</style>
+      <div style={{ position: 'absolute', inset: 0, background: bgGradient, pointerEvents: 'none' }} />
+      <BoundaryFrame />
+      <div style={{ position: 'absolute', left: '44px', top: '50%', transform: 'translateY(-50%)', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', width: '1px', height: '24px', background: COLORS.textMuted, opacity: 0.6 }} />
+        <div style={{ position: 'absolute', width: '24px', height: '1px', background: COLORS.textMuted, opacity: 0.6 }} />
+      </div>
+      <div style={{ fontFamily: FONTS.mono, fontSize: '11px', color: COLORS.textMuted, letterSpacing: '0.05em', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '6px', position: 'absolute', top: '100px', left: '120px' }}>
+        <span style={{ color: COLORS.red, fontSize: '8px' }}>●</span>
+        <span>004</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '90px 120px 20px', flex: '0 0 auto', position: 'relative', zIndex: 1 }}>
+        <div style={{ paddingTop: '30px' }}>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 'clamp(38px, 5vw, 64px)', fontWeight: 900, lineHeight: 0.92, color: COLORS.text, letterSpacing: '-0.03em', margin: 0, textTransform: 'uppercase' }}>
+            MEMORIES<br />OF <span style={{ color: COLORS.red }}>ADVAY</span>.
+          </h2>
+        </div>
+        <div style={{ paddingTop: '30px', maxWidth: '400px' }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: '10px', letterSpacing: '0.18em', color: COLORS.textMuted, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px', textTransform: 'uppercase' }}>
+            <span style={{ color: COLORS.red, fontSize: '6px' }}>■</span> GALLERY COLLECTION
+          </div>
+          <p style={{ fontFamily: FONTS.body, fontSize: '14px', lineHeight: 1.7, color: COLORS.textMuted, margin: 0 }}>
+            Every moment captured, every memory preserved. Relive the energy, creativity, and celebration that defines ADVAY. Cards emerge from the center, carrying memories to the edges of time.
+          </p>
+        </div>
+      </div>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '40px' }}>
+        <DesktopCarouselGSAP />
+      </div>
+      <div style={{ position: 'absolute', bottom: '24px', left: '44px', fontFamily: FONTS.mono, fontSize: '10px', color: COLORS.textMuted, opacity: 0.4, letterSpacing: '0.15em' }}>////</div>
+      <div style={{ position: 'absolute', bottom: '24px', right: '44px', fontFamily: FONTS.mono, fontSize: '11px', color: COLORS.textMuted, opacity: 0.7 }}>
+        <span style={{ color: COLORS.red }}>20</span><span style={{ opacity: 0.4 }}> MEMORIES</span>
       </div>
     </div>
   )
