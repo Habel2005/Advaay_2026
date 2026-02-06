@@ -122,7 +122,7 @@ export default function Navbar() {
             marginLeft: isMobile ? '2.5em' : '1.5em'
           }}>
             <GooeyText
-              texts={["ADVAY", "അധ്വയ്", "अधवे"]}
+              texts={["ADVAY", "അദ്വയ്", "अधवे"]}
               morphTime={1.5}
               cooldownTime={2}
               className="h-full"
