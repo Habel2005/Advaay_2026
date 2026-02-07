@@ -806,7 +806,7 @@ export default function Events() {
                       preload="auto"
                       /* THIS LINE PREVENTS THE DOWNLOAD MENU */
                       onContextMenu={(e) => e.preventDefault()}
-                      onEnded={() => window.location.href = "./Events"}
+                      onEnded={() => window.location.href = "./events"}
                       style={{ 
                         opacity: isPressed3 ? 1 : 0,
                         transition: 'opacity 0.15s ease-out',
