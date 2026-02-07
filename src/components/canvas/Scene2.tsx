@@ -495,7 +495,9 @@ export function ScrollFadeText({
 
 export default function Scene2() {
     return (
-        <motion.div className="bg-black relative z-10 mt-0">
+        <motion.div
+            className="bg-black relative z-10 -mt-16 md:-mt-1"
+        >
             <ParallaxReveal
                 backgroundImage="/images/up6.JPG"
                 foregroundImage="/images/down5.png"
