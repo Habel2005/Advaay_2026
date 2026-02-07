@@ -5,9 +5,10 @@ import { useState, useEffect } from 'react'
 
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
+import Scene2 from '@/components/canvas/Scene2'
 import { Events } from '@/components/ui'
 import FooterContent from '@/components/ui/FooterContent'
-import Scene2 from '@/components/canvas/Scene2' 
+ 
 
 // Dynamic imports for Scenes
 const Scene = dynamic(() => import('@/components/canvas/Scene'), {

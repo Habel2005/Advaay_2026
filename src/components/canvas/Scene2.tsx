@@ -8,18 +8,17 @@ import Image from 'next/image';
 import { cn } from "@/lib/utils";
 import { useMobile } from '@/hooks/useMobile';
 
+// --- Utility Components ---
+
 const buttonVariants = cva(
     "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
     {
         variants: {
             variant: {
                 default: "bg-primary text-primary-foreground hover:bg-primary/90",
-                destructive:
-                    "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-                outline:
-                    "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-                secondary:
-                    "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                 ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary underline-offset-4 hover:underline",
             },
@@ -101,213 +100,14 @@ export function FloatingPaths({ position }: { position: number }) {
     );
 }
 
-
-export function GyroTiltBox({ children, className }: { children: React.ReactNode, className?: string }) {
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-
-    const mouseX = useSpring(x, { stiffness: 50, damping: 10 });
-    const mouseY = useSpring(y, { stiffness: 50, damping: 10 });
-
-    const rotateX = useTransform(mouseY, [-0.5, 0.5], ["25deg", "-25deg"]);
-    const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-25deg", "25deg"]);
-    const translateX = useTransform(mouseX, [-0.5, 0.5], ["-15px", "15px"]);
-    const translateY = useTransform(mouseY, [-0.5, 0.5], ["-15px", "15px"]);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) {
-            return;
-        }
-
-        const rect = e.currentTarget.getBoundingClientRect();
-
-        const width = rect.width;
-        const height = rect.height;
-
-        const mouseXRel = e.clientX - rect.left;
-        const mouseYRel = e.clientY - rect.top;
-
-        const xPct = (mouseXRel / width) - 0.5;
-        const yPct = (mouseYRel / height) - 0.5;
-
-        x.set(xPct);
-        y.set(yPct);
-    };
-
-    const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
-    };
-
-    return (
-        <motion.div
-            className={className}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{
-                perspective: 1000,
-                rotateX,
-                rotateY,
-                x: translateX,
-                y: translateY,
-            }}
-        >
-            {children}
-        </motion.div>
-    );
-}
-
-interface ParallaxTextProps {
-    children: React.ReactNode;
-    speed?: number;
-    className?: string;
-    scaleEffect?: boolean; 
-    opacityEffect?: boolean; 
-}
-
-export function ParallaxText({
-    children,
-    speed = -0.4,
-    className = '',
-    scaleEffect = false,
-    opacityEffect = false,
-}: ParallaxTextProps) {
-    const ref = useRef<HTMLDivElement>(null);
-    const isMobile = useMobile();
-
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ['start end', 'end start'],
-    });
-
-    const effectiveSpeed = isMobile ? speed * 0.5 : speed;
-
-    const y = useTransform(scrollYProgress, [0, 1], [150 * effectiveSpeed, -150 * effectiveSpeed]);
-
-    const scale = scaleEffect
-        ? useTransform(scrollYProgress, [0, 0.5, 1], [1.5, 1, 0.8])
-        : 1;
-
-    const opacity = opacityEffect
-        ? useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0])
-        : 1;
-
-    return (
-        <div ref={ref} className={`relative ${className}`}>
-            <motion.div style={{ y, scale, opacity }}>
-                {children}
-            </motion.div>
-        </div>
-    );
-}
-
-interface ParallaxSectionProps {
-    children: React.ReactNode;
-    speed?: number; 
-    className?: string;
-    direction?: 'up' | 'down'; 
-}
-
-export function ParallaxSection({
-    children,
-    speed = -0.5,
-    className = '',
-    direction = 'up',
-}: ParallaxSectionProps) {
-    const ref = useRef<HTMLDivElement>(null);
-    const isMobile = useMobile();
-
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ['start end', 'end start'],
-    });
-
-    const mobileSpeed = speed * 0.5;
-    const effectiveSpeed = isMobile ? mobileSpeed : speed;
-
-    const y = useTransform(
-        scrollYProgress,
-        [0, 1],
-        direction === 'up' ? [200 * effectiveSpeed, -200 * effectiveSpeed] : [-200 * effectiveSpeed, 200 * effectiveSpeed]
-    );
-
-    return (
-        <div ref={ref} className={`relative ${className}`}>
-            <motion.div
-                style={{ y }}
-                transition={{
-                    type: 'spring',
-                    stiffness: 100,
-                    damping: 30,
-                    mass: 1,
-                }}
-            >
-                {children}
-            </motion.div>
-        </div>
-    );
-}
-
-interface ParallaxImageProps {
-    src: string;
-    alt: string;
-    speed?: number;
-    className?: string;
-    priority?: boolean;
-}
-
-export function ParallaxImage({
-    src,
-    alt,
-    speed = -0.3,
-    className = '',
-    priority = false,
-}: ParallaxImageProps) {
-    const ref = useRef<HTMLDivElement>(null);
-    const isMobile = useMobile();
-
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ['start end', 'end start'],
-    });
-
-    const effectiveSpeed = isMobile ? speed * 0.5 : speed;
-
-    const y = useTransform(scrollYProgress, [0, 1], [100 * effectiveSpeed, -100 * effectiveSpeed]);
-    const scale = useTransform(scrollYProgress, [0, 1], [1.2, 1]);
-
-    return (
-        <div ref={ref} className={`relative overflow-hidden ${className}`}>
-            <motion.div
-                style={{ y, scale }}
-                className="w-full h-full"
-            >
-                <Image
-                    src={src}
-                    alt={alt}
-                    fill
-                    priority={priority}
-                    className="object-cover"
-                    sizes="100vw"
-                />
-            </motion.div>
-        </div>
-    );
-}
-
-interface ParallaxRevealProps {
-    backgroundImage: string; 
-    foregroundImage: string; 
-    height?: string; 
-    children?: React.ReactNode; 
-}
+// --- Parallax Components ---
 
 export function ParallaxReveal({
     backgroundImage,
     foregroundImage,
     height = '200vh',
     children,
-}: ParallaxRevealProps) {
+}: { backgroundImage: string; foregroundImage: string; height?: string; children?: React.ReactNode }) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const { scrollYProgress } = useScroll({
@@ -315,52 +115,22 @@ export function ParallaxReveal({
         offset: ['start 40%', 'end start'], 
     });
 
-    const backgroundY = useTransform(
-        scrollYProgress,
-        [0, 0.30],
-        ['5vh', '0vh'] 
-    );
-
-    const childrenOpacity = useTransform(
-        scrollYProgress,
-        [0.20, 0.30],
-        [0, 1]
-    );
-
-    const childrenY = useTransform(
-        scrollYProgress,
-        [0.0, 0.2],
-        [50, 0]
-    );
+    const backgroundY = useTransform(scrollYProgress, [0, 0.30], ['5vh', '0vh']);
+    const childrenOpacity = useTransform(scrollYProgress, [0.20, 0.30], [0, 1]);
+    const childrenY = useTransform(scrollYProgress, [0.0, 0.2], [50, 0]);
 
     return (
-        <div
-            ref={containerRef}
-            className="relative w-full"
-            style={{ height }}
-        >
+        <div ref={containerRef} className="relative w-full" style={{ height }}>
             <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
                 <motion.div
                     className="absolute inset-0 w-full h-full"
-                    style={{
-                        y: backgroundY,
-                        scale: 1,
-                        willChange: 'transform',
-                        backfaceVisibility: 'hidden',
-                        WebkitBackfaceVisibility: 'hidden',
-                    }}
+                    style={{ y: backgroundY, scale: 1, willChange: 'transform' }}
                 >
                     <div className="absolute inset-0 w-full h-full">
                         <Image
                             src={backgroundImage}
-                            alt="Background Concert"
+                            alt="Background"
                             className="w-full h-full object-cover grayscale"
-                            style={{
-                                objectPosition: 'center center',
-                                transform: 'translateZ(0)',
-                                width: '100%',
-                                height: '100%'
-                            }}
                             width={1920}
                             height={1080}
                             sizes="100vw"
@@ -386,13 +156,8 @@ export function ParallaxReveal({
                     <div className="absolute inset-0 w-full h-full">
                         <Image
                             src={foregroundImage}
-                            alt="Foreground Crowd"
+                            alt="Foreground"
                             className="w-full h-full object-cover grayscale"
-                            style={{
-                                objectPosition: 'center center',
-                                width: '100%',
-                                height: '100%'
-                            }}
                             width={1920}
                             height={1080}
                             sizes="100vw"
@@ -406,95 +171,24 @@ export function ParallaxReveal({
     );
 }
 
-interface ScrollFadeTextProps {
-    children: React.ReactNode;
-    className?: string;
-    fadeInStart?: number;
-    fadeInEnd?: number;
-    fadeOutStart?: number;
-    fadeOutEnd?: number;
-    animationType?: 'fade' | 'slideUp' | 'slideDown' | 'blur' | 'zoom';
-}
-
-export function ScrollFadeText({
-    children,
-    className = '',
-    fadeInStart = 0,
-    fadeInEnd = 0.3,
-    fadeOutStart = 0.7,
-    fadeOutEnd = 1,
-    animationType = 'fade',
-}: ScrollFadeTextProps) {
-    const ref = useRef<HTMLDivElement>(null);
-
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ['start end', 'end start'],
-    });
-
-
-    const opacity = useTransform(
-        scrollYProgress,
-        [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd],
-        [0, 1, 1, 0]
-    );
-
-
-    const getAnimationProps = () => {
-        switch (animationType) {
-            case 'slideUp':
-                const yUp = useTransform(
-                    scrollYProgress,
-                    [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd],
-                    [100, 0, 0, -100]
-                );
-                return { opacity, y: yUp };
-
-            case 'slideDown':
-                const yDown = useTransform(
-                    scrollYProgress,
-                    [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd],
-                    [-100, 0, 0, 100]
-                );
-                return { opacity, y: yDown };
-
-            case 'blur':
-                const blur = useTransform(
-                    scrollYProgress,
-                    [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd],
-                    [10, 0, 0, 10]
-                );
-                return {
-                    opacity,
-                    filter: blur.get() !== undefined ? `blur(${blur}px)` : 'blur(0px)'
-                };
-
-            case 'zoom':
-                const scale = useTransform(
-                    scrollYProgress,
-                    [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd],
-                    [0.5, 1, 1, 1.5]
-                );
-                return { opacity, scale };
-
-            default: 
-                return { opacity };
-        }
-    };
-
-    return (
-        <div ref={ref} className={`relative ${className}`}>
-            <motion.div style={getAnimationProps()}>
-                {children}
-            </motion.div>
-        </div>
-    );
-}
+// --- Main Scene Component ---
 
 export default function Scene2() {
+    const isMobile = useMobile();
+    
+    // Define the fade size: smaller on mobile to save space, larger on desktop
+    const fadeSize = isMobile ? '100px' : '150px';
+
     return (
         <motion.div
             className="bg-black relative z-10"
+            style={{
+                /* The linear gradient mask creates the "fade away" effect at the top.
+                  Content starts at 0% opacity and becomes fully visible after `fadeSize` pixels.
+                */
+                WebkitMaskImage: `linear-gradient(to bottom, transparent, black ${fadeSize})`,
+                maskImage: `linear-gradient(to bottom, transparent, black ${fadeSize})`,
+            }}
         >
             <ParallaxReveal
                 backgroundImage="/images/up6.JPG"
@@ -519,6 +213,7 @@ export default function Scene2() {
             </ParallaxReveal>
 
             <section className="relative bg-black pt-0 md:pt-12 pb-32 overflow-hidden">
+                {/* Background Decorative Text */}
                 <div className="absolute top-[5%] left-0 w-full overflow-hidden pointer-events-none select-none z-0">
                     <h2 className="text-[25vw] font-bebas text-white/5 leading-none tracking-tighter whitespace-nowrap opacity-20">
                         ADVAY 2026
@@ -530,6 +225,7 @@ export default function Scene2() {
                     </h2>
                 </div>
 
+                {/* Floating SVG Background */}
                 <div className="absolute top-1/2 left-0 w-full h-[80vh] -translate-y-1/2 -z-0 opacity-80 pointer-events-none mix-blend-screen scale-150 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]">
                     <div className="relative w-full h-full overflow-hidden bg-transparent opacity-60">
                         <div className="absolute inset-0">
@@ -539,7 +235,9 @@ export default function Scene2() {
                     </div>
                 </div>
 
+                {/* Content Sections */}
                 <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-12 lg:px-24 space-y-12 md:space-y-24">
+                    {/* First Feature: Advay General */}
                     <div className="relative group">
                         <div className="flex flex-col md:flex-row items-center justify-center gap-0 md:gap-12 relative">
                             <div className="w-full md:w-1/2 relative z-10">
@@ -548,7 +246,6 @@ export default function Scene2() {
                                     <img
                                         src="/images/advay_fashion_bw1.jpg"
                                         alt="ADVAY Fashion"
-                                        loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-105 grayscale contrast-125"
                                     />
                                 </div>
@@ -557,7 +254,6 @@ export default function Scene2() {
 
                             <div className="w-full md:w-2/5 relative z-20 -mt-10 md:mt-0 md:-ml-20">
                                 <div className="bg-black/80 border border-white/10 p-8 md:p-12 relative overflow-hidden">
-                                    <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white/5 to-transparent rotate-45 pointer-events-none" />
                                     <div className="space-y-6 relative z-10">
                                         <div className="space-y-1">
                                             <span className="block font-mono text-xs text-red-500 tracking-[0.3em]">NATIONAL // LEVEL</span>
@@ -584,6 +280,7 @@ export default function Scene2() {
                         </div>
                     </div>
 
+                    {/* Second Feature: Highlights */}
                     <div className="relative group">
                         <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-0 md:gap-12 relative">
                             <div className="w-full md:w-1/2 relative z-10">
@@ -592,7 +289,6 @@ export default function Scene2() {
                                     <img
                                         src="/images/voice_advay24.JPG"
                                         alt="ADVAY Music"
-                                        loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-1000 scale-100 group-hover:scale-105 grayscale contrast-125"
                                     />
                                 </div>
