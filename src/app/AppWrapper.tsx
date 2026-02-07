@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Loader from "@/components/ui/loading/Loader";
 import LogoReveal from "@/components/ui/loading/LogoReveal";
 import FooterReveal from '@/components/ui/FooterReveal';
-import { Scene } from '@/components/canvas';
+import Scene from '@/components/canvas/Scene';
 
 export default function AppWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
