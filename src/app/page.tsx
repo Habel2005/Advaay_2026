@@ -6,14 +6,18 @@ import { useState, useEffect } from 'react'
 // UI Components
 import { BoundaryFrame, Navbar, HeroContent } from '@/components/ui'
 import { Events } from '@/components/ui'
-import TestScene4Page from './test-scene4/page'
 import FooterContent from '@/components/ui/FooterContent'
-import Scene2 from '@/components/canvas/Scene2' // REMOVED SmoothScrollProvider import
+import Scene2 from '@/components/canvas/Scene2' 
 
-// Dynamic import for Scene
+// Dynamic imports for Scenes
 const Scene = dynamic(() => import('@/components/canvas/Scene'), {
   ssr: false,
   loading: () => null,
+})
+
+const Scene4 = dynamic(() => import('@/components/canvas/Scene4'), {
+  ssr: false,
+  loading: () => <div className="h-[100vh] bg-[#0D0D0D]" />,
 })
 
 export default function HomePage() {
@@ -53,7 +57,6 @@ export default function HomePage() {
 
       {/* Other Scrollable Sections */}
       <div id='about'>
-        {/* REMOVED SmoothScrollProvider wrapper */}
         <Scene2 />
       </div>
       
@@ -62,7 +65,7 @@ export default function HomePage() {
       </div>
       
       <div id='gallery'>
-        <TestScene4Page />
+        <Scene4 />
       </div>
       
       <div id='contact'>
