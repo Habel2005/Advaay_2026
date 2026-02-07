@@ -8,8 +8,6 @@ import Image from 'next/image';
 import { cn } from "@/lib/utils";
 import { useMobile } from '@/hooks/useMobile';
 
-// Lenis imports and SmoothScrollProvider have been removed.
-
 const buttonVariants = cva(
     "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
     {
@@ -496,7 +494,7 @@ export function ScrollFadeText({
 export default function Scene2() {
     return (
         <motion.div
-            className="bg-black relative z-10 -mt-16 md:-mt-1"
+            className="bg-black relative z-10"
         >
             <ParallaxReveal
                 backgroundImage="/images/up6.JPG"
