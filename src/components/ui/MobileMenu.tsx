@@ -24,6 +24,7 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
 
   useEffect(() => {
     if (isOpen) {
+      document.body.style.overflow = 'hidden';
       // Animate in
       gsap.to(overlayRef.current, {
         opacity: 1,
@@ -52,6 +53,7 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
         )
       }
     } else {
+      document.body.style.overflow = '';
       // Animate out
       gsap.to(overlayRef.current, {
         opacity: 0,
@@ -272,7 +274,7 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
               ■ CONNECT
             </span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <a href="#" style={{
+              <a href="https://www.instagram.com/advay.live?igsh=ajAyOXJmZGZ2Y2Rq" style={{
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: '12px',
                 color: COLORS.text,
@@ -280,15 +282,6 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
                 letterSpacing: '0.05em',
               }}>
                 INSTAGRAM
-              </a>
-              <a href="#" style={{
-                fontFamily: 'system-ui, sans-serif',
-                fontSize: '12px',
-                color: COLORS.text,
-                textDecoration: 'none',
-                letterSpacing: '0.05em',
-              }}>
-                LINKEDIN
               </a>
             </div>
           </div>
