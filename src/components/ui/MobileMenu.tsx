@@ -274,7 +274,7 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
               ■ CONNECT
             </span>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <a href="https://www.instagram.com/advay.live" style={{
+              <a href="https://www.instagram.com/advay.live?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" style={{
                 fontFamily: 'system-ui, sans-serif',
                 fontSize: '12px',
                 color: COLORS.text,
