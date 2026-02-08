@@ -93,7 +93,7 @@ export default function EventsPage() {
       link: "https://docs.google.com/forms/d/1Ho1Ets3yLbAXAFz4t4G9RsOcih-beZhPC2VP_-LLQJA/edit?usp=sharing_eil_se_dm&ts=697a3444"
     },
     {
-      title: "Mr and Mrs Advay",
+      title: "Mr and Ms Advay",
       subtitle: "Personality Contest",
       status: "Register",
       icon: Trophy,
@@ -103,7 +103,7 @@ export default function EventsPage() {
       link: "https://docs.google.com/forms/d/e/1FAIpQLSdnxRSMcCYat7XR3iYX9HAaVeJhuTnLkOqaRRmiSoYIsfLQSA/viewform"
     },
     {
-      title: "Avante Garde",
+      title: "Avant Garde",
       subtitle: "Fashion Extravaganza",
       status: "Register",
       icon: Sparkles,

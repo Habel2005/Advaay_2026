@@ -539,7 +539,7 @@ export default function Events() {
     <div id="events" className={styles.container} ref={containerRef} onMouseMove={handleMouseMove}>
       <div className={styles.stickyWrapper}>
 
-        <div className={styles.sectionTitle}>EVENTS</div>
+        <div className={`${styles.sectionTitle} font-medium `}>E<span className="">VENTS</span></div>
         
         {/* CARD 1 - EXISTING */}
         <motion.div 
@@ -806,7 +806,7 @@ export default function Events() {
                       preload="auto"
                       /* THIS LINE PREVENTS THE DOWNLOAD MENU */
                       onContextMenu={(e) => e.preventDefault()}
-                      onEnded={() => window.location.href = "/events"}
+                      onEnded={() => window.location.href = "./events"}
                       style={{ 
                         opacity: isPressed3 ? 1 : 0,
                         transition: 'opacity 0.15s ease-out',
@@ -822,22 +822,111 @@ export default function Events() {
             Since we removed React State, we can't conditionally render. 
             We render it always, but control Opacity via MotionValue */}
         
+{/*  */}
+
+        {/* CUSTOM CURSOR */}
         <motion.div 
-            className={styles.customCursor}
-            style={{
-              left: cursorX,
-              top: cursorY,
-              // Show if ANY card is active and pressed? 
-              // Actually we want "TAP AND HOLD" hint when active.
-              // Logic: Opacity = 1 if (isCard1Active OR isCard2Active OR isCard3Active)
-              opacity: cursorOpacity,
-              // Also ensure it doesn't block clicks when invisible
-              pointerEvents: 'none'
+          className={styles.customCursor}
+          style={{
+            left: cursorX,
+            top: cursorY,
+            opacity: cursorOpacity,
+            pointerEvents: 'none',
+            position: 'fixed',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            translateX: '-50%',
+            translateY: '-50%',
+          }}
+        >
+          {/* Main Visual Container */}
+          <div className="relative flex items-center justify-center">
+            
+            {/* Left Arrow - Hidden while holding */}
+            <motion.div 
+              animate={{ 
+                x: (isPressed1 || isPressed2 || isPressed3) ? 10 : 0, 
+                opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1 
+              }}
+              style={{
+                position: 'absolute',
+                left: '-30px',
+                width: 0, height: 0,
+                borderTop: '5px solid transparent',
+                borderBottom: '5px solid transparent',
+                borderRight: '7px solid rgba(255,255,255,0.8)'
+              }}
+            />
+
+            {/* The Dynamic Circle */}
+            <motion.div
+              animate={{
+                width: (isPressed1 || isPressed2 || isPressed3) ? 85 : 100,
+                height: (isPressed1 || isPressed2 || isPressed3) ? 85 : 100,
+                backgroundColor: (isPressed1 || isPressed2 || isPressed3) ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0)',
+                border: (isPressed1 || isPressed2 || isPressed3) ? '0px solid white' : '1px solid rgba(255,255,255,0.4)',
+              }}
+              className="rounded-full flex items-center justify-center relative overflow-hidden"
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            >
+              {/* CROSSHAIR (Design 1) - Only visible when NOT holding */}
+              <motion.div
+                animate={{ opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1 }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <div className="absolute w-1/3 h-[1px] bg-white/40" />
+                <div className="absolute h-1/3 w-[1px] bg-white/40" />
+                <div className="w-2 h-2 border border-white/40 rounded-full" />
+              </motion.div>
+
+              {/* "HOLD" TEXT (Design 2) - Only visible when holding */}
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: (isPressed1 || isPressed2 || isPressed3) ? 1 : 0 }}
+                className="text-black font-bold text-[13px] tracking-wider"
+                style={{ position: 'absolute' }}
+              >
+                HOLD
+              </motion.span>
+            </motion.div>
+
+            {/* Right Arrow - Hidden while holding */}
+            <motion.div 
+              animate={{ 
+                x: (isPressed1 || isPressed2 || isPressed3) ? -10 : 0, 
+                opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1 
+              }}
+              style={{
+                position: 'absolute',
+                right: '-30px',
+                width: 0, height: 0,
+                borderTop: '5px solid transparent',
+                borderBottom: '5px solid transparent',
+                borderLeft: '7px solid rgba(255,255,255,0.8)'
+              }}
+            />
+          </div>
+
+          {/* Bottom Label (Design 1) - Fades out while holding */}
+          <motion.div
+            animate={{ 
+              opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1,
+              y: (isPressed1 || isPressed2 || isPressed3) ? 10 : 0 
             }}
+            className="mt-4 text-[10px] tracking-[0.3em] text-white uppercase font-medium"
           >
             TAP AND HOLD
           </motion.div>
+        </motion.div>
 
+    
+    
+    
+    {/*  */}
+    
       </div>
 
       <div className={styles.nextContent}>
