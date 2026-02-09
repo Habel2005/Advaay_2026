@@ -177,7 +177,7 @@ export default function Scene2() {
     const isMobile = useMobile();
     
     // Define the fade size: smaller on mobile to save space, larger on desktop
-    const fadeSize = isMobile ? '125px' : '150px';
+    const fadeSize = isMobile ? '140px' : '150px';
 
     return (
         <motion.div
