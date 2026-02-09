@@ -117,66 +117,77 @@ export default function Navbar() {
               <div style={{ width: '24px', height: '2px', background: COLORS.text }} />
             </button>
           )}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            fontFamily: 'system-ui, sans-serif',
-            fontSize: isMobile ? '16px' : '20px',
-            fontWeight: 700,
-            letterSpacing: '0.05em',
-            color: COLORS.text,
-            height: isMobile ? '28px' : '28px',
-            minWidth: isMobile ? '60px' : '80px',
-            marginTop: isMobile ? '1.5em' : '0',
-            marginLeft: isMobile ? '2.5em' : '1.5em'
-          }}>
-            <GooeyText
-              texts={["ADVAY", "അദ്വയ്", "अधवे"]}
-              morphTime={1.5}
-              cooldownTime={2}
-              className="h-full"
-              textClassName="text-white font-bold"
-            />
-          </div>
+          <a
+            href="/"
+            onClick={(e) => handleNavClick(e, '/')}
+            style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                fontFamily: 'system-ui, sans-serif',
+                fontSize: isMobile ? '16px' : '20px',
+                fontWeight: 700,
+                letterSpacing: '0.05em',
+                color: COLORS.text,
+                height: isMobile ? '28px' : '28px',
+                minWidth: isMobile ? '60px' : '80px',
+                marginTop: isMobile ? '1.5em' : '0',
+                marginLeft: isMobile ? '2.5em' : '1.5em',
+              }}
+            >
+              <GooeyText
+                texts={['ADVAY', 'അദ്വയ്', 'अधवे']}
+                morphTime={1.5}
+                cooldownTime={2}
+                className="h-full"
+                textClassName="text-white font-bold"
+              />
+            </div>
+          </a>
         </div>
 
         {/* Center Navigation Links (Desktop Only) */}
         {!isMobile && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
             {NAV_ITEMS.map((item) => {
-                const isActive = activeSection === item.label;
+              const isActive = activeSection === item.label;
 
-                return (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
-                style={{
-                  fontFamily: 'system-ui, sans-serif',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  letterSpacing: '0.15em',
-                  color: isActive ? COLORS.red : COLORS.textMuted,
-                  textDecoration: 'none',
-                  transition: 'color 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  zIndex: 50,
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.color = COLORS.text;
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.color = COLORS.textMuted;
-                }}
-              >
-                {isActive && (
-                  <span style={{ width: '4px', height: '4px', background: COLORS.red, borderRadius: '50%' }} />
-                )}
-                <CipherText text={item.label} />
-              </a>
-            )})}
+              return (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  style={{
+                    fontFamily: 'system-ui, sans-serif',
+                    fontSize: '11px',
+                    fontWeight: 500,
+                    letterSpacing: '0.15em',
+                    color: isActive ? COLORS.red : COLORS.textMuted,
+                    textDecoration: 'none',
+                    transition: 'color 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    zIndex: 50,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) e.currentTarget.style.color = COLORS.text;
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) e.currentTarget.style.color = COLORS.textMuted;
+                  }}
+                >
+                  {isActive && (
+                    <span
+                      style={{ width: '4px', height: '4px', background: COLORS.red, borderRadius: '50%' }}
+                    />
+                  )}
+                  <CipherText text={item.label} />
+                </a>
+              );
+            })}
           </div>
         )}
 
@@ -209,11 +220,11 @@ export default function Navbar() {
         </button>
       </nav>
 
-      <MobileMenu 
-        isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)} 
-        navItems={NAV_ITEMS} 
-        activeSection={activeSection} 
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        navItems={NAV_ITEMS}
+        activeSection={activeSection}
       />
     </>
   );
