@@ -76,7 +76,7 @@ export default function Events() {
   };
 
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // 1. SCROLL SETUP
   // 1. SCROLL SETUP
   const { scrollYProgress } = useScroll({
@@ -88,13 +88,13 @@ export default function Events() {
   const [startDimensions, setStartDimensions] = useState({ w: '60px', h: '40px' });
   const [isMobile, setIsMobile] = useState(false);
   const [isLowEnd, setIsLowEnd] = useState(false); // New low-end detection
-  
+
   // PERFORMANCE FIX: Replace State with MotionValues
   // Define active ranges for logic gating
   // Card 1: 0.08 -> 0.25 (Stay) -> 0.42 (Exit end)
   // Card 2: 0.42 -> 0.52 (Stay) -> 0.67 (Exit end)
   // Card 3: 0.55 -> 1.0 (Stay)
-  
+
   const isCard1Active = useTransform(scrollYProgress, v => (v > 0.05 && v < 0.45) ? 1 : 0);
   const isCard2Active = useTransform(scrollYProgress, v => (v > 0.60 && v < 0.80) ? 1 : 0);
   const isCard3Active = useTransform(scrollYProgress, v => v > 0.95 ? 1 : 0);
@@ -103,7 +103,7 @@ export default function Events() {
   const cursor1 = useTransform(isCard1Active, active => active === 1 ? 'none' : 'auto');
   const cursor2 = useTransform(isCard2Active, active => active === 1 ? 'none' : 'auto');
   const cursor3 = useTransform(isCard3Active, active => active === 1 ? 'none' : 'auto');
-  
+
   // Track press state for manual animation control (replaces whileTap)
   const [isPressed1, setIsPressed1] = useState(false);
   const [isPressed2, setIsPressed2] = useState(false);
@@ -128,7 +128,7 @@ export default function Events() {
       }
       return () => {
         if (typeof currentLottie.removeEventListener === 'function') {
-            currentLottie.removeEventListener('complete', onComplete);
+          currentLottie.removeEventListener('complete', onComplete);
         }
       };
     }
@@ -144,9 +144,9 @@ export default function Events() {
         currentLottie2.addEventListener('complete', onComplete);
       }
       return () => {
-         if (typeof currentLottie2.removeEventListener === 'function') {
-            currentLottie2.removeEventListener('complete', onComplete);
-         }
+        if (typeof currentLottie2.removeEventListener === 'function') {
+          currentLottie2.removeEventListener('complete', onComplete);
+        }
       };
     }
   }, [isMobile]);
@@ -161,9 +161,9 @@ export default function Events() {
         currentLottie3.addEventListener('complete', onComplete);
       }
       return () => {
-         if (typeof currentLottie3.removeEventListener === 'function') {
-            currentLottie3.removeEventListener('complete', onComplete);
-         }
+        if (typeof currentLottie3.removeEventListener === 'function') {
+          currentLottie3.removeEventListener('complete', onComplete);
+        }
       };
     }
   }, [isMobile]);
@@ -242,12 +242,12 @@ export default function Events() {
   // PERFORMANCE: Hard Freeze Inactive Cards
   // Derived flags: Active AND (Not Low End OR Card Active checking only)
   // Actually, for tilt/parallax to be frozen, we just need to know if we should calculate it.
-  
+
   // Logic: 
   // 1. If isLowEnd -> Disable Tilt completely.
   // 2. If !isCardActive -> Force Tilt to 0 (freeze).
   // 3. If Fast Scroll -> Force Tilt to 0.
-  
+
   // Simplification: Use single-argument useTransform for 1->1 mapping
   const enableTiltDerived = useTransform(enableTilt, enabled => (!isLowEnd && enabled === 1) ? 1 : 0);
 
@@ -259,11 +259,11 @@ export default function Events() {
 
   // --- ANIMATION MAPPING (3 CARDS) ---
   // Total Scroll Range: 0 to 1
-  
+
   // SHARED TILT LOGIC (Re-used for simplicity across active cards)
   // Tilt strength fades out during transitions to avoid jarring jumps
   // We keep it active mostly when cards are stationary.
-  
+
   // CARD 1: FASHION
   // Enter: 0 -> 0.05
   // Stay: 0.05 -> 0.45
@@ -274,16 +274,16 @@ export default function Events() {
 
   const scrollRotateY = useTransform(scrollYProgress, [0.02, 0.05], [90, 0]);
   const opacity1 = useTransform(scrollYProgress, [0, 0.04], [0, 1]);
-  
+
   const width1 = useTransform(scrollYProgress, [0.05, 0.25], [startDimensions.w, '100dvw']);
   const height1 = useTransform(scrollYProgress, [0.05, 0.25], [startDimensions.h, '100dvh']);
   const borderRadius1 = useTransform(scrollYProgress, [0.05, 0.25], ['6px', '0px']);
-  
+
   const fgTranslateY = useTransform(scrollYProgress, [0.05, 0.25], ['200%', '0%']);
   const fgTranslateX = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
 
   const mgTranslateX2 = useTransform(smoothMouseX, [0, 1], ['25px', '-25px']);
-  
+
   // Card 3 MG Parallax
   const mgTranslateX3 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
   // Card 3 FG Parallax (Subtle)
@@ -303,10 +303,10 @@ export default function Events() {
 
   const scale2 = useTransform(scrollYProgress, [0.45, 0.60, 0.80, 0.90], [0.5, 1, 1, 0.8]); // Enter Scale -> Stay -> Exit Scale
   const borderRadius2 = useTransform(scrollYProgress, [0.45, 0.60], ['20px', '0px']);
-  
+
   const enterRotateX2 = useTransform(scrollYProgress, [0.45, 0.60], [-10, 0]);
   const exitRotateX2 = useTransform(scrollYProgress, [0.80, 0.90], [0, 10]);
-  
+
   // Combine rotations for Card 2
   const rotateX2 = useTransform([enterRotateX2, exitRotateX2], ([enter, exit]: number[]) => enter + exit);
 
@@ -323,61 +323,61 @@ export default function Events() {
 
   const rawScale3 = useTransform(scrollYProgress, [0.80, 0.95], [0.5, 1]);
   const scale3 = useTransform(
-     [scrollYProgress, isCard3Active] as any,
-     ([v, active]: any[]) => active || v > 0.7 ? rawScale3.get() : 0.5
+    [scrollYProgress, isCard3Active] as any,
+    ([v, active]: any[]) => active || v > 0.7 ? rawScale3.get() : 0.5
   );
 
   const borderRadius3 = useTransform(scrollYProgress, [0.80, 0.95], ['20px', '0px']);
   const rawEnterRotateX3 = useTransform(scrollYProgress, [0.80, 0.95], [-10, 0]);
   const enterRotateX3 = useTransform(
-     [scrollYProgress, isCard3Active] as any,
-     ([v, active]: any[]) => active || v > 0.7 ? rawEnterRotateX3.get() : -10
+    [scrollYProgress, isCard3Active] as any,
+    ([v, active]: any[]) => active || v > 0.7 ? rawEnterRotateX3.get() : -10
   );
 
   // TILT CALCULATION
   // Reduced global tilt (was +/- 5, now +/- 2)
-  const baseTiltRotateY = useTransform(smoothMouseX, [0, 1], [-2, 2]); 
+  const baseTiltRotateY = useTransform(smoothMouseX, [0, 1], [-2, 2]);
   const baseTiltRotateX = useTransform(smoothMouseY, [0, 1], [2, -2]);
-  
+
   // REDUCED TILT FOR CARD 3 (Minute effect)
-  const baseTiltRotateY3 = useTransform(smoothMouseX, [0, 1], [0, 1]); 
+  const baseTiltRotateY3 = useTransform(smoothMouseX, [0, 1], [0, 1]);
   // Disable X-axis tilt (up/down) for Card 3 as requested
   const baseTiltRotateX3 = useTransform(smoothMouseY, [0, 1], [0, 0]);
-  
+
   // Damping: Reduce tilt during transitions (approximate centers of transitions)
   // [0.05, 0.45, 0.60, 0.80, 0.90]
   const tiltStrength = useTransform(scrollYProgress, [0.05, 0.45, 0.60, 0.80, 0.90], [1, 0, 1, 0, 1]);
-  
+
   const tiltRotateY = useTransform(
-    [baseTiltRotateY, tiltStrength, enableTilt] as any, 
+    [baseTiltRotateY, tiltStrength, enableTilt] as any,
     ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
   );
   const tiltRotateX = useTransform(
-    [baseTiltRotateX, tiltStrength, card1Enabled] as any, 
+    [baseTiltRotateX, tiltStrength, card1Enabled] as any,
     ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
   );
 
-  const tiltRotateY2 = useTransform( 
-    [baseTiltRotateY, tiltStrength, card2Enabled] as any, 
+  const tiltRotateY2 = useTransform(
+    [baseTiltRotateY, tiltStrength, card2Enabled] as any,
     ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
   );
 
   const tiltRotateY3 = useTransform(
-    [baseTiltRotateY3, tiltStrength, enableTilt] as any, 
+    [baseTiltRotateY3, tiltStrength, enableTilt] as any,
     ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
   );
   const tiltRotateX3 = useTransform(
-    [baseTiltRotateX3, tiltStrength, enableTilt] as any, 
+    [baseTiltRotateX3, tiltStrength, enableTilt] as any,
     ([rot, strength, enabled]: any[]) => enabled ? rot * strength : 0
   );
 
   // Final Rotations
   const finalRotateY1 = useTransform([scrollRotateY, tiltRotateY], ([s, t]: number[]) => s + t);
   const finalRotateX1 = useTransform([tiltRotateX, exitRotateX1], ([t, e]: number[]) => t + e);
-  
+
   const finalRotateY2 = tiltRotateY2; // Card 2 specific tilt
   const finalRotateX2 = useTransform([tiltRotateX, rotateX2], ([t, r]: number[]) => t + r);
-  
+
   const finalRotateY3 = tiltRotateY3;
   const finalRotateX3 = useTransform([tiltRotateX3, enterRotateX3], ([t, e]: number[]) => t + e);
 
@@ -385,13 +385,13 @@ export default function Events() {
   // Card moves 100vh -> 0. Image should move -25vh -> 0 (Relative shift UP 25vh? No relative shift DOWN)
   // Actually, we established: Transition UP (0->0.2) => Image Relative DOWN (-75vh -> 0).
   // Transition DOWN (Exit) => Image Relative UP (0 -> 75vh).
-  
+
   // Card 1 Exit Parallax (0.45 -> 0.60)
   const parallaxY1_Exit = useTransform(scrollYProgress, [0.45, 0.60], ['0vh', '75vh']);
-  
+
   // Card 2 Parallax (Enter 0.45->0.60, Exit 0.80->0.90)
   const parallaxY2 = useTransform(scrollYProgress, [0.45, 0.60, 0.80, 0.90], ['-75vh', '0vh', '0vh', '75vh']);
-  
+
   // Card 3 Parallax (Enter 0.80->0.95)
   const parallaxY3 = useTransform(scrollYProgress, [0.80, 0.95], ['-75vh', '0vh']);
 
@@ -403,7 +403,7 @@ export default function Events() {
   // Red Vignette Transition Opacity
   // Card 1 Exit (0.45 -> 0.60)
   const transitionOpacity1 = useTransform(scrollYProgress, [0.45, 0.52, 0.60], [0, 1, 0]);
-  
+
   // Card 2 Enter (0.45 -> 0.60) & Exit (0.80 -> 0.90)
   const transitionOpacity2 = useTransform(scrollYProgress, [0.45, 0.52, 0.60, 0.80, 0.85, 0.90], [0, 1, 0, 0, 1, 0]);
 
@@ -423,9 +423,9 @@ export default function Events() {
 
   const textVariants = {
     rest: { opacity: 0, y: 10 },
-    pressed: { 
-      opacity: 1, 
-      y: 0, 
+    pressed: {
+      opacity: 1,
+      y: 0,
       transition: { delay: 0.2, duration: 0.3 } // Text fades in AFTER overlay appears
     }
   };
@@ -438,18 +438,18 @@ export default function Events() {
   // Cursor movements (Defined at top level to avoid hook errors)
   const cursorX = useTransform(smoothMouseX, [0, 1], ['0%', '100%']);
   const cursorY = useTransform(smoothMouseY, [0, 1], ['0%', '100%']);
-  
+
   const cursorOpacity = useTransform(
-      // Cast to any to avoid complex tuple type inference issues with Framer Motion hooks
-      [isCard1Active, isCard2Active, isCard3Active] as any,
-      ([a, b, c]: boolean[]) => (a || b || c) ? 1 : 0
+    // Cast to any to avoid complex tuple type inference issues with Framer Motion hooks
+    [isCard1Active, isCard2Active, isCard3Active] as any,
+    ([a, b, c]: boolean[]) => (a || b || c) ? 1 : 0
   );
 
   // Card 1 MG Parallax & Scaling
   // Small (0-0.25) -> Expanded (0.25+) ... now starts at 0.08
   const mgBgSize = useTransform(scrollYProgress, [0.05, 0.25], ['100%', isMobile ? '150%' : '40%']);
   const mgBgPos = useTransform(scrollYProgress, [0.05, 0.25], ['center 90%', 'center 100%']);
-  
+
   // Card 1 MG Parallax (X-axis)
   // "Slightly maybe .2" - interpreted as a subtle shift, e.g., 20px range
   const mgTranslateX1 = useTransform(smoothMouseX, [0, 1], ['20px', '-20px']);
@@ -540,9 +540,9 @@ export default function Events() {
       <div className={styles.stickyWrapper}>
 
         <div className={`${styles.sectionTitle} font-medium `}>E<span className="">VENTS</span></div>
-        
+
         {/* CARD 1 - EXISTING */}
-        <motion.div 
+        <motion.div
           className={styles.card}
           initial="rest"
 
@@ -558,274 +558,278 @@ export default function Events() {
             borderRadius: borderRadius1,
             opacity: opacity1,
             zIndex: 10,
-            cursor: cursor1, 
+            cursor: cursor1,
           }}
           {...bindCard1}
         >
-            {/* BACKGROUND IMAGE - AUTO CROPPED BY PARENT DIMENSIONS */}
-            {/* Using a simple div with background-size: cover handles the "crop then reveal" logic perfectly 
+          {/* BACKGROUND IMAGE - AUTO CROPPED BY PARENT DIMENSIONS */}
+          {/* Using a simple div with background-size: cover handles the "crop then reveal" logic perfectly 
                 as the parent aspect ratio changes from portrait (card) to landscape (screen). */}
-            <motion.div 
-              className={styles.layerBg}
-              style={{ 
-                  backgroundImage: 'url("/images/FASHOIN/bg.png")',
-                  y: parallaxY1_Exit
-              }} 
+          <motion.div
+            className={styles.layerBg}
+            style={{
+              backgroundImage: 'url("/images/FASHOIN/bg.png")',
+              y: parallaxY1_Exit
+            }}
+          />
+
+          {/* CONTENT */}
+          {/* MIDDLE GROUND (mg2) - Always visible, layered on top of BG */}
+          <motion.div
+            className={styles.layerMg}
+            style={{
+              backgroundImage: 'url("/images/FASHOIN/mg.png")',
+              y: parallaxY1_Exit,
+              x: mgTranslateX1,
+              backgroundSize: mgBgSize,
+              backgroundPosition: mgBgPos
+            }}
+          />
+
+
+
+          {/* RED VIGNETTE OVERLAY */}
+          <motion.div
+            className={styles.transitionOverlay}
+            style={{ opacity: transitionOpacity1 }}
+          />
+
+          {/* TITLE: Avante Garde */}
+          <motion.div
+            className={styles.cardTitle}
+            variants={cardTitleVariants}
+          >
+            Avant Garde
+          </motion.div>
+
+          {/* OVERLAY & LOTTIE (Appears on Hold) - Conditional Rendering */}
+          {/* OVERLAY & LOTTIE (Appears on Hold) - Persistent Rendering with CSS Toggle */}
+          <motion.div
+            className={styles.cardOverlay}
+            animate={isPressed1 ? "pressed" : "rest"}
+            variants={overlayVariants}
+            style={{
+              pointerEvents: 'none',
+              clipPath: 'inset(0px 0px 0px 0px)', // Clip bottom 116px
+              background: 'transparent',
+              // Only show if active
+              opacity: overlayOpacity1
+            }}
+          >
+            {/* PRUNED & PRIMED - Always Rendered */}
+            <video
+              ref={videoRef1}
+              className={styles.videoPlayer}
+              src={isMobile ? "/animations/AvanteGrandeMobile.mp4" : "/animations/avantegarde.webm"}
+              muted
+              playsInline
+              preload="auto"
+              /* THIS LINE PREVENTS THE DOWNLOAD MENU */
+              onContextMenu={(e) => e.preventDefault()}
+              onEnded={() => window.location.href = "https://forms.gle/Coa4JuLtkRSimF9dA"}
+              style={{
+                // Instead of unmounting, we just hide it
+                opacity: isPressed1 ? 1 : 0,
+                transition: 'opacity 0.15s ease-out',
+                // Performance boost:
+                willChange: 'transform, opacity',
+                transform: 'translateZ(0)',
+              }}
             />
-
-            {/* CONTENT */}
-            {/* MIDDLE GROUND (mg2) - Always visible, layered on top of BG */}
-            <motion.div 
-              className={styles.layerMg}
-              style={{ 
-                  backgroundImage: 'url("/images/FASHOIN/mg.png")',
-                  y: parallaxY1_Exit,
-                  x: mgTranslateX1,
-                  backgroundSize: mgBgSize,
-                  backgroundPosition: mgBgPos
-              }} 
-            />
-
-            
-
-            {/* RED VIGNETTE OVERLAY */}
-            <motion.div 
-              className={styles.transitionOverlay}
-              style={{ opacity: transitionOpacity1 }}
-            />
-
-            {/* TITLE: Avante Garde */}
-            <motion.div
-              className={styles.cardTitle}
-              variants={cardTitleVariants}
-            >
-              Avant Garde
-            </motion.div>
-
-            {/* OVERLAY & LOTTIE (Appears on Hold) - Conditional Rendering */}
-            {/* OVERLAY & LOTTIE (Appears on Hold) - Persistent Rendering with CSS Toggle */}
-              <motion.div 
-                className={styles.cardOverlay} 
-                animate={isPressed1 ? "pressed" : "rest"}
-                variants={overlayVariants}
-                style={{ 
-                  pointerEvents: 'none',
-                  clipPath: 'inset(0px 0px 0px 0px)', // Clip bottom 116px
-                  background: 'transparent',
-                   // Only show if active
-                   opacity: overlayOpacity1 
-                }} 
-              >
-                  {/* PRUNED & PRIMED - Always Rendered */}
-                   <video
-                     ref={videoRef1}
-                     className={styles.videoPlayer}
-                     src={isMobile ? "/animations/AvanteGrandeMobile.mp4" : "/animations/avantegarde.webm"}
-                     muted
-                     playsInline
-                     preload="auto"
-                     /* THIS LINE PREVENTS THE DOWNLOAD MENU */
-                     onContextMenu={(e) => e.preventDefault()}
-                     onEnded={() => window.location.href = "https://forms.gle/Coa4JuLtkRSimF9dA"}
-                     style={{ 
-                        // Instead of unmounting, we just hide it
-                        opacity: isPressed1 ? 1 : 0,
-                        transition: 'opacity 0.15s ease-out',
-                        // Performance boost:
-                        willChange: 'transform, opacity',
-                        transform: 'translateZ(0)', 
-                     }}
-                   />
-              </motion.div>
+          </motion.div>
 
         </motion.div>
 
         {/* CARD 2 - DECADANCE */}
-        <motion.div 
+        <motion.div
           className={styles.card}
           style={{
-             y: y2,
-             scale: scale2,
-             rotateX: finalRotateX2,
-             rotateY: finalRotateY2,
-             width: '100dvw',
-             height: '100dvh',
-             borderRadius: borderRadius2,
-             zIndex: 20, 
-             position: 'absolute',
-             cursor: cursor2,
+            y: y2,
+            scale: scale2,
+            rotateX: finalRotateX2,
+            rotateY: finalRotateY2,
+            width: '100dvw',
+            height: '100dvh',
+            borderRadius: borderRadius2,
+            zIndex: 20,
+            position: 'absolute',
+            cursor: cursor2,
           }}
           initial="rest"
           animate={isPressed2 ? "pressed" : "rest"}
           {...bindCard2}
         >
-             <motion.div 
-               className={styles.layerBg}
-               style={{ 
-                   backgroundImage: 'url("/images/Dance/bg.png")',
-                   y: parallaxY2
-               }} 
-             />
-             <motion.div 
-               className={styles.layerBMg}
-               style={{ 
-                   backgroundImage: 'url("/images/Dance/mg.png")',
-                   x: mgTranslateX2,
-                   y: parallaxY2
-               }} 
-             />
-             <motion.div 
-               className={styles.layerFg}
-               style={{ 
-                   backgroundImage: 'url("/images/Dance/fg.png")',
-                   y: parallaxY2
-               }} 
-             />
-             <motion.div 
-               className={styles.transitionOverlay}
-               style={{ opacity: transitionOpacity2 }}
-             />
+          <motion.div
+            className={styles.layerBg}
+            style={{
+              backgroundImage: 'url("/images/Dance/bg.png")',
+              y: parallaxY2
+            }}
+          />
+          <motion.div
+            className={styles.layerBMg}
+            style={{
+              backgroundImage: 'url("/images/Dance/mg.png")',
+              x: mgTranslateX2,
+              y: parallaxY2
+            }}
+          />
+          <motion.div
+            className={styles.layerFg}
+            style={{
+              backgroundImage: 'url("/images/Dance/fg.png")',
+              y: parallaxY2
+            }}
+          />
+          <motion.div
+            className={styles.transitionOverlay}
+            style={{ opacity: transitionOpacity2 }}
+          />
 
-             {/* TITLE: Deca Dance */}
-             <motion.div
-               className={styles.cardTitle}
-               variants={cardTitleVariants}
-             >
-               Deca Dance
-             </motion.div>
+          {/* TITLE: Deca Dance */}
+          <motion.div
+            className={styles.cardTitle}
+            variants={cardTitleVariants}
+          >
+            Deca Dance
+          </motion.div>
 
-             {/* OVERLAY & LOTTIE FOR CARD 2 */}
-             {/* OVERLAY & LOTTIE FOR CARD 2 - Persistent Rendering */}
-              <motion.div 
-                className={styles.cardOverlay} 
-                animate={isPressed2 ? "pressed" : "rest"}
-                variants={overlayVariants}
-                style={{ 
-                  pointerEvents: 'none',
-                  clipPath: 'inset(0px 0px 0px 0px)',
-                  background: 'transparent',
-                  opacity: overlayOpacity2
-                }} 
-              >
-                 {/* PRUNED & PRIMED - Always Rendered */}
-                   <video
-                     ref={videoRef2}
-                     className={styles.videoPlayer}
-                     src={isMobile ? "/animations/DecaDanceMobile.mp4" : "/animations/DecaDance.webm"}
-                     muted
-                     playsInline
-                     preload="auto"
-                     /* THIS LINE PREVENTS THE DOWNLOAD MENU */
-                     onContextMenu={(e) => e.preventDefault()}
-                     onEnded={() => window.location.href = "https://forms.gle/rjp241cqihhbvL7w9"}
-                     style={{ 
-                        opacity: isPressed2 ? 1 : 0,
-                        transition: 'opacity 0.15s ease-out',
-                        willChange: 'transform, opacity',
-                        transform: 'translateZ(0)', 
-                     }}
-                   />
-              </motion.div>
+          {/* OVERLAY & LOTTIE FOR CARD 2 */}
+          {/* OVERLAY & LOTTIE FOR CARD 2 - Persistent Rendering */}
+          <motion.div
+            className={styles.cardOverlay}
+            animate={isPressed2 ? "pressed" : "rest"}
+            variants={overlayVariants}
+            style={{
+              pointerEvents: 'none',
+              clipPath: 'inset(0px 0px 0px 0px)',
+              background: 'transparent',
+              opacity: overlayOpacity2
+            }}
+          >
+            {/* PRUNED & PRIMED - Always Rendered */}
+            <video
+              ref={videoRef2}
+              className={styles.videoPlayer}
+              src={isMobile ? "/animations/DecaDanceMobile.mp4" : "/animations/DecaDance.webm"}
+              muted
+              playsInline
+              preload="auto"
+              /* THIS LINE PREVENTS THE DOWNLOAD MENU */
+              onContextMenu={(e) => e.preventDefault()}
+              onEnded={() => window.location.href = "https://forms.gle/rjp241cqihhbvL7w9"}
+              style={{
+                opacity: isPressed2 ? 1 : 0,
+                transition: 'opacity 0.15s ease-out',
+                willChange: 'transform, opacity',
+                transform: 'translateZ(0)',
+              }}
+            />
+          </motion.div>
         </motion.div>
 
         {/* CARD 3 - DRIFTX */}
-        <motion.div 
+        <motion.div
           className={styles.card}
           style={{
-             y: y3,
-             scale: scale3,
-             rotateX: finalRotateX3,
-             rotateY: finalRotateY3,
-             width: '100dvw',
-             height: '100dvh',
-             borderRadius: borderRadius3,
-             zIndex: 30,
-             position: 'absolute',
-             cursor: cursor3,
+            y: y3,
+            scale: scale3,
+            rotateX: finalRotateX3,
+            rotateY: finalRotateY3,
+            width: '100dvw',
+            height: '100dvh',
+            borderRadius: borderRadius3,
+            zIndex: 30,
+            position: 'absolute',
+            cursor: cursor3,
           }}
           initial="rest"
           animate={isPressed3 ? "pressed" : "rest"}
           {...bindCard3}
         >
-             <motion.div 
-               className={styles.layerBg}
-               style={{ 
-                   backgroundImage: 'url("/images/Drift/bg.png")',
-                   y: parallaxY3
-               }} 
-             />
-             <motion.div 
-               className={styles.layerDMg}
-               style={{ 
-                   backgroundImage: 'url("/images/Drift/mg.png")',
-                   x: mgTranslateX3,
-                   y: parallaxY3
-               }} 
-             />
-             <motion.div 
-               className={styles.layerDFg}
-               style={{ 
-                   backgroundImage: 'url("/images/Drift/fg.png")',
-                   x: fgTranslateX3,
-                   y: parallaxY3
-               }} 
-             />
-             <motion.div 
-                className={styles.transitionOverlay}
-                style={{ opacity: transitionOpacity3 }}
-              />
+          <motion.div
+            className={styles.layerBg}
+            style={{
+              backgroundImage: 'url("/images/Drift/bg.png")',
+              y: parallaxY3
+            }}
+          />
+          <motion.div
+            className={styles.layerDMg}
+            style={{
+              backgroundImage: 'url("/images/Drift/mg.png")',
+              x: mgTranslateX3,
+              y: parallaxY3
+            }}
+          />
+          <motion.div
+            className={styles.layerDFg}
+            style={{
+              backgroundImage: 'url("/images/Drift/fg.png")',
+              x: fgTranslateX3,
+              y: parallaxY3
+            }}
+          />
+          <motion.div
+            className={styles.transitionOverlay}
+            style={{ opacity: transitionOpacity3 }}
+          />
 
-             {/* TITLE: More Events */}
-             <motion.div
-               className={styles.cardTitle}
-               variants={cardTitleVariants}
-             >
-               More Events
-             </motion.div>
+          {/* TITLE: More Events */}
+          <motion.div
+            className={styles.cardTitle}
+            variants={cardTitleVariants}
+          >
+            More Events
+          </motion.div>
 
-             {/* OVERLAY & LOTTIE FOR CARD 3 */}
-             {/* OVERLAY & LOTTIE FOR CARD 3 - Persistent Rendering */}
-              <motion.div 
-                className={styles.cardOverlay} 
-                animate={isPressed3 ? "pressed" : "rest"}
-                variants={overlayVariants}
-                style={{ 
-                  pointerEvents: 'none',
-                  clipPath: 'inset(0px 0px 0px 0px)',
-                  background: 'transparent',
-                  opacity: overlayOpacity3
-                }} 
-              >
-                  {/* PRUNED & PRIMED - Always Rendered */}
-                    <video
-                      ref={videoRef3}
-                      className={styles.videoPlayer}
-                      src={isMobile ? "/animations/MoreEventsMobile.mp4" : "/animations/More Events.webm"}
-                      muted
-                      playsInline
-                      preload="auto"
-                      /* THIS LINE PREVENTS THE DOWNLOAD MENU */
-                      onContextMenu={(e) => e.preventDefault()}
-                      onEnded={() => window.location.href = "./events"}
-                      style={{ 
-                        opacity: isPressed3 ? 1 : 0,
-                        transition: 'opacity 0.15s ease-out',
-                        willChange: 'transform, opacity',
-                        transform: 'translateZ(0)', 
-                      }}
-                    />
-              </motion.div>
+          {/* OVERLAY & LOTTIE FOR CARD 3 */}
+          {/* OVERLAY & LOTTIE FOR CARD 3 - Persistent Rendering */}
+          <motion.div
+            className={styles.cardOverlay}
+            animate={isPressed3 ? "pressed" : "rest"}
+            variants={overlayVariants}
+            style={{
+              pointerEvents: 'none',
+              clipPath: 'inset(0px 0px 0px 0px)',
+              background: 'transparent',
+              opacity: overlayOpacity3
+            }}
+          >
+            {/* PRUNED & PRIMED - Always Rendered */}
+            <video
+              ref={videoRef3}
+              className={styles.videoPlayer}
+              src={isMobile ? "/animations/MoreEventsMobile.mp4" : "/animations/More Events.webm"}
+              muted
+              playsInline
+              preload="auto"
+              /* THIS LINE PREVENTS THE DOWNLOAD MENU */
+              onContextMenu={(e) => e.preventDefault()}
+              onEnded={() => window.location.href = "./events"}
+              style={{
+                opacity: isPressed3 ? 1 : 0,
+                transition: 'opacity 0.15s ease-out',
+                willChange: 'transform, opacity',
+                transform: 'translateZ(0)',
+              }}
+            />
+          </motion.div>
+        </motion.div>
+
+        <motion.div className="lg:hidden absolute bottom-4 text-center z-50 mt-4 text-[12px] tracking-[0.3em] text-white uppercase font-medium">
+          TAP AND HOLD
         </motion.div>
 
         {/* CUSTOM CURSOR (Only when Card 1 or Card 2 is full screen) */}
         {/* We use specific motion divs for cursors or just one that checks all? 
             Since we removed React State, we can't conditionally render. 
             We render it always, but control Opacity via MotionValue */}
-        
-{/*  */}
+
+        {/*  */}
 
         {/* CUSTOM CURSOR */}
-        <motion.div 
+        <motion.div
           className={styles.customCursor}
           style={{
             left: cursorX,
@@ -844,12 +848,12 @@ export default function Events() {
         >
           {/* Main Visual Container */}
           <div className="relative flex items-center justify-center">
-            
+
             {/* Left Arrow - Hidden while holding */}
-            <motion.div 
-              animate={{ 
-                x: (isPressed1 || isPressed2 || isPressed3) ? 10 : 0, 
-                opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1 
+            <motion.div
+              animate={{
+                x: (isPressed1 || isPressed2 || isPressed3) ? 10 : 0,
+                opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1
               }}
               style={{
                 position: 'absolute',
@@ -894,10 +898,10 @@ export default function Events() {
             </motion.div>
 
             {/* Right Arrow - Hidden while holding */}
-            <motion.div 
-              animate={{ 
-                x: (isPressed1 || isPressed2 || isPressed3) ? -10 : 0, 
-                opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1 
+            <motion.div
+              animate={{
+                x: (isPressed1 || isPressed2 || isPressed3) ? -10 : 0,
+                opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1
               }}
               style={{
                 position: 'absolute',
@@ -912,9 +916,9 @@ export default function Events() {
 
           {/* Bottom Label (Design 1) - Fades out while holding */}
           <motion.div
-            animate={{ 
+            animate={{
               opacity: (isPressed1 || isPressed2 || isPressed3) ? 0 : 1,
-              y: (isPressed1 || isPressed2 || isPressed3) ? 10 : 0 
+              y: (isPressed1 || isPressed2 || isPressed3) ? 10 : 0
             }}
             className="mt-4 text-[10px] tracking-[0.3em] text-white uppercase font-medium"
           >
@@ -922,15 +926,15 @@ export default function Events() {
           </motion.div>
         </motion.div>
 
-    
-    
-    
-    {/*  */}
-    
+
+
+
+        {/*  */}
+
       </div>
 
       <div className={styles.nextContent}>
-      
+
       </div>
     </div>
   );
