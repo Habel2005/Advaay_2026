@@ -69,7 +69,15 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
   }, [isOpen])
 
   const handleMenuClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href === '/' && pathname === '/') {
+    if (href.startsWith('/#') && pathname === '/') {
+      e.preventDefault();
+      const targetId = href.substring(2);
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        elem.scrollIntoView({ behavior: 'smooth' });
+      }
+      onClose();
+    } else if (href === '/' && pathname === '/') {
       e.preventDefault();
       window.scrollTo({
         top: 0,
@@ -77,6 +85,7 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
       });
       onClose();
     } else {
+      router.push(href);
       onClose();
     }
   };
