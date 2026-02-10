@@ -22,6 +22,20 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
   const [videoReady, setVideoReady] = useState(!isHome);
   const [loaderDone, setLoaderDone] = useState(!isHome);
   const [revealDone, setRevealDone] = useState(!isHome);
+  const [isChecked, setIsChecked] = useState(false);
+
+  // Check session storage on mount
+  useEffect(() => {
+    if (isHome) {
+      const hasSeenIntro = sessionStorage.getItem('intro_shown');
+      if (hasSeenIntro) {
+        setLoaderDone(true);
+        setRevealDone(true);
+        setVideoReady(true);
+      }
+    }
+    setIsChecked(true);
+  }, [isHome]);
 
   // Observer Logic
   useEffect(() => {
@@ -36,13 +50,26 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
 
   const handleVideoReady = useCallback(() => setVideoReady(true), []);
   const handleLoaderFinished = useCallback(() => setLoaderDone(true), []);
-  const handleRevealComplete = useCallback(() => setRevealDone(true), []);
+  const handleRevealComplete = useCallback(() => {
+    setRevealDone(true);
+    sessionStorage.setItem('intro_shown', 'true');
+  }, []);
 
   const canReveal = loaderDone && videoReady;
 
   return (
     <>
-      {isHome && !revealDone && (
+      {/* 
+        Prevent FOUC or Flash of Loader:
+        Show a white placeholder until we've checked session storage.
+        If we have seen the intro, this disappears and content fades in.
+        If we haven't, this disappears and the real Loader takes over (seamlessly).
+      */}
+      {isHome && !isChecked && (
+        <div className="fixed inset-0 z-[60] bg-white" />
+      )}
+
+      {isHome && !revealDone && isChecked && (
         <div className="fixed inset-0 z-50 bg-white">
           <div className={`absolute inset-0 z-20 transition-opacity duration-700 ${loaderDone ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <Loader canFinish={videoReady} onFinished={handleLoaderFinished} />
