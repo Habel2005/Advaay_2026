@@ -847,7 +847,7 @@ export default function Events() {
           }}
         >
           {/* Main Visual Container */}
-          <div className="relative flex items-center justify-center">
+          <div className="relative max-md:hidden flex items-center justify-center">
 
             {/* Left Arrow - Hidden while holding */}
             <motion.div
