@@ -17,6 +17,7 @@ const EasterEgg: React.FC<EasterEggProps> = ({ onClose }) => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isWon, setIsWon] = useState(false);
   const [isLost, setIsLost] = useState(false);
+  const [uniqueId, setUniqueId] = useState('');
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -24,6 +25,15 @@ const EasterEgg: React.FC<EasterEggProps> = ({ onClose }) => {
     generateSecret();
     inputRefs.current[0]?.focus();
   }, []);
+
+  const getOrGenerateId = () => {
+    let storedId = localStorage.getItem('creditEasterEggId');
+    if (!storedId) {
+      storedId = `CREDIT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      localStorage.setItem('creditEasterEggId', storedId);
+    }
+    return storedId;
+  };
 
   const generateSecret = () => {
     const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -84,6 +94,8 @@ const EasterEgg: React.FC<EasterEggProps> = ({ onClose }) => {
 
     if (feedback.every(f => f === 'correct')) {
       setIsWon(true);
+      const id = getOrGenerateId();
+      setUniqueId(id);
     } else if (history.length + 1 >= 10) {
       setIsLost(true);
     }
@@ -97,6 +109,7 @@ const EasterEgg: React.FC<EasterEggProps> = ({ onClose }) => {
       setHistory([]);
       setIsWon(false);
       setIsLost(false);
+      setUniqueId('');
       generateSecret();
       inputRefs.current[0]?.focus();
   }
@@ -121,14 +134,16 @@ const EasterEgg: React.FC<EasterEggProps> = ({ onClose }) => {
         <button className={styles.closeButton} onClick={onClose}>X</button>
         <h2 className={styles.title}>ACCESS TERMINAL</h2>
 
-        {isWon && <div className={`${styles.message} ${styles.win}`}>ACCESS GRANTED</div>}
+        {isWon && <div className={`${styles.message} ${styles.win}`}>ACCESS GRANTED<br/>Unique ID: {uniqueId}</div>}
         {isLost && <div className={`${styles.message} ${styles.lose}`}>{`LOCKDOWN INITIATED. CODE WAS: ${secret.join('')}`}</div>}
 
         <div className={styles.inputContainer}>
           {guess.map((digit, index) => (
             <input
               key={index}
-              ref={(el) => (inputRefs.current[index] = el)}
+              ref={(el) => {
+                inputRefs.current[index] = el;
+              }}
               type="text"
               maxLength={1}
               className={styles.input}

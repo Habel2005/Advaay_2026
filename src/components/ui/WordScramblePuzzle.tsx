@@ -102,9 +102,18 @@ export default function WordScramblePuzzle({ isOpen, onClose }: WordScramblePuzz
   const [isCorrect, setIsCorrect] = useState(false);
   const [solved, setSolved] = useState(false);
   const [shaking, setShaking] = useState(false);
+  const [uniqueId, setUniqueId] = useState('');
   const confettiRef = useRef<HTMLCanvasElement>(null);
 
-  // Pick a new random word each time the popup opens
+  const getOrGenerateId = () => {
+    let storedId = localStorage.getItem('wordScrambleEasterEggId');
+    if (!storedId) {
+      storedId = `WSCRAMBLE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      localStorage.setItem('wordScrambleEasterEggId', storedId);
+    }
+    return storedId;
+  };
+
   useEffect(() => {
     if (isOpen) {
       setWordIndex(Math.floor(Math.random() * wordList.length));
@@ -116,7 +125,6 @@ export default function WordScramblePuzzle({ isOpen, onClose }: WordScramblePuzz
     }
   }, [isOpen]);
 
-  // Close on Escape key
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -134,12 +142,13 @@ export default function WordScramblePuzzle({ isOpen, onClose }: WordScramblePuzz
       setMessage('✅ Correct!');
       setTimeout(() => {
         setSolved(true);
+        const id = getOrGenerateId();
+        setUniqueId(id);
         if (confettiRef.current) launchConfetti(confettiRef.current);
       }, 600);
     } else {
       setMessage('❌ Incorrect! Try again.');
       setUserInput('');
-      // Trigger shake
       setShaking(true);
       setTimeout(() => setShaking(false), 500);
     }
@@ -155,7 +164,6 @@ export default function WordScramblePuzzle({ isOpen, onClose }: WordScramblePuzz
 
   return (
     <>
-      {/* Confetti canvas (always mounted when open) */}
       <canvas ref={confettiRef} className={styles.confettiCanvas} />
 
       <div className={styles.backdrop} onClick={onClose}>
@@ -174,7 +182,6 @@ export default function WordScramblePuzzle({ isOpen, onClose }: WordScramblePuzz
                 Unscramble the letters to reveal a tech term.
               </p>
 
-              {/* Letter Tiles */}
               <div className={styles.tilesContainer}>
                 {scrambled.split('').map((letter, i) => (
                   <div className={styles.tile} key={i}>
@@ -183,7 +190,6 @@ export default function WordScramblePuzzle({ isOpen, onClose }: WordScramblePuzz
                 ))}
               </div>
 
-              {/* Input + Submit */}
               <div className={styles.inputContainer}>
                 <input
                   className={styles.input}
@@ -215,9 +221,9 @@ export default function WordScramblePuzzle({ isOpen, onClose }: WordScramblePuzz
           ) : (
             <div className={styles.easterEggReveal}>
               <span className={styles.easterEggEmoji}>🥚</span>
-              <div className={styles.easterEggText}>EASTER EGG</div>
+              <div className={styles.easterEggText}>ACCESS GRANTED</div>
               <p className={styles.easterEggHint}>
-                You found the hidden secret — congrats!
+                Unique ID: {uniqueId}
               </p>
             </div>
           )}
