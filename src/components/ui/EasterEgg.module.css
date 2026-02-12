@@ -1,0 +1,162 @@
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.terminal {
+  background-color: #0A0A0A;
+  border: 1px solid #333;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  width: 90vw;
+  max-width: 400px;
+  position: relative;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.title {
+  color: #ef4444; /* red-500 */
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 1.5rem;
+}
+
+.inputContainer {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.input {
+  width: 3rem;
+  height: 4rem;
+  font-size: 2.5rem;
+  text-align: center;
+  border: none;
+  border-bottom: 2px solid #555;
+  background-color: transparent;
+  color: #fff;
+  transition: border-color 0.3s;
+}
+
+.input:focus {
+  outline: none;
+  border-bottom-color: #ef4444; /* red-500 */
+}
+
+.history {
+  margin-top: 1.5rem;
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  scrollbar-width: thin;
+  scrollbar-color: #333 #0A0A0A;
+}
+
+.historyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+}
+
+.historyGuess {
+  color: #aaa;
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+}
+
+.historyFeedback {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.feedbackDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.correct {
+  background-color: #22c55e; /* green-500 */
+}
+
+.present {
+  background-color: #eab308; /* yellow-500 */
+}
+
+.incorrect {
+  background-color: #3f3f46; /* zinc-700 */
+}
+
+.button {
+  width: 100%;
+  border: 1px solid #ef444480; /* red-600/50 */
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  background-color: black;
+  color: #ef4444; /* red-500 */
+  transition: all 0.3s;
+  cursor: pointer;
+  margin-top: 1.5rem;
+}
+
+.button:hover {
+  background-color: #ef4444; /* red-600 */
+  color: black;
+}
+
+.message {
+  color: white;
+  margin: 1rem 0;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+}
+
+.win {
+  color: #22c55e; /* green-500 */
+}
+
+.lose {
+  color: #ef4444; /* red-500 */
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.closeButton:hover {
+  color: white;
+}
