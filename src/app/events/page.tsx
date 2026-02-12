@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import Navbar from "@/components/ui/Navbar"
 import BoundaryFrame from "@/components/ui/BoundaryFrame"
+import WordScramblePuzzle from "@/components/ui/WordScramblePuzzle"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -38,6 +39,14 @@ export default function EventsPage() {
   // Removed activeCategory state as we show all events in one list
   const [particles, setParticles] = useState<Particle[]>([])
   const [isHydrated, setIsHydrated] = useState(false)
+  const [showPuzzle, setShowPuzzle] = useState(false)
+
+  /* Listen for the easter-egg trigger from Navbar */
+  useEffect(() => {
+    const handler = () => setShowPuzzle(true)
+    window.addEventListener('open-easter-egg', handler)
+    return () => window.removeEventListener('open-easter-egg', handler)
+  }, [])
 
   /* Generate particles only on client after hydration */
   useEffect(() => {
@@ -275,6 +284,7 @@ export default function EventsPage() {
     <main className="bg-black min-h-screen relative">
       <Navbar />
       <BoundaryFrame />
+      <WordScramblePuzzle isOpen={showPuzzle} onClose={() => setShowPuzzle(false)} />
       
       <section
         id="events-section"

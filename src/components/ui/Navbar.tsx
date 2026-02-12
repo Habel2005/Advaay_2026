@@ -60,6 +60,13 @@ export default function Navbar() {
   }, { scope: navRef });
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Easter egg: clicking EVENTS link while already on /events page
+    if (href === '/#events' && pathname === '/events') {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('open-easter-egg'));
+      return;
+    }
+
     if (href.startsWith('/#') && pathname === '/') {
       e.preventDefault();
       const targetId = href.substring(2);
