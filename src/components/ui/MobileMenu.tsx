@@ -69,6 +69,15 @@ export default function MobileMenu({ isOpen, onClose, navItems, activeSection }:
   }, [isOpen])
 
   const handleMenuClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Easter egg: clicking EVENTS link while already on /events page
+    if (href === '/#events' && pathname === '/events') {
+      e.preventDefault();
+      onClose();
+      // Small delay so menu closes before popup opens
+      setTimeout(() => window.dispatchEvent(new CustomEvent('open-easter-egg')), 350);
+      return;
+    }
+
     if (href.startsWith('/#') && pathname === '/') {
       e.preventDefault();
       const targetId = href.substring(2);

@@ -1,0 +1,337 @@
+/* ============================================
+   WORD SCRAMBLE PUZZLE — Easter Egg Popup
+   Glassmorphism + Letter Tiles + Gamified UX
+   ============================================ */
+
+/* ---- Backdrop ---- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* ---- Glass Card ---- */
+
+.card {
+  position: relative;
+  width: 90%;
+  max-width: 440px;
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid;
+  border-image: linear-gradient(
+    135deg,
+    rgba(229, 9, 20, 0.35),
+    rgba(229, 9, 20, 0.08) 40%,
+    transparent 70%,
+    rgba(229, 9, 20, 0.12)
+  ) 1;
+  border-radius: 0;        /* border-image doesn't support radius */
+  padding: 36px 30px 28px;
+  box-shadow:
+    0 0 60px rgba(229, 9, 20, 0.08),
+    0 32px 64px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Rounded corners workaround: use a clip-path */
+.cardInner {
+  border-radius: 18px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: #71797E;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+  padding: 4px 6px;
+}
+
+.closeBtn:hover {
+  color: #E5E4E2;
+}
+
+/* ---- Typography ---- */
+
+.title {
+  font-family: system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: #E5E4E2;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  color: #71797E;
+  margin-bottom: 28px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+}
+
+/* ---- Letter Tiles ---- */
+
+.tilesContainer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  column-gap: 8px;
+  row-gap: 6px;
+  margin-bottom: 24px;
+}
+
+.tile {
+  width: 42px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(229, 9, 20, 0.06);
+  border: 1px solid rgba(229, 9, 20, 0.2);
+  border-radius: 8px;
+  font-family: 'Courier New', 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 900;
+  color: #E50914;
+  text-shadow: 0 0 12px rgba(229, 9, 20, 0.3);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(229, 9, 20, 0.45);
+}
+
+/* ---- Input (underline style) ---- */
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(229, 228, 226, 0.12);
+  color: #E5E4E2;
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  outline: none;
+  transition: border-color 0.3s;
+  text-align: center;
+}
+
+.input::placeholder {
+  color: #71797E;
+  letter-spacing: 0.06em;
+  font-size: 14px;
+  text-transform: none;
+}
+
+.input:focus {
+  border-bottom-color: #E50914;
+  box-shadow: 0 4px 18px rgba(220, 20, 60, 0.5);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #E50914, #B20710);
+  border: none;
+  border-radius: 10px;
+  color: #E5E4E2;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.25s;
+  text-transform: uppercase;
+}
+
+.submitBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(229, 9, 20, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #f02020, #c40812);
+}
+
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---- Messages ---- */
+
+.message {
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  text-align: center;
+  min-height: 20px;
+  margin-bottom: 4px;
+  transition: opacity 0.2s;
+}
+
+.messageError {
+  color: #ff4d4d;
+}
+
+.messageSuccess {
+  color: #4dff88;
+}
+
+/* ---- Shake Animation ---- */
+
+.shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ---- Success Glow on Card ---- */
+
+.successGlow {
+  box-shadow:
+    0 0 40px rgba(229, 9, 20, 0.25),
+    0 0 80px rgba(229, 9, 20, 0.1),
+    0 32px 64px rgba(0, 0, 0, 0.4);
+  border-image: linear-gradient(
+    135deg,
+    rgba(229, 9, 20, 0.5),
+    rgba(229, 9, 20, 0.12) 40%,
+    transparent 70%,
+    rgba(229, 9, 20, 0.2)
+  ) 1;
+}
+
+/* ---- Easter Egg Reveal ---- */
+
+.easterEggReveal {
+  text-align: center;
+  padding: 24px 0 12px;
+  animation: revealPop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.easterEggEmoji {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+  animation: bounce 1.2s ease-in-out infinite;
+}
+
+.easterEggText {
+  font-family: system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: #E50914;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 20px rgba(229, 9, 20, 0.6),
+    0 0 60px rgba(229, 9, 20, 0.3);
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.easterEggHint {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: #71797E;
+  margin-top: 12px;
+  letter-spacing: 0.06em;
+}
+
+/* ---- Confetti Canvas ---- */
+
+.confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+/* ============================================
+   KEYFRAMES
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+@keyframes revealPop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    text-shadow:
+      0 0 20px rgba(229, 9, 20, 0.6),
+      0 0 60px rgba(229, 9, 20, 0.3);
+  }
+  50% {
+    text-shadow:
+      0 0 30px rgba(229, 9, 20, 0.9),
+      0 0 80px rgba(229, 9, 20, 0.5);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
