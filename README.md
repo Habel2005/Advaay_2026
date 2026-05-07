@@ -40,3 +40,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 
 <img src="https://static.scarf.sh/a.png?x-pxid=0b994c4e-62ce-47f6-8af6-27235e610eec" width="0" height="0" alt="" />
+
+
+<img src="https://omni-dash-five.vercel.app/api/track?project=Advaay_2026&source=github-readme" width="0" height="0" alt="" />
